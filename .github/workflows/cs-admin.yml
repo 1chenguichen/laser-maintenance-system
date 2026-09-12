@@ -1,0 +1,40 @@
+name: CS Admin CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/cs-admin/**'
+      - 'packages/shared/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/cs-admin/**'
+      - 'packages/shared/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/cs-admin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/cs-admin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
