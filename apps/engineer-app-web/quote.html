@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>提交报价 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface pb-24">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
+      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">提交报价</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 pb-24 space-y-4">
+    <!-- 工单信息 -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant mt-4">
+      <h3 class="font-semibold mb-4" style="color: #111827;">工单信息</h3>
+      <div class="space-y-3 text-sm">
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">工单号</span>
+          <span class="font-mono" id="orderNo">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">故障类型</span>
+          <span id="faultType">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">客户</span>
+          <span id="customerName">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 费用明细 -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h3 class="font-semibold mb-4" style="color: #111827;">费用明细</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-on-surface-variant mb-2">配件费用 (¥)</label>
+          <input type="number" id="partsFee" value="0" min="0" step="0.01"
+            class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-primary"
+            style="border-color: var(--outline-variant);"
+            oninput="calculateTotal()">
+        </div>
+        <div>
+          <label class="block text-sm text-on-surface-variant mb-2">人工费用 (¥)</label>
+          <input type="number" id="laborFee" value="0" min="0" step="0.01"
+            class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:border-primary"
+            style="border-color: var(--outline-variant);"
+            oninput="calculateTotal()">
+        </div>
+      </div>
+
+      <div class="mt-4 p-4 rounded-xl" style="background-color: #f7f9fb;">
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-on-surface-variant">配件费用</span>
+          <span id="partsFeeDisplay">¥0.00</span>
+        </div>
+        <div class="flex justify-between text-sm mb-2">
+          <span class="text-on-surface-variant">人工费用</span>
+          <span id="laborFeeDisplay">¥0.00</span>
+        </div>
+        <div class="flex justify-between text-lg font-bold pt-3 border-t border-outline-variant mt-3">
+          <span>总价</span>
+          <span style="color: #006d33;" id="totalAmount">¥0.00</span>
+        </div>
+      </div>
+
+      <div class="mt-4 p-3 rounded-lg" style="background-color: #fffbe6; border: 1px solid #ffe58f;">
+        <p class="text-sm" style="color: #ad6800;">
+          💡 客户需支付 30% 定金（¥<span id="depositAmount">0.00</span>）后方可开始维修
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Action -->
+  <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant px-4 py-4 z-40">
+    <button id="submitBtn" class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="submitQuote()">
+      提交报价
+    </button>
+  </div>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+    var orderId = null;
+    var orderData = null;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      orderId = window.location.hash.slice(1);
+      if (!orderId) {
+        alert('缺少工单ID');
+        window.location.href = 'tasks.html';
+        return;
+      }
+      loadOrderInfo();
+    });
+
+    function loadOrderInfo() {
+      fetch(API_BASE + '/engineer/orders/' + orderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        orderData = data;
+        document.getElementById('orderNo').textContent = data.orderNo || data.id;
+        document.getElementById('faultType').textContent = data.faultType || '-';
+        document.getElementById('customerName').textContent = data.customer ? data.customer.name : '-';
+
+        if (data.partsFee) document.getElementById('partsFee').value = data.partsFee;
+        if (data.laborFee) document.getElementById('laborFee').value = data.laborFee;
+        calculateTotal();
+      })
+      .catch(function(err) {
+        alert('加载工单信息失败');
+        window.location.href = 'tasks.html';
+      });
+    }
+
+    function calculateTotal() {
+      var partsFee = parseFloat(document.getElementById('partsFee').value) || 0;
+      var laborFee = parseFloat(document.getElementById('laborFee').value) || 0;
+      var total = partsFee + laborFee;
+      var deposit = total * 0.3;
+
+      document.getElementById('partsFeeDisplay').textContent = '¥' + partsFee.toFixed(2);
+      document.getElementById('laborFeeDisplay').textContent = '¥' + laborFee.toFixed(2);
+      document.getElementById('totalAmount').textContent = '¥' + total.toFixed(2);
+      document.getElementById('depositAmount').textContent = deposit.toFixed(2);
+    }
+
+    function submitQuote() {
+      var partsFee = parseFloat(document.getElementById('partsFee').value) || 0;
+      var laborFee = parseFloat(document.getElementById('laborFee').value) || 0;
+      var total = partsFee + laborFee;
+
+      if (total <= 0) {
+        alert('请输入有效的费用');
+        return;
+      }
+
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '提交中...';
+
+      fetch(API_BASE + '/engineer/orders/' + orderId + '/quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          partsFee: partsFee,
+          laborFee: laborFee
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        alert('报价已提交，等待客户确认');
+        window.location.href = 'tasks.html';
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = '提交报价';
+        alert('提交失败: ' + err.message);
+      });
+    }
+  </script>
+</body>
+</html>

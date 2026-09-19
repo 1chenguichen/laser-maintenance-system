@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>我的 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <div class="w-10"></div>
+    <h1 class="font-semibold text-base" style="color: #111827;">我的</h1>
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+      <span class="material-symbols-outlined" style="color: #006d33;">settings</span>
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Profile Header -->
+    <div class="bg-white rounded-xl p-5 border border-outline-variant flex items-center gap-4 mt-4">
+      <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+        <span class="material-symbols-outlined fill text-3xl" style="color: #006d33;">person</span>
+      </div>
+      <div class="flex-1">
+        <div class="font-semibold text-lg" id="engineerName" style="color: #111827;">工程师</div>
+        <div class="text-sm text-on-surface-variant" id="engineerPhone">-</div>
+      </div>
+      <button class="px-3 py-1.5 rounded-lg text-xs" style="background-color: #e6f7ff; color: #006d33;">编辑</button>
+    </div>
+
+    <!-- Status Toggle -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h3 class="font-semibold mb-3" style="color: #111827;">在线状态</h3>
+      <div class="flex gap-2">
+        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border active" data-status="ONLINE" onclick="updateStatus('ONLINE')">接单</button>
+        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border" data-status="WORKING" onclick="updateStatus('WORKING')">工作中</button>
+        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border" data-status="OFFLINE" onclick="updateStatus('OFFLINE')">下线</button>
+      </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant cursor-pointer" onclick="window.location.href='stats.html'">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold" style="color: #111827;">收益中心</h3>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="text-center p-3 rounded-lg" style="background-color: #f7f9fb;">
+          <div class="text-xl font-bold" style="color: #006d33;" id="monthlyRevenue">¥0</div>
+          <div class="text-xs text-on-surface-variant mt-1">本月收益</div>
+        </div>
+        <div class="text-center p-3 rounded-lg" style="background-color: #f7f9fb;">
+          <div class="text-xl font-bold" id="monthlyOrders">0</div>
+          <div class="text-xs text-on-surface-variant mt-1">本月订单</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu List -->
+    <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='stats.html'">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #006d33;">account_balance_wallet</span>
+          <span class="text-sm font-medium" style="color: #111827;">收益中心</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='history.html'">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #006d33;">history</span>
+          <span class="text-sm font-medium" style="color: #111827;">历史订单</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='inventory.html'">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #006d33;">inventory_2</span>
+          <span class="text-sm font-medium" style="color: #111827;">配件库存</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+      </button>
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors" onclick="logout()">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-error">logout</span>
+          <span class="text-sm font-medium text-error">退出登录</span>
+        </div>
+      </button>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <a href="grab.html" class="nav-item">
+      <span class="material-symbols-outlined nav-icon">bolt</span>
+      <span class="nav-label">抢单</span>
+    </a>
+    <a href="tasks.html" class="nav-item">
+      <span class="material-symbols-outlined nav-icon">assignment</span>
+      <span class="nav-label">任务</span>
+    </a>
+    <a href="ai-assistant.html" class="nav-item" style="margin-top: -12px;">
+      <img src="ai-icon.png" alt="AI" style="width: 77px; height: 77px; object-fit: contain;">
+    </a>
+    <a href="inventory.html" class="nav-item">
+      <span class="material-symbols-outlined nav-icon">inventory_2</span>
+      <span class="nav-label">移动仓</span>
+    </a>
+    <a href="profile.html" class="nav-item active">
+      <span class="material-symbols-outlined fill nav-icon">person</span>
+      <span class="nav-label">我的</span>
+    </a>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+    var user = null;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProfile();
+      loadStats();
+      initStatusButtons();
+    });
+
+    function initStatusButtons() {
+      document.querySelectorAll('.status-btn').forEach(function(btn) {
+        btn.style.backgroundColor = '#ffffff';
+        btn.style.color = '#191c1e';
+        btn.style.borderColor = '#c3c6d1';
+      });
+    }
+
+    function loadProfile() {
+      try {
+        user = JSON.parse(localStorage.getItem('engineer_user'));
+        if (user) {
+          document.getElementById('engineerName').textContent = user.name || '工程师';
+          document.getElementById('engineerPhone').textContent = user.phone || '-';
+        }
+      } catch (e) {}
+    }
+
+    function loadStats() {
+      fetch(API_BASE + '/engineer/stats', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        document.getElementById('monthlyRevenue').textContent = '¥' + ((data.monthlyRevenue || 0).toFixed(0));
+        document.getElementById('monthlyOrders').textContent = (data.monthlyOrders || 0);
+      })
+      .catch(function(err) {
+        console.log('加载收益统计失败:', err);
+      });
+    }
+
+    function updateStatus(status) {
+      document.querySelectorAll('.status-btn').forEach(function(btn) {
+        btn.classList.remove('active');
+        btn.style.backgroundColor = '#ffffff';
+        btn.style.color = '#191c1e';
+        btn.style.borderColor = '#c3c6d1';
+      });
+      var activeBtn = document.querySelector('.status-btn[data-status="' + status + '"]');
+      activeBtn.classList.add('active');
+      activeBtn.style.backgroundColor = '#006d33';
+      activeBtn.style.color = '#ffffff';
+      activeBtn.style.borderColor = '#006d33';
+
+      fetch(API_BASE + '/engineer/status', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ status: status })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {})
+      .catch(function(err) {});
+    }
+
+    function logout() {
+      if (!confirm('确定要退出登录吗？')) return;
+      localStorage.removeItem('engineer_token');
+      localStorage.removeItem('engineer_user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>注册 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material-Symbols-Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background: linear-gradient(135deg, #006d33 0%, #004d26 100%);
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+  <!-- Top Bar -->
+  <header class="flex items-center px-4 h-14">
+    <button onclick="window.history.back()" class="text-white">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+  </header>
+
+  <main class="flex-1 flex flex-col justify-center px-6">
+    <!-- Logo Section -->
+    <div class="text-center mb-6">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-lg mb-3">
+        <span class="material-symbols-outlined fill text-3xl" style="color: #006d33;">engineering</span>
+      </div>
+      <h1 class="text-xl font-bold text-white">工程师注册</h1>
+      <p class="text-sm text-white/80 mt-1">填写手机号和技能信息即可注册</p>
+    </div>
+
+    <!-- Register Form -->
+    <div class="bg-white rounded-2xl p-6 shadow-xl">
+      <form id="registerForm" onsubmit="handleRegister(event)">
+        <div class="space-y-4">
+          <!-- Phone Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">手机号</label>
+            <input type="tel" id="phone" placeholder="请输入手机号" maxlength="11"
+              class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+          </div>
+
+          <!-- SMS Code Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">验证码</label>
+            <div class="relative">
+              <input type="text" id="smsCode" placeholder="请输入验证码" maxlength="6"
+                class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-xs" style="color: #006d33; cursor: pointer;" onclick="sendCode()" id="sendCodeBtn">发送验证码</span>
+            </div>
+          </div>
+
+          <!-- Name Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">姓名</label>
+            <input type="text" id="name" placeholder="请输入您的姓名"
+              class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+          </div>
+
+          <!-- Skill Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">擅长领域（选填）</label>
+            <input type="text" id="skill" placeholder="如：激光切割机维修、光纤焊接"
+              class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+          </div>
+
+          <!-- Demo Hint -->
+          <div class="p-3 rounded-lg" style="background-color: #e6f7ec;">
+            <p class="text-xs" style="color: #006d33;">
+              <span class="font-medium">演示模式：</span>验证码请输入 <b>000000</b> 可直接注册
+            </p>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="registerBtn"
+            class="w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
+            style="background-color: #006d33; box-shadow: 0 4px 12px rgba(0,109,51,0.35);">
+            注册
+          </button>
+        </div>
+      </form>
+
+      <!-- Login Link -->
+      <div class="mt-4 text-center">
+        <p class="text-sm" style="color: #737780;">
+          已有账号？<a href="login.html" class="font-medium" style="color: #006d33;">立即登录</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Agreement -->
+    <p class="text-xs text-center text-white/60 mt-6">
+      注册即表示同意
+      <a href="#" class="underline">《工程师服务协议》</a>
+      和
+      <a href="#" class="underline">《隐私政策》</a>
+    </p>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var countdown = 0;
+
+    function sendCode() {
+      var phone = document.getElementById('phone').value;
+      if (!phone || phone.length !== 11) {
+        alert('请输入正确的11位手机号');
+        return;
+      }
+
+      fetch(API_BASE + '/auth/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        alert('验证码已发送');
+        startCountdown();
+      })
+      .catch(function(err) {
+        alert('发送失败: ' + err.message);
+      });
+    }
+
+    function startCountdown() {
+      var btn = document.getElementById('sendCodeBtn');
+      countdown = 60;
+      btn.textContent = countdown + 's';
+      btn.style.pointerEvents = 'none';
+
+      var timer = setInterval(function() {
+        countdown--;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          btn.textContent = '发送验证码';
+          btn.style.pointerEvents = 'auto';
+        } else {
+          btn.textContent = countdown + 's';
+        }
+      }, 1000);
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      var phone = document.getElementById('phone').value;
+      var smsCode = document.getElementById('smsCode').value;
+      var name = document.getElementById('name').value.trim();
+      var btn = document.getElementById('registerBtn');
+
+      if (!phone || phone.length !== 11) {
+        alert('请输入正确的手机号');
+        return;
+      }
+      if (!smsCode) {
+        alert('请输入验证码');
+        return;
+      }
+      if (!name) {
+        alert('请输入您的姓名');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '注册中...';
+
+      fetch(API_BASE + '/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: phone,
+          code: smsCode,
+          name: name,
+          role: 'engineer'
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.accessToken) {
+          localStorage.setItem('engineer_token', data.accessToken);
+          localStorage.setItem('engineer_user', JSON.stringify(data.user));
+          alert('注册成功！');
+          window.location.href = 'grab.html';
+        } else {
+          alert(data.message || data.error || '注册失败');
+          btn.disabled = false;
+          btn.textContent = '注册';
+        }
+      })
+      .catch(function(err) {
+        alert('注册失败: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '注册';
+      });
+    }
+  </script>
+</body>
+</html>

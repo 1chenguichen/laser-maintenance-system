@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>我的工单</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f",
+            "warning": "#faad14"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">我的工单</h1>
+    <button class="text-primary" onclick="showFilter()">
+      <span class="material-symbols-outlined">filter_list</span>
+    </button>
+  </header>
+
+  <!-- Tab Bar -->
+  <div class="fixed top-14 w-full z-40 bg-white border-b border-outline-variant max-w-[414px]">
+    <div class="flex">
+      <button class="tab-btn flex-1 py-3 text-sm font-medium border-b-2 border-primary" style="color: #1890ff;" onclick="switchTab('all')">全部</button>
+      <button class="tab-btn flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-on-surface-variant" onclick="switchTab('pending')">待处理</button>
+      <button class="tab-btn flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-on-surface-variant" onclick="switchTab('processing')">处理中</button>
+      <button class="tab-btn flex-1 py-3 text-sm font-medium border-b-2 border-transparent text-on-surface-variant" onclick="switchTab('completed')">已完成</button>
+    </div>
+  </div>
+
+  <main class="pt-28 px-4 space-y-3">
+    <div id="orderList"></div>
+  </main>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('orders')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">receipt_long</span>
+      <span class="text-xs mt-1 font-medium">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-xs mt-1">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var currentTab = 'all';
+    var allOrders = [];
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadOrders();
+    });
+
+    function loadOrders() {
+      fetch(API_BASE + '/customer/work-orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(orders) {
+        allOrders = orders;
+        renderOrders();
+      })
+      .catch(function(err) {
+        console.log('加载工单失败:', err);
+        document.getElementById('orderList').innerHTML = '<div class="text-center py-8 text-red-500">加载失败，请刷新页面</div>';
+      });
+    }
+
+    function renderOrders() {
+      var filtered = allOrders;
+      if (currentTab === 'pending') {
+        filtered = allOrders.filter(function(o) { return o.status === 'PENDING'; });
+      } else if (currentTab === 'processing') {
+        filtered = allOrders.filter(function(o) {
+          return ['DISPATCHED', 'ACCEPTED', 'PENDING_PAYMENT', 'REPAIRING', 'PENDING_FINAL_PAYMENT'].indexOf(o.status) !== -1;
+        });
+      } else if (currentTab === 'completed') {
+        filtered = allOrders.filter(function(o) { return o.status === 'COMPLETED' || o.status === 'CANCELLED'; });
+      }
+
+      var container = document.getElementById('orderList');
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="text-center py-8"><span class="material-symbols-outlined text-5xl text-on-surface-variant">receipt_long</span><p class="mt-4 text-sm text-on-surface-variant">暂无工单记录</p></div>';
+        return;
+      }
+
+      var statusMap = {
+        'PENDING': { text: '待处理', class: 'bg-gray-100 text-gray-600' },
+        'DISPATCHED': { text: '已派单', class: 'bg-blue-50 text-blue-600' },
+        'ACCEPTED': { text: '已接单', class: 'bg-blue-50 text-blue-600' },
+        'PENDING_PAYMENT': { text: '待付款', class: 'bg-orange-50 text-orange-600' },
+        'REPAIRING': { text: '维修中', class: 'bg-yellow-50 text-yellow-600' },
+        'PENDING_FINAL_PAYMENT': { text: '待付尾款', class: 'bg-orange-50 text-orange-600' },
+        'COMPLETED': { text: '已完成', class: 'bg-green-50 text-green-600' },
+        'CANCELLED': { text: '已取消', class: 'bg-gray-50 text-gray-400' }
+      };
+
+      var html = '';
+      filtered.forEach(function(order) {
+        var status = statusMap[order.status] || { text: order.status, class: 'bg-gray-100 text-gray-600' };
+        html += '<a href="order-progress.html#' + order.id + '" data-id="' + order.id + '" class="order-card block bg-white rounded-xl p-4 border border-outline-variant mb-3 no-underline text-inherit">';
+        html += '<div class="flex justify-between items-start mb-2">';
+        html += '<div>';
+        html += '<h3 class="font-medium text-sm" style="color: #111827;">' + order.faultType + '</h3>';
+        html += '<p class="text-xs text-on-surface-variant mt-1">' + order.orderNo + '</p>';
+        html += '</div>';
+        html += '<span class="px-2 py-1 rounded text-xs ' + status.class + '">' + status.text + '</span>';
+        html += '</div>';
+        html += '<p class="text-xs text-on-surface-variant truncate">' + (order.faultDescription || '') + '</p>';
+        html += '<div class="flex justify-between items-center mt-3 pt-2 border-t border-outline-variant">';
+        html += '<span class="text-xs text-on-surface-variant">' + (order.createdAt ? order.createdAt.substring(0, 10) : '') + '</span>';
+        html += '<span class="text-sm font-medium" style="color: #1890ff;">¥' + ((parseFloat(order.estimatedAmount) || 0) + (parseFloat(order.prepayAmount) || 0)).toFixed(0) + '</span>';
+        html += '</div>';
+        html += '</a>';
+      });
+      container.innerHTML = html;
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.classList.remove('border-primary');
+        btn.classList.add('border-transparent');
+        btn.style.color = '#43474f';
+      });
+      event.currentTarget.classList.remove('border-transparent');
+      event.currentTarget.classList.add('border-primary');
+      event.currentTarget.style.color = '#1890ff';
+      renderOrders();
+    }
+
+    function viewOrder(orderId) {
+      window.location.href = 'order-progress.html#' + orderId;
+    }
+
+    function showFilter() {
+      alert('筛选功能');
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'home.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

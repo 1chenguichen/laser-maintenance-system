@@ -1,0 +1,237 @@
+<!DOCTYPE html><html lang="zh-CN" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>象小秘 智能排障</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary": "#ffffff",
+                "on-primary-container": "#799dd6",
+                "secondary-fixed-dim": "#45e17c",
+                "inverse-surface": "#2d3133",
+                "primary-fixed-dim": "#a7c8ff",
+                "secondary-fixed": "#66ff95",
+                "inverse-on-surface": "#eff1f3",
+                "on-error-container": "#93000a",
+                "secondary": "#006d33",
+                "on-tertiary": "#ffffff",
+                "outline-variant": "#c3c6d1",
+                "surface-dim": "#d8dadc",
+                "tertiary-container": "#243448",
+                "surface-tint": "#3a5f94",
+                "surface-container-high": "#e6e8ea",
+                "on-secondary-container": "#007437",
+                "background": "#f7f9fb",
+                "on-surface": "#191c1e",
+                "secondary-container": "#66ff95",
+                "on-surface-variant": "#43474f",
+                "surface": "#f7f9fb",
+                "primary-container": "#003366",
+                "on-secondary-fixed-variant": "#005225",
+                "tertiary": "#0e1f32",
+                "on-tertiary-fixed": "#0b1c30",
+                "on-error": "#ffffff",
+                "on-secondary-fixed": "#00210b",
+                "surface-variant": "#e0e3e5",
+                "on-secondary": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-container-low": "#f2f4f6",
+                "error": "#ba1a1a",
+                "on-tertiary-container": "#8c9cb5",
+                "error-container": "#ffdad6",
+                "tertiary-fixed": "#d3e4fe",
+                "surface-container-lowest": "#ffffff",
+                "outline": "#737780",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-background": "#191c1e",
+                "inverse-primary": "#a7c8ff",
+                "surface-bright": "#f7f9fb",
+                "on-primary-fixed-variant": "#1f477b",
+                "surface-container": "#eceef0",
+                "primary-fixed": "#d5e3ff",
+                "primary": "#001e40",
+                "on-primary-fixed": "#001b3c",
+                "tertiary-fixed-dim": "#b7c8e1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "item-gap": "12px",
+                "gutter": "8px",
+                "container-padding": "16px",
+                "section-margin": "24px",
+                "unit": "4px"
+        },
+        "fontFamily": {
+                "display-total": [
+                        "IBM Plex Sans"
+                ],
+                "body-sm": [
+                        "Noto Sans"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg-mobile": [
+                        "IBM Plex Sans"
+                ],
+                "headline-lg": [
+                        "IBM Plex Sans"
+                ],
+                "body-md": [
+                        "Noto Sans"
+                ]
+        },
+        "fontSize": {
+                "display-total": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-mono": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        body {
+            background-color: #f7f9fb;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="flex flex-col h-screen overflow-hidden text-on-surface bg-surface">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-inverse-surface border-b border-outline-variant dark:border-outline flat no shadows flex items-center justify-between px-container-padding h-14 w-full z-50 shrink-0">
+<button aria-label="Back" class="text-on-surface-variant dark:text-surface-variant hover:opacity-80 active:scale-95 transition-transform flex items-center justify-center w-10 h-10 -ml-2">
+<span class="material-symbols-outlined" data-icon="arrow_back" data-weight="fill" style="font-variation-settings: 'FILL' 1;">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-semibold text-on-surface dark:text-inverse-on-surface text-center flex-1">象小秘 智能排障</h1>
+<button class="font-body-sm text-body-sm text-primary dark:text-inverse-primary hover:opacity-80 active:scale-95 transition-transform whitespace-nowrap" style="color: rgb(24, 144, 255);">转人工</button>
+</header>
+<!-- Chat Canvas -->
+<main class="flex-1 overflow-y-auto px-container-padding py-section-margin flex flex-col gap-6 bg-surface">
+<!-- AI Message 1 -->
+<div class="flex gap-item-gap items-start max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0" style="background-color: rgb(24, 144, 255); color: rgb(255, 255, 255);">
+<span class="material-symbols-outlined text-on-primary-container text-[20px]" style="color: rgb(255, 255, 255);">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl rounded-tl-sm p-3 shadow-sm flex flex-col gap-2">
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                    您好！我是您的专属设备管家。请问您的 3000W 激光切割机遇到了什么问题？您可以直接描述，或点击下方常见故障。
+                </p>
+<!-- Quick Chips -->
+<div class="flex overflow-x-auto gap-2 pb-1 scrollbar-hide pt-2 mt-2 border-t border-outline-variant/20"><button class="font-label-mono text-label-mono rounded-full px-3 py-1.5 whitespace-nowrap bg-surface-container-lowest hover:bg-surface-container transition-colors" style="border: 1px solid rgb(24, 144, 255); color: rgb(24, 144, 255);">水箱预警</button><button class="font-label-mono text-label-mono rounded-full px-3 py-1.5 whitespace-nowrap bg-surface-container-lowest hover:bg-surface-container transition-colors" style="border: 1px solid rgb(24, 144, 255); color: rgb(24, 144, 255);">导轨异响</button><button class="font-label-mono text-label-mono rounded-full px-3 py-1.5 whitespace-nowrap bg-surface-container-lowest hover:bg-surface-container transition-colors" style="border: 1px solid rgb(24, 144, 255); color: rgb(24, 144, 255);">如何更换镜片？</button></div>
+</div>
+</div>
+<!-- User Message 1 -->
+<div class="flex gap-item-gap items-start max-w-[85%] self-end flex-row-reverse">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center shrink-0 overflow-hidden">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">person</span>
+</div>
+<div class="bg-primary rounded-xl rounded-tr-sm p-3 shadow-sm" style="background-color: rgb(24, 144, 255);">
+<p class="font-body-sm text-body-sm text-on-primary leading-relaxed">
+                    机器突然不出光了，水箱红灯一直闪。
+                </p>
+</div>
+</div>
+<!-- AI Message 2 -->
+<div class="flex gap-item-gap items-start max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center shrink-0" style="background-color: rgb(24, 144, 255); color: rgb(255, 255, 255);">
+<span class="material-symbols-outlined text-on-primary-container text-[20px]" style="color: rgb(255, 255, 255);">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-xl rounded-tl-sm p-3 shadow-sm flex flex-col gap-3">
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                    收到。水箱红灯闪烁通常表示水流异常或水温过高。建议您尝试以下 2 步排查：
+                </p>
+<div class="font-body-sm text-body-sm text-on-surface-variant flex flex-col gap-1 bg-surface-container-low p-2 rounded-lg">
+<p class="">1. 检查冷水机背后的滤网是否堵塞。</p>
+<p class="">2. 检查循环水管是否有死折。</p>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                    如果以上操作无效，请点击下方按钮直接生成报修工单。
+                </p>
+<button class="w-full text-on-primary font-body-sm text-body-sm font-medium py-2 rounded-lg hover:opacity-90 transition-opacity mt-1 bg-primary-container" style="background-color: rgb(24, 144, 255);">
+                    生成报修工单
+                </button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar / Input Area -->
+<div class="bg-surface border-t border-outline-variant p-3 w-full z-50 shrink-0 pb-safe">
+<div class="flex items-center gap-2 bg-surface-container-lowest rounded-xl border border-outline-variant p-1 px-3 focus-within:ring-1 focus-within:ring-primary focus-within:border-primary transition-all">
+<button class="text-on-surface-variant hover:text-primary transition-colors p-2 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">mic</span>
+</button>
+<input class="flex-1 bg-transparent border-none focus:ring-0 font-body-md text-body-md text-on-surface placeholder-on-surface-variant/70 px-1 py-2" placeholder="描述您的故障..." type="text">
+<button class="text-primary hover:opacity-80 transition-opacity p-2 flex items-center justify-center shrink-0" style="color: rgb(24, 144, 255);">
+<span class="material-symbols-outlined text-[24px]" data-weight="fill" style="font-variation-settings: 'FILL' 1;">send</span>
+</button>
+</div>
+</div>
+
+
+
+
+</body></html>

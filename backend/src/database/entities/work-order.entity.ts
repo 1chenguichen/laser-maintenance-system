@@ -53,6 +53,9 @@ export class WorkOrder {
   @Column({ name: 'prepay_amount', type: 'decimal', precision: 10, scale: 2, nullable: true })
   prepayAmount: number;
 
+  @Column({ name: 'final_payment_amount', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  finalPaymentAmount: number;
+
   @Column({ name: 'final_amount', type: 'decimal', precision: 10, scale: 2, nullable: true })
   finalAmount: number;
 
@@ -68,7 +71,7 @@ export class WorkOrder {
   @Column({ name: 'on_site_photos', type: 'json', nullable: true })
   onSitePhotos: string[];
 
-  @Column({ name: 'signature_url', length: 255, nullable: true })
+  @Column({ name: 'signature_url', type: 'text', nullable: true })
   signatureUrl: string;
 
   @Column({ name: 'repair_report', type: 'text', nullable: true })
@@ -77,8 +80,17 @@ export class WorkOrder {
   @Column({ name: 'refuse_reason', length: 200, nullable: true })
   refuseReason: string;
 
+  @Column({ name: 'reviewed', nullable: true })
+  reviewed: boolean;
+
   @Column({ name: 'estimated_amount', type: 'decimal', precision: 10, scale: 2, nullable: true })
   estimatedAmount: number;
+
+  @Column({ name: 'parts_fee', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  partsFee: number;
+
+  @Column({ name: 'labor_fee', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  laborFee: number;
 
   @Column({ name: 'cs_operator_id', nullable: true })
   csOperatorId: string;

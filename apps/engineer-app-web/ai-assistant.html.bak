@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>问AI - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .chat-container {
+      height: calc(100vh - 56px - 70px);
+      overflow-y: auto;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .typing-indicator span {
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    .think-section {
+      font-size: 12px;
+      color: #888;
+      background: #f8f8f8;
+      border-left: 3px solid #ccc;
+      padding: 8px 12px;
+      margin-top: 8px;
+      border-radius: 4px;
+    }
+    .think-toggle {
+      cursor: pointer;
+      color: #666;
+      font-size: 11px;
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 0;
+    }
+    .think-toggle:hover {
+      color: #333;
+    }
+    /* 思考动画 */
+    .thinking-dots .dot {
+      display: inline-block;
+      animation: thinkingPulse 1.4s infinite ease-in-out;
+    }
+    .thinking-dots .dot:nth-child(1) { animation-delay: 0s; }
+    .thinking-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes thinkingPulse {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-3px); }
+    }
+    .thinking-robot {
+      animation: robotBounce 0.6s infinite alternate ease-in-out;
+    }
+    @keyframes robotBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px); }
+    }
+  </style>
+</head>
+<body class="bg-surface">
+  <!-- Top App Bar with Back Button -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+      <span class="material-symbols-outlined" style="color: #006d33; font-size: 24px;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">问AI助手</h1>
+    <button onclick="if(confirm('确定清空对话记录？')){clearChatHistory();location.reload();}" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+      <span class="material-symbols-outlined" style="color: #006d33; font-size: 20px;">delete</span>
+    </button>
+  </header>
+
+  <!-- Chat Messages -->
+  <main class="chat-container pt-14 px-4">
+    <!-- Welcome Message -->
+    <div class="flex items-start space-x-2 mt-4">
+      <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+        <span class="text-sm" style="color: #006d33;">🤖</span>
+      </div>
+      <div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">
+        <p class="text-sm" style="color: #191c1e;">您好！我是AI助手，可以帮您解答设备维修相关问题。</p>
+        <p class="text-sm mt-2" style="color: #191c1e;">请描述您遇到的设备故障现象，我可以帮您快速定位问题并提供解决方案。</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-4 ml-10">
+      <div class="flex flex-wrap gap-2">
+        <button class="quick-btn px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs" style="color: #006d33;" onclick="sendQuickMessage('设备不开机怎么办？')">
+          设备不开机
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs" style="color: #006d33;" onclick="sendQuickMessage('激光功率不足如何排查？')">
+          激光功率不足
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs" style="color: #006d33;" onclick="sendQuickMessage('报警代码E01是什么意思？')">
+          报警E01
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-green-50 border border-green-200 rounded-full text-xs" style="color: #006d33;" onclick="sendQuickMessage('如何进行设备日常保养？')">
+          日常保养
+        </button>
+      </div>
+    </div>
+
+    <!-- Spacer for input -->
+    <div class="h-20"></div>
+  </main>
+
+  <!-- Input Area -->
+  <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant px-4 py-3 z-40">
+    <div class="flex items-center space-x-3">
+      <input type="text" id="messageInput" placeholder="输入您的问题..." class="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+      <button class="w-10 h-10 rounded-full flex items-center justify-center" style="background-color: #006d33;" onclick="sendMessage()">
+        <span class="material-symbols-outlined text-white" style="font-size: 20px;">arrow_upward</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    var DIFY_API = 'https://api.dify.ai/v1/chat-messages';
+    var DIFY_API_KEY = 'app-vDGe9PBzWhaUim4CLe75qDYy';
+    var conversationId = localStorage.getItem('ai_conversation_id') || null;
+    var inThinkMode = false; // 跟踪是否处于思考模式
+    var pendingThinkContent = ''; // 累积的思考内容（跨chunk的）
+    var chatHistory = JSON.parse(localStorage.getItem('ai_chat_history') || '[]'); // 对话历史
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadChatHistory();
+    });
+
+    // 页面加载时恢复对话历史
+    function loadChatHistory() {
+      var container = document.querySelector('.chat-container');
+      chatHistory.forEach(function(msg) {
+        if (msg.role === 'user') {
+          container.insertAdjacentHTML('beforeend',
+            '<div class="flex items-start space-x-2 mt-4 justify-end">' +
+            '<div class="chat-bubble rounded-2xl rounded-tr-sm p-3 shadow-sm" style="background-color:#006d33;">' +
+            '<p class="text-sm text-white">' + escapeHtml(msg.content) + '</p></div></div>');
+        } else if (msg.role === 'assistant') {
+          container.insertAdjacentHTML('beforeend',
+            '<div class="flex items-start space-x-2 mt-4">' +
+            '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:#e6f7ec;">' +
+            '<span class="text-sm" style="color:#006d33;">🤖</span></div>' +
+            '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
+            '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(msg.content) + '</p>' +
+            '</div></div>');
+        }
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // 保存对话到本地
+    function saveChatHistory() {
+      localStorage.setItem('ai_chat_history', JSON.stringify(chatHistory));
+    }
+
+    // 清空对话历史
+    function clearChatHistory() {
+      chatHistory = [];
+      localStorage.removeItem('ai_chat_history');
+      localStorage.removeItem('ai_conversation_id');
+      conversationId = null;
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 清理思考内容，移除think标签并整理格式
+    function cleanThinkContent(text) {
+      if (!text) return '';
+      // 移除 <think> 和 </think> 标签
+      var cleaned = text.replace(/<\/?think>/gi, '').trim();
+      // Dify的思考内容被切碎成小片段，每片段带换行
+      // 移除片段之间的换行（将换行替换为空格），保留段落级别换行
+      cleaned = cleaned.replace(/\n([^\n])/g, ' $1');
+      // 把多个连续空格合并为一个
+      cleaned = cleaned.replace(/ +/g, ' ');
+      // 移除首尾空白
+      cleaned = cleaned.trim();
+      return cleaned;
+    }
+
+    // 清理答案，移除所有think标签内容
+    function cleanAnswer(text) {
+      if (!text) return '';
+      return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    }
+
+    function addUserMessage(message) {
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4 justify-end">' +
+        '<div class="chat-bubble rounded-2xl rounded-tr-sm p-3 shadow-sm" style="background-color:#006d33;">' +
+        '<p class="text-sm text-white">' + escapeHtml(message) + '</p></div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+      chatHistory.push({ role: 'user', content: message });
+      saveChatHistory();
+    }
+
+    function createThinkingMessage() {
+      var container = document.querySelector('.chat-container');
+      var id = 'thinking-' + Date.now();
+      var startTime = Date.now();
+      var html = '<div class="flex items-start space-x-2 mt-4" id="' + id + '">' +
+        '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 thinking-robot" style="background-color:#e6f7ec;">' +
+        '<span class="text-sm" style="color:#006d33;">🤖</span></div>' +
+        '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
+        '<div class="flex items-center gap-2 mb-2">' +
+        '<p class="text-sm" style="color:#43474f;" id="' + id + '-status">' +
+        '<span class="thinking-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>' +
+        '正在思考</p>' +
+        '<span class="text-xs" style="color:#999;" id="' + id + '-timer">0.0秒</span>' +
+        '</div>' +
+        '<div id="' + id + '-think" class="hidden"></div>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+
+      // 启动计时器 (每100ms更新一次)
+      var timerInterval = setInterval(function() {
+        var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        var timerEl = document.getElementById(id + '-timer');
+        if (timerEl) {
+          timerEl.textContent = elapsed + '秒';
+        }
+      }, 100);
+
+      // 存储计时器ID以便清除
+      window['timer_' + id] = timerInterval;
+
+      return id;
+    }
+
+    function updateThinkingMessage(id, thinkContent, answerContent) {
+      var el = document.getElementById(id);
+      if (!el) return;
+
+      var bubble = el.querySelector('.chat-bubble');
+      var statusEl = document.getElementById(id + '-status');
+
+      // 如果有答案内容，实时显示
+      if (answerContent !== undefined && answerContent) {
+        var cleanAns = cleanAnswer(answerContent);
+        // 状态切换为"生成回答中"
+        if (statusEl) {
+          statusEl.innerHTML = '<span class="thinking-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span> 正在生成回答';
+        }
+        bubble.innerHTML =
+          '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(cleanAns) + '</p>';
+      } else if (thinkContent !== undefined) {
+        // 思考内容更新
+        var thinkEl = document.getElementById(id + '-think');
+        if (thinkEl) {
+          thinkEl.style.display = 'block';
+          thinkEl.textContent = thinkContent;
+        }
+      }
+      // 滚动到底部
+      var container = document.querySelector('.chat-container');
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function finishThinkingMessage(id, finalAnswer, thinkContent) {
+      // 清除计时器
+      var timerId = window['timer_' + id];
+      if (timerId) {
+        clearInterval(timerId);
+        delete window['timer_' + id];
+      }
+
+      var el = document.getElementById(id);
+      if (!el) return;
+      var bubble = el.querySelector('.chat-bubble');
+      var statusEl = document.getElementById(id + '-status');
+
+      // 清理最终答案和思考内容
+      var cleanAns = cleanAnswer(finalAnswer);
+      var cleanThink = thinkContent ? cleanThinkContent(thinkContent) : '';
+
+      // 更新状态为"思考完成"
+      if (statusEl) {
+        statusEl.textContent = '已完成';
+        statusEl.style.color = '#52c41a';
+      }
+
+      // 显示回答，忽略思考内容
+      bubble.innerHTML =
+        '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(cleanAns) + '</p>';
+      document.querySelector('.chat-container').scrollTop = document.querySelector('.chat-container').scrollHeight;
+
+      // 保存AI回答到历史（不保存思考内容）
+      chatHistory.push({ role: 'assistant', content: cleanAns });
+      saveChatHistory();
+    }
+
+    function removeThinkingMessage(id) {
+      // 清除计时器
+      var timerId = window['timer_' + id];
+      if (timerId) {
+        clearInterval(timerId);
+        delete window['timer_' + id];
+      }
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function toggleThink(thinkId, btn) {
+      var content = document.getElementById(thinkId);
+      if (!content) return;
+      if (content.style.display === 'none') {
+        content.style.display = 'block';
+        btn.innerHTML = '收起思考过程 <span class="material-symbols-outlined" style="font-size:14px;">expand_less</span>';
+      } else {
+        content.style.display = 'none';
+        btn.innerHTML = '展开思考过程 <span class="material-symbols-outlined" style="font-size:14px;">expand_more</span>';
+      }
+    }
+
+    function sendMessage() {
+      var input = document.getElementById('messageInput');
+      var message = input.value.trim();
+      if (!message) return;
+
+      addUserMessage(message);
+      input.value = '';
+
+      var thinkingId = createThinkingMessage();
+      var fullThink = '';
+      var finalAnswer = '';
+      var decoder = new TextDecoder();
+      inThinkMode = false; // 重置思考状态
+      pendingThinkContent = ''; // 重置累积的思考内容
+
+      // 真正的流式请求
+      fetch(DIFY_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + DIFY_API_KEY
+        },
+        body: JSON.stringify({
+          query: message,
+          user: 'engineer-' + (localStorage.getItem('engineer_token') || 'guest').substring(0, 8),
+          inputs: {},
+          response_mode: 'streaming',
+          conversation_id: conversationId || ''
+        })
+      })
+      .then(function(res) {
+        if (!res.ok) {
+          throw new Error('API error: ' + res.status);
+        }
+        // 使用 ReadableStream 真正的流式读取
+        var reader = res.body.getReader();
+        var buffer = '';
+        var chunkCount = 0;
+
+        function read() {
+          reader.read().then(function(result) {
+            if (result.done) {
+              // 流结束，处理剩余buffer
+              if (buffer.trim()) {
+                processLine(buffer.trim(), thinkingId, function(t, a) {
+                  if (t !== undefined) fullThink = t;
+                  if (a !== undefined) finalAnswer = a;
+                });
+              }
+              // 处理可能未关闭的思考内容
+              if (pendingThinkContent.trim()) {
+                var newThink = cleanThinkContent(pendingThinkContent);
+                if (newThink) {
+                  fullThink = fullThink + (fullThink ? '\n\n' : '') + newThink;
+                }
+              }
+              if (finalAnswer) {
+                finishThinkingMessage(thinkingId, finalAnswer, fullThink);
+              } else if (fullThink) {
+                finishThinkingMessage(thinkingId, '抱歉，AI助手暂时无法生成完整回答。', fullThink);
+              } else {
+                finishThinkingMessage(thinkingId, '抱歉，AI助手暂时无法回答您的问题。', '');
+              }
+              return;
+            }
+
+            // 追加到buffer
+            buffer += decoder.decode(result.value, { stream: true });
+            chunkCount++;
+            console.log('Chunk #' + chunkCount + ', buffer length: ' + buffer.length);
+
+            // 按换行分割，处理每一行
+            var lines = buffer.split('\n');
+            // 保留最后一行（可能不完整）
+            buffer = lines.pop();
+
+            for (var i = 0; i < lines.length; i++) {
+              var line = lines[i].trim();
+              if (line.startsWith('data:')) {
+                processLine(line, thinkingId, function(t, a) {
+                  if (t !== undefined) {
+                    fullThink = t;
+                  }
+                  if (a !== undefined) {
+                    finalAnswer = a;
+                    console.log('Answer updated, length: ' + a.length);
+                  }
+                  // 同时更新思考和回答内容
+                  updateThinkingMessage(thinkingId, fullThink, finalAnswer);
+                });
+              }
+            }
+
+            read();
+          });
+        }
+
+        read();
+      })
+      .catch(function(err) {
+        removeThinkingMessage(thinkingId);
+        var container = document.querySelector('.chat-container');
+        var html = '<div class="flex items-start space-x-2 mt-4">' +
+          '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
+          '<span class="text-sm" style="color: #006d33;">🤖</span></div>' +
+          '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+          '<p class="text-sm" style="color: #f22;">抱歉，网络出现问题，请稍后再试。<br><span style="color:#999;font-size:11px;">' + escapeHtml(err.message) + '</span></p>' +
+          '</div></div>';
+        container.insertAdjacentHTML('beforeend', html);
+        container.scrollTop = container.scrollHeight;
+      });
+
+      function processLine(line, id, callback) {
+        try {
+          var data = JSON.parse(line.substring(5));
+
+          // 思考过程事件 (独立事件)
+          if (data.event === 'agent_thought' && data.thought) {
+            var newThink = cleanThinkContent(data.thought);
+            callback(fullThink + (fullThink ? '\n\n' : '') + newThink, undefined);
+          }
+
+          // 回答片段事件 - Dify将思考过程混在answer中
+          if ((data.event === 'message' || data.event === 'agent_message') && data.answer) {
+            var answerFragment = data.answer;
+            var i = 0;
+
+            while (i < answerFragment.length) {
+              if (inThinkMode) {
+                // 处于思考模式，寻找</think>
+                var thinkEndIdx = answerFragment.indexOf('</think>', i);
+                if (thinkEndIdx !== -1) {
+                  // 找到结束标签，累积思考内容
+                  pendingThinkContent += answerFragment.substring(i, thinkEndIdx);
+                  i = thinkEndIdx + 8; // 8 = len("</think>")
+                  inThinkMode = false;
+                  // 思考段落结束，清理并更新显示
+                  if (pendingThinkContent.trim()) {
+                    var newThink = cleanThinkContent(pendingThinkContent);
+                    if (newThink) {
+                      fullThink = fullThink + (fullThink ? '\n\n' : '') + newThink;
+                      callback(fullThink, undefined);
+                    }
+                  }
+                  pendingThinkContent = '';
+                } else {
+                  // 没有找到结束标签，累积内容但不立即显示，等收到完整段落
+                  pendingThinkContent += answerFragment.substring(i);
+                  break;
+                }
+              } else {
+                // 处于答案模式，寻找<think>
+                var thinkStartIdx = answerFragment.indexOf('<think>', i);
+                if (thinkStartIdx !== -1) {
+                  // 找到开始标签前的内容是答案
+                  if (thinkStartIdx > i) {
+                    var answerPart = answerFragment.substring(i, thinkStartIdx);
+                    callback(undefined, finalAnswer + answerPart);
+                  }
+                  i = thinkStartIdx + 6; // 6 = len("<think>")
+                  inThinkMode = true;
+                } else {
+                  // 没有更多思考标签，整段都是答案
+                  callback(undefined, finalAnswer + answerFragment.substring(i));
+                  break;
+                }
+              }
+            }
+          }
+
+          if (data.conversation_id) {
+            conversationId = data.conversation_id;
+            localStorage.setItem('ai_conversation_id', conversationId);
+          }
+        } catch (e) {
+          // 忽略解析错误
+        }
+      }
+    }
+
+    function sendQuickMessage(message) {
+      document.getElementById('messageInput').value = message;
+      sendMessage();
+    }
+
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

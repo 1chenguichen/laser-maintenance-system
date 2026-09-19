@@ -1,0 +1,329 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>调拨申请</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style type="text/tailwindcss">
+        @layer utilities {
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#303031",
+                      "on-tertiary-fixed": "#011a40",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#283d64",
+                      "secondary-fixed": "#e5e2e1",
+                      "primary-fixed": "#66ff95",
+                      "on-secondary-container": "#636262",
+                      "inverse-primary": "#45e17c",
+                      "tertiary": "#4a5e87",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#bbcbba",
+                      "on-primary-container": "#00471f",
+                      "on-primary-fixed-variant": "#005225",
+                      "on-surface-variant": "#3d4a3d",
+                      "background": "#faf9f9",
+                      "surface-bright": "#faf9f9",
+                      "tertiary-fixed-dim": "#b2c6f6",
+                      "surface-tint": "#006d33",
+                      "surface-container-highest": "#e3e2e2",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f5f3f3",
+                      "on-background": "#1b1c1c",
+                      "on-surface": "#1b1c1c",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#e2dfde",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#32466e",
+                      "primary-container": "#07c160",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-container": "#efeded",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#e9e8e8",
+                      "surface": "#faf9f9",
+                      "tertiary-container": "#94a8d6",
+                      "outline": "#6c7b6c",
+                      "surface-dim": "#dbdad9",
+                      "primary": "#006d33",
+                      "on-primary-fixed": "#00210b",
+                      "secondary": "#5f5e5e",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f2f0f0",
+                      "primary-fixed-dim": "#45e17c",
+                      "surface-variant": "#e3e2e2",
+                      "tertiary-fixed": "#d8e2ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "24px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "section-gap": "32px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "17px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.04em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-lg min-h-screen flex flex-col pt-14 pb-20 md:pb-0 md:pt-0">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14 bg-surface border-b border-outline-variant md:hidden">
+<button class="text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center h-10 w-10">
+<span class="material-symbols-outlined font-headline-md text-headline-md" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-surface text-center flex-1 truncate px-4">调拨申请</h1>
+<button class="text-primary hover:bg-surface-container-low p-2 rounded-full transition-colors flex items-center justify-center h-10 w-10">
+<span class="material-symbols-outlined font-headline-md text-headline-md" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="flex-1 w-full max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop py-section-gap flex flex-col gap-section-gap">
+<!-- Warehouse Selection -->
+<section class="flex flex-col gap-stack-md">
+<h2 class="font-label-lg text-label-lg text-on-surface-variant px-1">仓库信息</h2>
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-margin-mobile flex flex-col gap-stack-lg">
+<!-- Outbound Warehouse -->
+<div class="flex items-center justify-between group cursor-pointer hover:bg-surface-container-low transition-colors -mx-margin-mobile px-margin-mobile py-2">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-error-container text-on-error-container flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="output">output</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface-variant">调出仓库</span>
+<span class="font-body-lg text-body-lg text-on-surface">上海总仓</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="h-px bg-outline-variant w-full"></div>
+<!-- Inbound Warehouse -->
+<div class="flex items-center justify-between group cursor-pointer hover:bg-surface-container-low transition-colors -mx-margin-mobile px-margin-mobile py-2">
+<div class="flex items-center gap-gutter">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="input">input</span>
+</div>
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface-variant">调入仓库 (当前)</span>
+<span class="font-body-lg text-body-lg text-on-surface">北京分仓-移动仓01</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Material List -->
+<section class="flex flex-col gap-stack-md">
+<div class="flex justify-between items-end px-1">
+<h2 class="font-label-lg text-label-lg text-on-surface-variant">申领清单</h2>
+<button class="font-label-md text-label-md text-primary flex items-center gap-1 hover:underline">
+<span class="material-symbols-outlined text-[16px]" data-icon="add_circle">add_circle</span>
+                    添加物料
+                </button>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<!-- Item 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-margin-mobile flex gap-gutter items-center">
+<img alt="工业齿轮组件" class="w-16 h-16 object-cover rounded-md border border-outline-variant" data-alt="A close-up studio shot of a shiny, precision-machined industrial steel gear assembly. The metallic surface reflects bright, clean light in a modern, professional setting. The background is pure white to emphasize the object's engineering detail. The overall aesthetic is industrial minimalism, crisp and highly detailed." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBX4pKryOFStXkW_eJB86TBd2gzmXKd-DbmAgizdeD29X3eICWwg4YtSZq6dkB7_ioYhZeEd2gT4g8APGHjx7OC97BHswHMMwuX14dHsLZTysaNwsiOYIxYRNX8N0SPqDH-CN2S2uhwS0nkERGQvsDpU28Yz885Jl4R3Al3BkStw5AUy0m-_XNyP3CKK_aWfLgz-Ty1iWNq2cswvvnhzxVoGMd9sjPfxd04sEVmBwSRGqpgfBHxJA7pe6slrhMgk2Qx2BLdlI9ocw">
+<div class="flex flex-col flex-1 gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-1">精密齿轮组件 TX-890</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">库存: 120 | 单位: 件</p>
+</div>
+<div class="flex items-center gap-2 border border-outline-variant rounded-full p-1 bg-surface">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors disabled:opacity-50" onclick="decrement(this)">
+<span class="material-symbols-outlined text-[20px]" data-icon="remove">remove</span>
+</button>
+<span class="font-body-lg text-body-lg text-on-surface w-6 text-center qty-val">5</span>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" onclick="increment(this)">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-margin-mobile flex gap-gutter items-center">
+<div class="w-16 h-16 rounded-md bg-surface-container-high flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-outline text-[32px]" data-icon="inventory_2">inventory_2</span>
+</div>
+<div class="flex flex-col flex-1 gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface line-clamp-1">润滑脂工业级 500g</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">库存: 45 | 单位: 瓶</p>
+</div>
+<div class="flex items-center gap-2 border border-outline-variant rounded-full p-1 bg-surface">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" onclick="decrement(this)">
+<span class="material-symbols-outlined text-[20px]" data-icon="remove">remove</span>
+</button>
+<span class="font-body-lg text-body-lg text-on-surface w-6 text-center qty-val">2</span>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" onclick="increment(this)">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Additional Notes -->
+<section class="flex flex-col gap-stack-sm">
+<label class="font-label-lg text-label-lg text-on-surface-variant px-1" for="notes">申请备注 (选填)</label>
+<textarea class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg p-margin-mobile font-body-md text-body-md text-on-surface focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-none" id="notes" placeholder="请输入调拨原因或特殊要求..." rows="3"></textarea>
+</section>
+</main>
+<!-- Bottom Action Bar (Mobile Sticky) -->
+<div class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-margin-mobile z-40 md:relative md:border-none md:bg-transparent md:px-margin-desktop md:py-0 md:mt-auto">
+<div class="max-w-[1280px] mx-auto flex gap-gutter">
+<button class="flex-1 bg-primary-container text-on-primary font-label-lg text-label-lg py-3 rounded-lg flex items-center justify-center transition-colors hover:bg-opacity-90">
+                提交申请
+            </button>
+</div>
+</div>
+<script>
+        function increment(btn) {
+            const valSpan = btn.parentElement.querySelector('.qty-val');
+            let val = parseInt(valSpan.innerText);
+            valSpan.innerText = val + 1;
+        }
+
+        function decrement(btn) {
+            const valSpan = btn.parentElement.querySelector('.qty-val');
+            let val = parseInt(valSpan.innerText);
+            if (val > 1) {
+                valSpan.innerText = val - 1;
+            }
+        }
+    </script>
+</body></html>

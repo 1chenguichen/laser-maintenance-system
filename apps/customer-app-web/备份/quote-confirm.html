@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>确认报价 - 客户</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@0..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <style>
+    .quote-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .quote-header {
+      text-align: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+      margin-bottom: 16px;
+    }
+    .quote-header h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .quote-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      background: #fff7e6;
+      color: #fa8c16;
+    }
+    .quote-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+    }
+    .quote-row:last-child {
+      border-bottom: none;
+    }
+    .quote-label {
+      color: #666;
+      font-size: 14px;
+    }
+    .quote-value {
+      font-weight: 500;
+      color: #333;
+    }
+    .quote-total {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .quote-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .quote-total-row.final {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1677ff;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e5e5;
+    }
+    .deposit-info {
+      background: #e6f4ff;
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .deposit-info .label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    .deposit-info .amount {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1677ff;
+    }
+    .deposit-info .tip {
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #1677ff;
+      color: #fff;
+    }
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #666;
+    }
+    .btn-danger {
+      background: #fff1f0;
+      color: #ff4b4b;
+    }
+    .quote-engineer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .engineer-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: #1677ff;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .engineer-info {
+      flex: 1;
+    }
+    .engineer-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+    .engineer-skill {
+      font-size: 13px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <button class="header-btn" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1>报价确认</h1>
+    <div style="width: 40px;"></div>
+  </header>
+
+  <main class="app-content">
+    <div id="loading" style="text-align: center; padding: 40px;">
+      <div>加载中...</div>
+    </div>
+    <div id="content" style="display: none;"></div>
+    <div id="success" style="display: none; text-align: center; padding: 40px;">
+      <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+      <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">支付成功</div>
+      <div style="font-size: 14px; color: #666;">工程师将尽快上门维修</div>
+      <button class="btn btn-primary" style="margin-top: 24px; width: 100%;" onclick="goToOrders()">查看工单</button>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = 'http://localhost:3000';
+    var token = localStorage.getItem('customer_token');
+    var workOrderId = null;
+
+    if (!token) {
+      window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var params = new URLSearchParams(window.location.search);
+      workOrderId = params.get('id');
+      if (!workOrderId) {
+        alert('缺少工单ID');
+        window.location.href = 'index.html';
+        return;
+      }
+      loadOrderInfo();
+    });
+
+    function loadOrderInfo() {
+      fetch(API_BASE + '/customer/work-orders/' + workOrderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.status !== 'PENDING_PAYMENT') {
+          alert('该工单状态不是待确认报价');
+          window.location.href = 'index.html';
+          return;
+        }
+        renderQuote(data);
+      })
+      .catch(function(err) {
+        alert('加载失败');
+        window.location.href = 'index.html';
+      });
+    }
+
+    function renderQuote(order) {
+      var partsFee = Number(order.partsFee || 0);
+      var laborFee = Number(order.laborFee || 0);
+      var total = partsFee + laborFee;
+      var deposit = total * 0.3;
+
+      var engineer = order.engineer || {};
+      var engineerName = engineer.name || '工程师';
+
+      var html = '<div class="quote-card">';
+      html += '<div class="quote-header">';
+      html += '<h3>维修报价单</h3>';
+      html += '<span class="quote-status">待确认</span>';
+      html += '</div>';
+
+      html += '<div class="quote-engineer">';
+      html += '<div class="engineer-avatar">👨‍🔧</div>';
+      html += '<div class="engineer-info">';
+      html += '<div class="engineer-name">' + engineerName + '</div>';
+      html += '<div class="engineer-skill">维修工程师</div>';
+      html += '</div>';
+      html += '</div>';
+
+      html += '<div class="quote-row">';
+      html += '<span class="quote-label">故障类型</span>';
+      html += '<span class="quote-value">' + (order.faultType || '-') + '</span>';
+      html += '</div>';
+
+      html += '</div>';
+
+      html += '<div class="quote-card">';
+      html += '<div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">费用明细</div>';
+      html += '<div class="quote-row">';
+      html += '<span class="quote-label">配件费用</span>';
+      html += '<span class="quote-value">¥' + partsFee.toFixed(2) + '</span>';
+      html += '</div>';
+      html += '<div class="quote-row">';
+      html += '<span class="quote-label">人工费用</span>';
+      html += '<span class="quote-value">¥' + laborFee.toFixed(2) + '</span>';
+      html += '</div>';
+
+      html += '<div class="quote-total">';
+      html += '<div class="quote-total-row">';
+      html += '<span>配件费用</span>';
+      html += '<span>¥' + partsFee.toFixed(2) + '</span>';
+      html += '</div>';
+      html += '<div class="quote-total-row">';
+      html += '<span>人工费用</span>';
+      html += '<span>¥' + laborFee.toFixed(2) + '</span>';
+      html += '</div>';
+      html += '<div class="quote-total-row final">';
+      html += '<span>总价</span>';
+      html += '<span>¥' + total.toFixed(2) + '</span>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+
+      html += '<div class="quote-card">';
+      html += '<div class="deposit-info">';
+      html += '<div class="label">需支付定金（30%）</div>';
+      html += '<div class="amount">¥' + deposit.toFixed(2) + '</div>';
+      html += '<div class="tip">支付定金后工程师将上门维修，尾款完工后支付</div>';
+      html += '</div>';
+      html += '</div>';
+
+      html += '<div class="action-buttons">';
+      html += '<button class="btn btn-danger" onclick="refuseQuote()">拒绝报价</button>';
+      html += '<button class="btn btn-primary" onclick="confirmAndPay()">确认并支付</button>';
+      html += '</div>';
+
+      document.getElementById('content').innerHTML = html;
+      document.getElementById('content').style.display = 'block';
+      document.getElementById('loading').style.display = 'none';
+    }
+
+    function confirmAndPay() {
+      // 先确认报价
+      fetch(API_BASE + '/customer/work-orders/' + workOrderId + '/confirm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ confirm: true })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        // 模拟支付成功
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+      })
+      .catch(function(err) {
+        alert('操作失败: ' + err.message);
+      });
+    }
+
+    function refuseQuote() {
+      var reason = prompt('请输入拒绝原因（选填）:');
+      if (reason === null) return;
+
+      fetch(API_BASE + '/customer/work-orders/' + workOrderId + '/confirm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ confirm: false, refuseReason: reason || '' })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        alert('已拒绝报价');
+        window.location.href = 'index.html';
+      })
+      .catch(function(err) {
+        alert('操作失败: ' + err.message);
+      });
+    }
+
+    function goToOrders() {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

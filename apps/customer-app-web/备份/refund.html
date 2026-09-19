@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>退款申请 - 客户</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@0..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <style>
+    .refund-info {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .refund-info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .refund-info-row:last-child {
+      border-bottom: none;
+    }
+    .refund-info-label {
+      color: #666;
+      font-size: 14px;
+    }
+    .refund-info-value {
+      font-weight: 500;
+      color: #333;
+    }
+    .reason-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      font-size: 14px;
+      resize: none;
+      box-sizing: border-box;
+    }
+    .reason-textarea:focus {
+      outline: none;
+      border-color: #1677ff;
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <button class="header-btn" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1>退款申请</h1>
+    <div style="width: 40px;"></div>
+  </header>
+
+  <main class="app-content">
+    <!-- 工单信息 -->
+    <div class="refund-info">
+      <h3 style="margin: 0 0 12px; font-size: 16px;">工单信息</h3>
+      <div class="refund-info-row">
+        <span class="refund-info-label">工单号</span>
+        <span class="refund-info-value" id="orderNo">-</span>
+      </div>
+      <div class="refund-info-row">
+        <span class="refund-info-label">故障类型</span>
+        <span class="refund-info-value" id="faultType">-</span>
+      </div>
+      <div class="refund-info-row">
+        <span class="refund-info-label">已付定金</span>
+        <span class="refund-info-value" style="color: #1677ff;">¥<span id="prepayAmount">0.00</span></span>
+      </div>
+      <div class="refund-info-row">
+        <span class="refund-info-label">退款金额</span>
+        <span class="refund-info-value" style="color: #ff4d4f;">¥<span id="refundAmount">0.00</span></span>
+      </div>
+    </div>
+
+    <!-- 退款原因 -->
+    <div class="refund-info">
+      <h3 style="margin: 0 0 12px; font-size: 16px;">退款原因 *</h3>
+      <textarea
+        id="refundReason"
+        class="reason-textarea"
+        placeholder="请详细描述退款原因，我们将尽快处理..."
+      ></textarea>
+    </div>
+
+    <!-- 退款说明 -->
+    <div class="refund-info">
+      <h3 style="margin: 0 0 12px; font-size: 16px;">退款说明</h3>
+      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666; line-height: 1.8;">
+        <li>定金退款将在 1-3 个工作日内原路返回</li>
+        <li>如已派工程师上门，退款金额可能扣除部分服务费</li>
+        <li>如有疑问请联系客服</li>
+      </ul>
+    </div>
+
+    <!-- 提交按钮 -->
+    <button id="submitBtn" class="btn btn-primary btn-full" onclick="submitRefund()">
+      提交退款申请
+    </button>
+
+    <!-- 提交成功 -->
+    <div id="successArea" class="refund-info" style="display: none; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+      <div style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">退款申请已提交</div>
+      <div style="font-size: 13px; color: #999;">客服将在 1-3 个工作日内处理</div>
+      <button class="btn btn-secondary btn-full" style="margin-top: 16px;" onclick="goToOrders()">返回工单列表</button>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = 'http://localhost:3000';
+    var token = localStorage.getItem('customer_token');
+    var workOrderId = null;
+
+    if (!token) {
+      window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var params = new URLSearchParams(window.location.search);
+      workOrderId = params.get('orderId');
+      if (!workOrderId) {
+        alert('缺少工单ID');
+        window.location.href = 'index.html';
+        return;
+      }
+      loadOrderInfo();
+    });
+
+    function loadOrderInfo() {
+      fetch(API_BASE + '/customer/work-orders/' + workOrderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        document.getElementById('orderNo').textContent = data.orderNo || '-';
+        document.getElementById('faultType').textContent = data.faultType || '-';
+        var prepay = data.prepayAmount || 0;
+        document.getElementById('prepayAmount').textContent = prepay.toFixed(2);
+        document.getElementById('refundAmount').textContent = prepay.toFixed(2);
+      })
+      .catch(function(err) {
+        console.error('Failed to load order:', err);
+        alert('加载工单信息失败');
+      });
+    }
+
+    function submitRefund() {
+      var reason = document.getElementById('refundReason').value.trim();
+      if (!reason) {
+        alert('请填写退款原因');
+        return;
+      }
+
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = '提交中...';
+
+      var prepayAmount = parseFloat(document.getElementById('prepayAmount').textContent) || 0;
+
+      fetch(API_BASE + '/customer/refund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          workOrderId: workOrderId,
+          amount: prepayAmount,
+          reason: reason
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        document.getElementById('submitBtn').style.display = 'none';
+        document.getElementById('successArea').style.display = 'block';
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = '提交退款申请';
+        alert('提交失败: ' + err.message);
+      });
+    }
+
+    function goToOrders() {
+      window.location.href = 'orders.html';
+    }
+  </script>
+</body>
+</html>

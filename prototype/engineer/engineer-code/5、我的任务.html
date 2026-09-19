@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>我的任务</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#303031",
+                      "on-tertiary-fixed": "#011a40",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#283d64",
+                      "secondary-fixed": "#e5e2e1",
+                      "primary-fixed": "#66ff95",
+                      "on-secondary-container": "#636262",
+                      "inverse-primary": "#45e17c",
+                      "tertiary": "#4a5e87",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#bbcbba",
+                      "on-primary-container": "#00471f",
+                      "on-primary-fixed-variant": "#005225",
+                      "on-surface-variant": "#3d4a3d",
+                      "background": "#faf9f9",
+                      "surface-bright": "#faf9f9",
+                      "tertiary-fixed-dim": "#b2c6f6",
+                      "surface-tint": "#006d33",
+                      "surface-container-highest": "#e3e2e2",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f5f3f3",
+                      "on-background": "#1b1c1c",
+                      "on-surface": "#1b1c1c",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#e2dfde",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#32466e",
+                      "primary-container": "#07c160",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-container": "#efeded",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#e9e8e8",
+                      "surface": "#faf9f9",
+                      "tertiary-container": "#94a8d6",
+                      "outline": "#6c7b6c",
+                      "surface-dim": "#dbdad9",
+                      "primary": "#006d33",
+                      "on-primary-fixed": "#00210b",
+                      "secondary": "#5f5e5e",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f2f0f0",
+                      "primary-fixed-dim": "#45e17c",
+                      "surface-variant": "#e3e2e2",
+                      "tertiary-fixed": "#d8e2ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "24px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "section-gap": "32px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "17px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.04em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: #faf9f9;
+        }
+        /* Custom scrollbar for horizontal tabs if needed */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface font-body-md antialiased pb-[80px] pt-14">
+<!-- TopAppBar -->
+<header class="bg-surface text-primary font-headline-sm text-headline-sm docked full-width top-0 border-b border-outline-variant flat no shadows fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14">
+<button aria-label="返回" class="flex items-center justify-center p-2 -ml-2 text-on-surface hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">arrow_back</span>
+</button>
+<h1 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">我的任务</h1>
+<button aria-label="通知" class="flex items-center justify-center p-2 -mr-2 text-on-surface hover:bg-surface-container-low transition-colors rounded-full">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+</header>
+<!-- Canvas -->
+<main class="w-full max-w-screen-md mx-auto">
+<!-- Tab Navigation -->
+<div class="sticky top-14 z-40 bg-surface border-b border-outline-variant/30">
+<div class="flex px-margin-mobile pt-2">
+<button class="flex-1 pb-3 relative text-primary font-label-lg text-label-lg">
+                    待上门
+                    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary rounded-t-full"></div>
+</button>
+<button class="flex-1 pb-3 relative text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors">
+                    维修中
+                </button>
+<button class="flex-1 pb-3 relative text-on-surface-variant font-label-lg text-label-lg hover:text-on-surface transition-colors">
+                    已完工
+                </button>
+</div>
+</div>
+<!-- Task List -->
+<div class="px-margin-mobile py-stack-md flex flex-col gap-stack-md">
+<!-- Task Card 1: Critical SLA -->
+<article class="bg-surface-container-lowest border border-error/30 rounded-lg p-4 relative overflow-hidden">
+<!-- SLA Alert Banner -->
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-error-container text-on-error-container font-label-md text-label-md rounded text-[10px] uppercase font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">timer</span>
+                            SLA超时预警
+                        </span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">WO-2023-0941</span>
+</div>
+<span class="text-error font-label-lg text-label-lg">距上门还剩 30 分钟</span>
+</div>
+<div class="mb-stack-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-1">西门子工业变频器 G120C 故障排查</h2>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">devices</span>
+<span>设备型号: 6SL3210-1KE15-8UF2</span>
+</div>
+</div>
+<div class="border-t border-outline-variant/30 pt-stack-sm flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 text-on-surface font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>张建国 - 生产部主管</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>苏州工业园区星湖街328号 厂区A栋</span>
+</div>
+</div>
+<button class="bg-primary-container text-on-primary rounded-lg px-4 py-2 font-label-lg text-label-lg hover:bg-primary transition-colors flex items-center gap-1">
+                        开始打卡
+                        <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</article>
+<!-- Task Card 2: Normal -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-tertiary-fixed-dim/30 text-tertiary font-label-md text-label-md rounded text-[10px] uppercase font-bold">
+                            今日任务
+                        </span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">WO-2023-0942</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">预约: 14:00 - 15:00</span>
+</div>
+<div class="mb-stack-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-1">发那科机器人机械臂定期保养</h2>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">devices</span>
+<span>设备型号: R-2000iC/165F</span>
+</div>
+</div>
+<div class="border-t border-outline-variant/30 pt-stack-sm flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 text-on-surface font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>李明 - 设备科</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>苏州高新区竹园路18号 车间3</span>
+</div>
+</div>
+<button class="bg-surface-container text-on-surface rounded-lg px-4 py-2 font-label-lg text-label-lg border border-outline-variant hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                        查看详情
+                    </button>
+</div>
+</article>
+<!-- Task Card 3: Warning -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+<div class="flex justify-between items-start mb-stack-sm">
+<div class="flex items-center gap-2">
+<span class="px-2 py-1 bg-surface-container-highest text-on-surface-variant font-label-md text-label-md rounded text-[10px] uppercase font-bold">
+                            明日任务
+                        </span>
+<span class="text-on-surface-variant font-body-sm text-body-sm">WO-2023-0945</span>
+</div>
+<span class="text-on-surface-variant font-body-sm text-body-sm">预约: 明日 09:00</span>
+</div>
+<div class="mb-stack-md">
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-1">阿特拉斯空压机异响检查</h2>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">devices</span>
+<span>设备型号: GA37+</span>
+</div>
+</div>
+<div class="border-t border-outline-variant/30 pt-stack-sm flex justify-between items-end">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-1 text-on-surface font-label-lg text-label-lg">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>王工 - 动力组</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>昆山经济开发区 动力中心</span>
+</div>
+</div>
+<button class="bg-surface-container text-on-surface rounded-lg px-4 py-2 font-label-lg text-label-lg border border-outline-variant hover:bg-surface-container-high transition-colors flex items-center gap-1">
+                        查看详情
+                    </button>
+</div>
+</article>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface text-primary font-label-md text-label-md docked full-width bottom-0 border-t border-outline-variant flat no shadows fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-2 md:hidden">
+<button aria-label="抢单" class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md hover:bg-surface-container-lowest transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">assignment_returned</span>
+<span>抢单</span>
+</button>
+<!-- Active Tab: 任务 -->
+<button aria-label="任务" class="flex flex-col items-center justify-center text-primary font-bold font-label-md text-label-md hover:bg-surface-container-lowest scale-95 transition-transform duration-150 p-2 rounded-lg">
+<div class="px-4 py-1 bg-primary-container/20 rounded-full mb-1">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+</div>
+<span>任务</span>
+</button>
+<button aria-label="移动仓" class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md hover:bg-surface-container-lowest transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">inventory_2</span>
+<span>移动仓</span>
+</button>
+<button aria-label="我的" class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md hover:bg-surface-container-lowest transition-colors p-2 rounded-lg">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span>我的</span>
+</button>
+</nav>
+</body></html>

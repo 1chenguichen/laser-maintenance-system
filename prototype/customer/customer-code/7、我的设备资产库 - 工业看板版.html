@@ -1,0 +1,276 @@
+<!DOCTYPE html><html lang="zh-CN" style="width: 390px; height: 725px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>我的设备</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary": "#ffffff",
+                "on-primary-container": "#799dd6",
+                "secondary-fixed-dim": "#45e17c",
+                "inverse-surface": "#2d3133",
+                "primary-fixed-dim": "#a7c8ff",
+                "secondary-fixed": "#66ff95",
+                "inverse-on-surface": "#eff1f3",
+                "on-error-container": "#93000a",
+                "secondary": "#006d33",
+                "on-tertiary": "#ffffff",
+                "outline-variant": "#c3c6d1",
+                "surface-dim": "#d8dadc",
+                "tertiary-container": "#243448",
+                "surface-tint": "#3a5f94",
+                "surface-container-high": "#e6e8ea",
+                "on-secondary-container": "#007437",
+                "background": "#f7f9fb",
+                "on-surface": "#191c1e",
+                "secondary-container": "#66ff95",
+                "on-surface-variant": "#43474f",
+                "surface": "#f7f9fb",
+                "primary-container": "#003366",
+                "on-secondary-fixed-variant": "#005225",
+                "tertiary": "#0e1f32",
+                "on-tertiary-fixed": "#0b1c30",
+                "on-error": "#ffffff",
+                "on-secondary-fixed": "#00210b",
+                "surface-variant": "#e0e3e5",
+                "on-secondary": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-container-low": "#f2f4f6",
+                "error": "#ba1a1a",
+                "on-tertiary-container": "#8c9cb5",
+                "error-container": "#ffdad6",
+                "tertiary-fixed": "#d3e4fe",
+                "surface-container-lowest": "#ffffff",
+                "outline": "#737780",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-background": "#191c1e",
+                "inverse-primary": "#a7c8ff",
+                "surface-bright": "#f7f9fb",
+                "on-primary-fixed-variant": "#1f477b",
+                "surface-container": "#eceef0",
+                "primary-fixed": "#d5e3ff",
+                "primary": "#001e40",
+                "on-primary-fixed": "#001b3c",
+                "tertiary-fixed-dim": "#b7c8e1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "item-gap": "12px",
+                "gutter": "8px",
+                "container-padding": "16px",
+                "section-margin": "24px",
+                "unit": "4px"
+        },
+        "fontFamily": {
+                "display-total": [
+                        "IBM Plex Sans"
+                ],
+                "body-sm": [
+                        "Noto Sans"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg-mobile": [
+                        "IBM Plex Sans"
+                ],
+                "headline-lg": [
+                        "IBM Plex Sans"
+                ],
+                "body-md": [
+                        "Noto Sans"
+                ]
+        },
+        "fontSize": {
+                "display-total": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-mono": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen pt-14 pb-16 antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-container-padding h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+<button aria-label="返回" class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors active:opacity-70 p-2 -ml-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-primary-fixed-dim">我的设备</h1>
+<button aria-label="绑定新设备" class="text-on-surface-variant dark:text-on-surface-variant hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors active:opacity-70 p-2 -mr-2 rounded-full flex items-center gap-1" style="color: rgb(24, 144, 255);">
+
+
+</button>
+</header>
+<main class="px-container-padding py-section-margin max-w-2xl mx-auto space-y-section-margin">
+<!-- Asset Overview Panel -->
+<section class="bg-primary-container text-on-primary rounded-xl p-4 shadow-sm border border-outline-variant/20 relative overflow-hidden" style="background: linear-gradient(135deg, rgb(9, 109, 217), rgb(24, 144, 255)); border-color: rgba(24, 144, 255, 0.3);">
+<!-- Subtle background pattern -->
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+<div class="relative z-10">
+<div class="flex items-center justify-between mb-4 border-b border-outline-variant/30 pb-3">
+<span class="font-body-md text-on-primary/80">名下资产总数</span>
+<div class="flex items-baseline gap-1">
+<span class="font-display-total text-display-total">5</span>
+<span class="font-label-mono text-label-mono text-on-primary/80">台</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col">
+<span class="font-label-mono text-label-mono text-on-primary/70 mb-1">保修期内</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary-fixed-dim">3</span>
+<span class="font-label-mono text-label-mono text-on-primary/70">台</span>
+</div>
+</div>
+<div class="flex flex-col border-l border-outline-variant/30 pl-4">
+<span class="font-label-mono text-label-mono text-on-primary/70 mb-1">已过保</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-error-container">2</span>
+<span class="font-label-mono text-label-mono text-on-primary/70">台</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Device List Area -->
+<section class="space-y-item-gap">
+<!-- Card 1 (In Warranty) -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 shadow-sm relative overflow-hidden">
+<!-- Status Bar Top -->
+<div class="absolute top-0 left-0 w-full h-1 bg-primary-container opacity-90" style="background-color: rgb(24, 144, 255);"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="inline-flex items-center gap-1 bg-surface-variant text-primary px-2 py-1 rounded" style="background-color: rgb(230, 247, 255); color: rgb(24, 144, 255); border: 1px solid rgb(145, 213, 255);"><span class="material-symbols-outlined text-[14px]" data-icon="verified">verified</span><span class="font-label-mono text-label-mono">[保内：剩余 128 天]</span></div>
+</div>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">3000W 激光切割机</h3>
+<div class="space-y-1 mb-4 pt-3 border-t border-dashed border-outline-variant/60">
+<div class="flex justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">SN码：</span>
+<span class="font-label-mono text-label-mono text-on-surface">884920</span>
+</div>
+<div class="flex justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">交付日期：</span>
+<span class="font-label-mono text-label-mono text-on-surface">2025-10-01</span>
+</div>
+</div>
+<div class="flex justify-end pt-3">
+<button class="bg-primary-container text-on-primary font-body-sm text-body-sm px-4 py-2 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm" style="background-color: rgb(24, 144, 255);">
+                        申请报修
+                    </button>
+</div>
+</article>
+<!-- Card 2 (Expired) -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 shadow-sm relative overflow-hidden opacity-90">
+<!-- Status Bar Top -->
+<div class="absolute top-0 left-0 w-full h-1 bg-outline opacity-50"></div>
+<div class="flex justify-between items-start mb-3">
+<div class="inline-flex items-center gap-1 bg-surface-variant text-on-surface-variant px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]" data-icon="warning">warning</span>
+<span class="font-label-mono text-label-mono">[已过保]</span>
+</div>
+</div>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2">手持激光焊接机</h3>
+<div class="space-y-1 mb-4 pt-3 border-t border-dashed border-outline-variant/60">
+<div class="flex justify-between">
+<span class="font-body-sm text-body-sm text-on-surface-variant">SN码：</span>
+<span class="font-label-mono text-label-mono text-on-surface">772109</span>
+</div>
+</div>
+<div class="flex justify-end gap-2 pt-3">
+<button class="bg-surface border border-outline-variant text-on-surface-variant font-body-sm text-body-sm px-4 py-2 rounded-lg hover:bg-surface-variant active:scale-95 transition-all">
+                        申请报修
+                    </button>
+<button class="bg-tertiary-container text-on-tertiary font-body-sm text-body-sm px-4 py-2 rounded-lg hover:opacity-90 active:scale-95 transition-all shadow-sm flex items-center gap-1" style="background-color: rgb(250, 140, 22); color: rgb(255, 255, 255);">
+<span class="material-symbols-outlined text-[16px]" data-icon="shopping_cart">shopping_cart</span>
+                        购买延保
+                    </button>
+</div>
+</article>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 pb-safe bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant dark:border-outline shadow-sm rounded-t-lg">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container transition-all active:scale-95 duration-150 w-full h-full">
+<span class="material-symbols-outlined mb-1" data-icon="build">build</span>
+<span class="font-label-mono text-label-mono">首页</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-tertiary-container hover:bg-surface-container-high dark:hover:bg-tertiary-container transition-all active:scale-95 duration-150 w-full h-full">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-mono text-label-mono">工单</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary dark:text-primary-fixed-dim font-bold hover:bg-surface-container-high dark:hover:bg-tertiary-container transition-all active:scale-95 duration-150 w-full h-full" style="background-color: rgb(230, 247, 255); color: rgb(24, 144, 255); border-radius: 0.5rem; margin: 4px 8px; height: calc(100% - 8px);"><span class="material-symbols-outlined mb-1" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span><span class="font-label-mono text-label-mono">我的</span></button>
+</nav>
+
+
+
+
+
+
+
+
+
+
+</body></html>

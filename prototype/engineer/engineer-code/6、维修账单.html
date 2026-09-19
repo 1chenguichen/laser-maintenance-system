@@ -1,0 +1,198 @@
+<!DOCTYPE html><html class="light" lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>维修账单 - 服务中心</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#303031",
+                        "on-tertiary-fixed": "#011a40",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#283d64",
+                        "secondary-fixed": "#e5e2e1",
+                        "primary-fixed": "#66ff95",
+                        "on-secondary-container": "#636262",
+                        "inverse-primary": "#45e17c",
+                        "tertiary": "#4a5e87",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#bbcbba",
+                        "on-primary-container": "#00471f",
+                        "on-primary-fixed-variant": "#005225",
+                        "on-surface-variant": "#3d4a3d",
+                        "background": "#faf9f9",
+                        "surface-bright": "#faf9f9",
+                        "tertiary-fixed-dim": "#b2c6f6",
+                        "surface-tint": "#006d33",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f5f3f3",
+                        "on-background": "#1b1c1c",
+                        "on-surface": "#1b1c1c",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e2dfde",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#32466e",
+                        "primary-container": "#07c160",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-container": "#efeded",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e9e8e8",
+                        "surface": "#faf9f9",
+                        "tertiary-container": "#94a8d6",
+                        "outline": "#6c7b6c",
+                        "surface-dim": "#dbdad9",
+                        "primary": "#006d33",
+                        "on-primary-fixed": "#00210b",
+                        "secondary": "#5f5e5e",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#45e17c",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-fixed": "#d8e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "24px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "section-gap": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-sm": ["17px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant">
+<button aria-label="Go back" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low dark:hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-surface dark:text-on-surface flex-1 text-center font-bold">服务中心</h1>
+<button aria-label="Notifications" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container-low dark:hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-primary dark:text-primary-fixed-dim" data-icon="notifications">notifications</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 pt-14 pb-24 px-margin-mobile flex flex-col items-center justify-center space-y-stack-lg max-w-md mx-auto w-full">
+<!-- QR Code Section -->
+<section class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg p-stack-lg flex flex-col items-center shadow-sm">
+<div class="mb-stack-md text-center">
+<p class="font-headline-md text-headline-md text-on-surface">支付账单</p>
+<p class="font-body-md text-body-md text-on-surface-variant mt-unit">请出示给客户扫码支付</p>
+</div>
+<div class="bg-white p-unit border border-outline-variant rounded-lg mb-stack-md relative group">
+<img alt="QR Code" class="w-64 h-64 object-cover" data-alt="A clean, high-contrast black and white QR code displayed prominently in the center. The surrounding interface is bright, minimalist, and clinical, utilizing pure whites and subtle gray borders. The lighting is even and flat to ensure the code is easily scannable, reflecting a modern, efficient payment system in a professional service application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFI-NxqZ-ndtSAT89DS0rBekVXNutxPQd9UWCQhERFsv3V-tPHdRk-wbEzvwOi380oWL5feL3G2sV4kLi3kVxdHqCPbZ3QSqj26CKBkBvYNi70hgZHvqkVjw4DWVBwM4h6pUW98M6jIaE3zyLDjXRh_dP3VzuZFMTsrcftHTg0S9ZDo1KpOoeJuqB1w1KsfBD0907vVoAOv6gsyoxWxxYBvT9AcDBz7LajAhIeOKCVy5ykO_UENKfLbS8Gkp-yRxIPawZO5IzZmQ">
+<!-- Overlay for scanning effect -->
+<div class="absolute inset-0 border-2 border-primary rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+<div class="w-full h-1 bg-primary/50 blur-sm absolute top-0 left-0 animate-[scan_2s_ease-in-out_infinite]"></div>
+</div>
+</div>
+<div class="flex items-center space-x-unit text-primary">
+<span class="material-symbols-outlined text-xl" data-icon="qr_code_scanner">qr_code_scanner</span>
+<span class="font-label-lg text-label-lg">支持微信 / 支付宝</span>
+</div>
+</section>
+<!-- Bill Details Card -->
+<section class="w-full bg-surface-container-lowest border border-surface-variant rounded-lg p-stack-md shadow-sm">
+<div class="flex justify-between items-end border-b border-surface-variant pb-stack-sm mb-stack-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">总计应收</h2>
+<div class="text-right">
+<span class="font-body-sm text-body-sm text-on-surface-variant">¥</span>
+<span class="font-display-lg text-display-lg text-error font-bold tracking-tight">680.00</span>
+</div>
+</div>
+<div class="space-y-stack-sm">
+<div class="flex justify-between items-center py-unit">
+<span class="font-body-md text-body-md text-on-surface-variant">上门检测费</span>
+<span class="font-body-md text-body-md text-on-surface">¥ 80.00</span>
+</div>
+<div class="flex justify-between items-center py-unit">
+<span class="font-body-md text-body-md text-on-surface-variant">空调主板更换维修</span>
+<span class="font-body-md text-body-md text-on-surface">¥ 450.00</span>
+</div>
+<div class="flex justify-between items-center py-unit">
+<span class="font-body-md text-body-md text-on-surface-variant">材料费 (原装冷媒)</span>
+<span class="font-body-md text-body-md text-on-surface">¥ 150.00</span>
+</div>
+</div>
+<div class="mt-stack-md pt-stack-sm border-t border-surface-variant border-dashed">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">工单编号</span>
+<span class="font-body-sm text-body-sm text-on-surface font-mono">WO-20231024-0012</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Status Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-high py-stack-md px-margin-mobile flex items-center justify-center border-t border-surface-variant z-40">
+<div class="flex items-center space-x-stack-sm pulse-animation">
+<span class="material-symbols-outlined text-primary animate-spin" data-icon="sync" style="animation-duration: 2s;">sync</span>
+<span class="font-label-lg text-label-lg text-on-surface-variant">正在等待客户支付...</span>
+</div>
+</div>
+<style>
+        @keyframes scan {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+    </style>
+</body></html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>完工存证</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#303031",
+                        "on-tertiary-fixed": "#011a40",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#283d64",
+                        "secondary-fixed": "#e5e2e1",
+                        "primary-fixed": "#66ff95",
+                        "on-secondary-container": "#636262",
+                        "inverse-primary": "#45e17c",
+                        "tertiary": "#4a5e87",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#bbcbba",
+                        "on-primary-container": "#00471f",
+                        "on-primary-fixed-variant": "#005225",
+                        "on-surface-variant": "#3d4a3d",
+                        "background": "#faf9f9",
+                        "surface-bright": "#faf9f9",
+                        "tertiary-fixed-dim": "#b2c6f6",
+                        "surface-tint": "#006d33",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f5f3f3",
+                        "on-background": "#1b1c1c",
+                        "on-surface": "#1b1c1c",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e2dfde",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#32466e",
+                        "primary-container": "#07c160",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-container": "#efeded",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e9e8e8",
+                        "surface": "#faf9f9",
+                        "tertiary-container": "#94a8d6",
+                        "outline": "#6c7b6c",
+                        "surface-dim": "#dbdad9",
+                        "primary": "#006d33",
+                        "on-primary-fixed": "#00210b",
+                        "secondary": "#5f5e5e",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#45e17c",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-fixed": "#d8e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "24px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "section-gap": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-sm": ["17px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+                        "headline-lg-mobile": ["22px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-lg": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { -webkit-tap-highlight-color: transparent; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Signature Canvas setup */
+        #signature-pad {
+            touch-action: none; /* Prevent scrolling while signing */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-lowest text-on-surface antialiased min-h-screen flex flex-col font-body-md">
+<!-- TopAppBar (Transactional Context - Keeping generic branding but showing back intent) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14 bg-surface border-b border-outline-variant flat no shadows">
+<button aria-label="返回" class="text-primary hover:bg-surface-container-low transition-colors p-2 -ml-2 rounded-full">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="font-headline-sm text-headline-sm text-on-surface flex-1 text-center">
+            完工存证
+        </h1>
+<!-- Empty placeholder to balance flex-between -->
+<div class="w-10"></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-[56px] mb-[80px] flex flex-col">
+<!-- Payment Success Banner -->
+<div class="bg-primary-container bg-opacity-10 py-3 px-margin-mobile border-b border-primary-container border-opacity-20 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="font-label-lg text-label-lg text-on-surface">客户已支付完成</span>
+</div>
+<div class="flex-1 p-margin-mobile flex flex-col gap-section-gap">
+<!-- Section: 修复前状态 (Pre-repair Status) -->
+<section class="flex flex-col gap-stack-sm">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="w-1 h-4 bg-secondary rounded-full"></span>
+                    修复前状态
+                </h2>
+<div class="bg-surface p-4 rounded-lg border border-outline-variant">
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Evidence Image 1 -->
+<div class="aspect-square rounded-lg overflow-hidden border border-outline-variant bg-surface-container relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Close up photography of a broken industrial pipe leaking dark fluid in a well-lit white factory setting. The pipe is metallic and shows clear signs of corrosion and stress fracture. The lighting is harsh and direct, emphasizing the damage and metallic texture. Industrial minimalism aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBpTbmPD1T30jl6jCdg1DE-uEc9mu0C0dzivck4WCCXVAJ4lG-dfMzjT0yeqMrXWXepkGOvxEC7umTJ2381cZ6-lT4hFIFrUS0D_-A8yzvsR09NsCqg4Km0SlENSHlU0Y7udZL5kFjlrVqw8o8lcv9xh7p_lx5iiG_ZVU3ygxqAb4Vc4rRmZRv7s494TTP0_Xo_nrhWqN19gtQe_RhPDjaCGNrgY1wVUfKQvsQxG76PHDzqVy7ChCAUJ4MqI9nplHnN43IvZTlOMQ');">
+</div>
+</div>
+<!-- Evidence Image 2 -->
+<div class="aspect-square rounded-lg overflow-hidden border border-outline-variant bg-surface-container relative">
+<div class="w-full h-full bg-cover bg-center" data-alt="Detailed macro shot of an open electrical panel with frayed wires and a scorched fuse box. The background is a clean white industrial wall. The lighting is clinical and bright, highlighting the mechanical failure. The color palette is dominated by stark whites, greys, and the burnt orange of the copper wiring." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAg--SiNxisFMek5_CG-OpEdh-ksB6mgN4hu_HvoAddO2qtr06eqTkE-K0yAFOxZWjjjjhyFqBm2fb7r7QKu74zVNFdG8Dktu5mpPaT3YYtgPQ7dlAjocUHcTdFce-HiGbVwSBHgroLzdSwnQuyuZvf1Lt3-QPiLZnbQX7LRFWwVQpkoGf8S94yLQ-3Z5wTvcwOEZTwikTgYa91YFNv-wYUyzhyzU_7JvHxwQt1DmSGHDyksPIGTGObKWZJyJUgUax5hD8QkrQQcQ');">
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: 修复后状态 (Post-repair Status) -->
+<section class="flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="w-1 h-4 bg-primary rounded-full"></span>
+                        修复后状态
+                    </h2>
+<span class="font-label-md text-label-md text-secondary">必填项</span>
+</div>
+<div class="bg-surface p-4 rounded-lg border border-outline-variant">
+<div class="grid grid-cols-3 gap-gutter">
+<!-- Upload Trigger Button -->
+<button class="aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-low flex flex-col items-center justify-center gap-2 text-secondary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[28px]">add_a_photo</span>
+<span class="font-label-md text-label-md">上传照片</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mt-stack-sm">请上传至少2张修复完成后的全景及细节照片。</p>
+</div>
+</section>
+<!-- Section: 客户电子签名 (Customer Electronic Signature) -->
+<section class="flex flex-col gap-stack-sm">
+<div class="flex justify-between items-center">
+<h2 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+<span class="w-1 h-4 bg-tertiary rounded-full"></span>
+                        客户电子签名
+                    </h2>
+<button class="font-label-md text-label-md text-tertiary hover:opacity-80 transition-opacity flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">ink_eraser</span>
+                        清除重签
+                    </button>
+</div>
+<!-- Signature Pad Area -->
+<div class="bg-surface border border-outline-variant rounded-lg h-48 relative overflow-hidden flex flex-col">
+<div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+<span class="font-headline-lg text-headline-lg text-surface-container-highest tracking-widest select-none">请在此处签名</span>
+</div>
+<canvas class="w-full h-full relative z-10 cursor-crosshair touch-none" id="signature-pad"></canvas>
+<div class="absolute bottom-2 right-2 text-secondary-fixed-dim font-label-md text-label-md z-0">
+                        本人确认上述服务已按要求完成
+                    </div>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Action Bar (Fixed) -->
+<footer class="fixed bottom-0 left-0 w-full z-50 px-margin-mobile py-3 bg-surface border-t border-outline-variant">
+<button class="w-full h-[48px] bg-primary-container text-on-primary font-label-lg text-label-lg rounded-lg flex items-center justify-center gap-2 hover:bg-opacity-90 active:scale-[0.98] transition-all shadow-sm">
+<span class="material-symbols-outlined">assignment_turned_in</span>
+            提交验收报告并结案
+        </button>
+</footer>
+<!-- Lightweight JS for Canvas Interaction (Visual proof of concept) -->
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const canvas = document.getElementById('signature-pad');
+            const ctx = canvas.getContext('2d');
+            
+            // Resize canvas to match display size exactly for sharp rendering
+            function resizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            let isDrawing = false;
+
+            function startPosition(e) {
+                isDrawing = true;
+                draw(e);
+            }
+
+            function endPosition() {
+                isDrawing = false;
+                ctx.beginPath();
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+                
+                e.preventDefault(); // Prevent scrolling on touch devices
+                
+                let x, y;
+                if (e.type.includes('touch')) {
+                    const rect = canvas.getBoundingClientRect();
+                    x = e.touches[0].clientX - rect.left;
+                    y = e.touches[0].clientY - rect.top;
+                } else {
+                    x = e.offsetX;
+                    y = e.offsetY;
+                }
+
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.strokeStyle = '#1b1c1c'; // text-on-surface
+
+                ctx.lineTo(x, y);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+            }
+
+            // Mouse events
+            canvas.addEventListener('mousedown', startPosition);
+            canvas.addEventListener('mouseup', endPosition);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseout', endPosition);
+
+            // Touch events
+            canvas.addEventListener('touchstart', startPosition, { passive: false });
+            canvas.addEventListener('touchend', endPosition);
+            canvas.addEventListener('touchmove', draw, { passive: false });
+        });
+    </script>
+</body></html>

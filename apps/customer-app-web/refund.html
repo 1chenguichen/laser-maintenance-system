@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>退款申请</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f",
+            "warning": "#faad14"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"],
+            mono: ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-24">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">退款申请</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Notice -->
+    <section class="p-4 rounded-xl" style="background-color: #fffbe6; border: 1px solid #ffe58f;">
+      <div class="flex items-start gap-3">
+        <span class="material-symbols-outlined fill" style="color: #faad14;">info</span>
+        <div class="text-sm" style="color: #ad6800;">
+          <p class="font-medium mb-1">退款说明</p>
+          <ul class="list-disc list-inside space-y-1 text-xs">
+            <li>定金支付后24小时内可申请全额退款</li>
+            <li>工程师已上门后，退款需扣除相应上门费</li>
+            <li>维修完成后退款申请需客服审核</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Order Selection -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">选择工单</h3>
+      <select id="orderSelect" class="w-full p-3 border border-outline-variant rounded-lg text-sm bg-white" onchange="loadOrderInfo()">
+        <option value="">请选择要退款的工单</option>
+        <option value="1">WX20260915001 - 3000W激光切割机</option>
+        <option value="2">WX20260912002 - 2000W激光焊接机</option>
+      </select>
+    </section>
+
+    <!-- Order Details (dynamic) -->
+    <section id="orderDetails" class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm hidden">
+      <h3 class="font-semibold mb-3" style="color: #111827;">工单信息</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">工单编号</span>
+          <span class="font-mono" id="refundOrderNo">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">设备型号</span>
+          <span id="refundDevice">-</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">已付金额</span>
+          <span class="font-bold" style="color: #1890ff;" id="refundPaid">¥ 0.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">退款金额</span>
+          <span class="font-bold" style="color: #52c41a;" id="refundAmount">¥ 0.00</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Refund Reason -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">退款原因</h3>
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="refund_reason" value="cancel" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">取消维修</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="refund_reason" value="delay" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">工程师响应太慢</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="refund_reason" value="quote" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">报价过高</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="refund_reason" value="other" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">其他原因</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Additional Notes -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">补充说明</h3>
+      <textarea id="refundNotes" class="w-full p-3 border border-outline-variant rounded-lg text-sm" rows="3" placeholder="请详细描述退款原因（选填）"></textarea>
+    </section>
+
+    <!-- Refund Account -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">退款账户</h3>
+      <div class="flex items-center justify-between p-3 rounded-lg" style="background-color: #f7f9fb; border: 1px solid #e5e7eb;">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined fill" style="color: #52c41a;">account_balance_wallet</span>
+          <span class="text-sm" style="color: #111827;">原路退回</span>
+        </div>
+        <span class="text-xs text-on-surface-variant">1-3个工作日到账</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Action -->
+  <div class="fixed bottom-[80px] w-full max-w-[414px] left-1/2 -translate-x-1/2 bg-white border-t border-outline-variant px-4 py-4 z-40">
+    <button id="submitBtn" class="w-full py-3 text-white font-medium rounded-lg disabled:opacity-50" style="background-color: #1890ff;" onclick="submitRefund()" disabled>
+      提交退款申请
+    </button>
+  </div>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('orders')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">receipt_long</span>
+      <span class="text-xs mt-1 font-medium">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-xs mt-1">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var selectedOrder = null;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.querySelectorAll('input[name="refund_reason"]').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.getElementById('submitBtn').disabled = !selectedOrder;
+      });
+    });
+
+    function loadOrderInfo() {
+      var orderId = document.getElementById('orderSelect').value;
+      if (!orderId) {
+        document.getElementById('orderDetails').classList.add('hidden');
+        selectedOrder = null;
+        document.getElementById('submitBtn').disabled = true;
+        return;
+      }
+
+      // Demo data
+      var demoOrders = {
+        '1': { orderNo: 'WX20260915001', device: '3000W激光切割机', paid: 204, refund: 204 },
+        '2': { orderNo: 'WX20260912002', device: '2000W激光焊接机', paid: 150, refund: 150 }
+      };
+
+      var order = demoOrders[orderId] || demoOrders['1'];
+      selectedOrder = order;
+
+      document.getElementById('orderDetails').classList.remove('hidden');
+      document.getElementById('refundOrderNo').textContent = order.orderNo;
+      document.getElementById('refundDevice').textContent = order.device;
+      document.getElementById('refundPaid').textContent = '¥ ' + order.paid.toFixed(2);
+      document.getElementById('refundAmount').textContent = '¥ ' + order.refund.toFixed(2);
+
+      var reason = document.querySelector('input[name="refund_reason"]:checked');
+      document.getElementById('submitBtn').disabled = !reason;
+    }
+
+    function submitRefund() {
+      var reason = document.querySelector('input[name="refund_reason"]:checked');
+      if (!reason) {
+        alert('请选择退款原因');
+        return;
+      }
+
+      var notes = document.getElementById('refundNotes').value;
+      alert('退款申请已提交，1-3个工作日内处理');
+      window.location.href = 'orders.html';
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

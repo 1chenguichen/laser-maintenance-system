@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>我的设备</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "warning": "#faad14",
+            "error": "#ff4d4f"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 340px;
+      max-width: 90vw;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">我的设备</h1>
+    <button class="text-primary" onclick="showAddModal()">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+  </header>
+
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Loading -->
+    <div id="loading" class="text-center py-10 text-on-surface-variant">
+      <span class="material-symbols-outlined animate-spin">progress_activity</span>
+      <p class="mt-2">加载中...</p>
+    </div>
+
+    <!-- Device List -->
+    <section class="space-y-3 mt-4 hidden" id="deviceListSection">
+      <div id="deviceList"></div>
+    </section>
+
+    <!-- Empty State -->
+    <section class="hidden text-center py-10" id="emptyState">
+      <span class="material-symbols-outlined text-5xl text-on-surface-variant">precision_manufacturing</span>
+      <p class="mt-4 text-on-surface-variant">暂无设备</p>
+      <p class="text-sm text-on-surface-variant mt-1">点击右上角添加设备</p>
+    </section>
+
+    <!-- Add Device Hint -->
+    <section class="bg-white border border-dashed border-outline-variant rounded-xl p-6 text-center shadow-sm cursor-pointer hover:border-primary transition-colors hidden" id="addHint" onclick="showAddModal()">
+      <span class="material-symbols-outlined text-3xl text-on-surface-variant">add_circle</span>
+      <p class="text-sm text-on-surface-variant mt-2">添加新设备</p>
+    </section>
+  </main>
+
+  <!-- Add Device Modal -->
+  <div id="addModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-lg">添加设备</h3>
+        <button onclick="hideAddModal()" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <p class="text-sm text-on-surface-variant mb-4">请输入设备序列号（SN码）</p>
+      <input type="text" id="serialInput" class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm" placeholder="输入设备序列号" />
+      <p id="addError" class="text-error text-sm mt-2 hidden"></p>
+      <button onclick="submitAddDevice()" class="w-full mt-4 py-3 bg-primary text-white rounded-lg font-medium">确认添加</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="text-xs mt-1">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('profile')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">person</span>
+      <span class="text-xs mt-1 font-medium">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadDevices();
+    });
+
+    function loadDevices() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('deviceListSection').classList.add('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('addHint').classList.add('hidden');
+
+      fetch(API_BASE + '/customer/devices', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(devices) {
+          document.getElementById('loading').classList.add('hidden');
+          renderDevices(devices || []);
+        }).catch(function(e) {
+          console.error(e);
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('emptyState').classList.remove('hidden');
+        });
+    }
+
+    function renderDevices(devices) {
+      var listEl = document.getElementById('deviceList');
+      var listSection = document.getElementById('deviceListSection');
+      var emptyState = document.getElementById('emptyState');
+      var addHint = document.getElementById('addHint');
+
+      if (devices.length === 0) {
+        listSection.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        addHint.classList.remove('hidden');
+        return;
+      }
+
+      listSection.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+
+      listEl.innerHTML = devices.map(function(d) {
+        var warrantyStatus = getWarrantyStatus(d.warrantyExpire);
+        var bgColor = warrantyStatus === '在保' ? '#e6f7ff' : warrantyStatus === '部分过保' ? '#fff7e6' : '#fff2f0';
+        var textColor = warrantyStatus === '在保' ? '#52c41a' : warrantyStatus === '部分过保' ? '#faad14' : '#ff4d4f';
+        var borderColor = warrantyStatus === '在保' ? '#b7eb8f' : warrantyStatus === '部分过保' ? '#ffd591' : '#ffccc7';
+
+        return '<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">' +
+          '<div class="flex items-start justify-between">' +
+            '<div class="flex items-start gap-3">' +
+              '<div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: ' + bgColor + ';">' +
+                '<span class="material-symbols-outlined text-xl" style="color: ' + textColor + ';">precision_manufacturing</span>' +
+              '</div>' +
+              '<div>' +
+                '<h3 class="font-semibold" style="color: #111827;">' + (d.model || '未知设备') + '</h3>' +
+                '<p class="text-xs text-on-surface-variant mt-1 font-mono">SN: ' + (d.serialNumber || '无') + '</p>' +
+                '<div class="flex items-center gap-2 mt-2">' +
+                  '<span class="px-2 py-0.5 rounded text-xs" style="background-color: ' + bgColor + '; color: ' + textColor + '; border: 1px solid ' + borderColor + ';">' + warrantyStatus + '</span>' +
+                  (d.purchaseDate ? '<span class="text-xs text-on-surface-variant">购机：' + formatDate(d.purchaseDate) + '</span>' : '') +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-end">' +
+            '<button class="px-3 py-1 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="repairDevice(\'' + d.id + '\')">报修</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') +
+
+      '<div class="bg-white border border-dashed border-outline-variant rounded-xl p-4 text-center cursor-pointer hover:border-primary transition-colors" onclick="showAddModal()">' +
+        '<span class="material-symbols-outlined text-2xl text-on-surface-variant">add_circle</span>' +
+        '<p class="text-sm text-on-surface-variant mt-1">添加新设备</p>' +
+      '</div>';
+    }
+
+    function getWarrantyStatus(warrantyExpire) {
+      if (!warrantyExpire) return '未知';
+      var now = new Date();
+      var expire = new Date(warrantyExpire);
+      var monthsDiff = (expire.getFullYear() - now.getFullYear()) * 12 + (expire.getMonth() - now.getMonth());
+      if (expire < now) return '已过保';
+      if (monthsDiff < 3) return '部分过保';
+      return '在保';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      var d = new Date(dateStr);
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function showAddModal() {
+      document.getElementById('addModal').classList.remove('hidden');
+      document.getElementById('serialInput').value = '';
+      document.getElementById('addError').classList.add('hidden');
+    }
+
+    function hideAddModal() {
+      document.getElementById('addModal').classList.add('hidden');
+    }
+
+    function submitAddDevice() {
+      var serial = document.getElementById('serialInput').value.trim();
+      if (!serial) {
+        document.getElementById('addError').textContent = '请输入设备序列号';
+        document.getElementById('addError').classList.remove('hidden');
+        return;
+      }
+
+      document.getElementById('addError').classList.add('hidden');
+
+      fetch(API_BASE + '/customer/devices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ serialNumber: serial })
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.id) {
+            hideAddModal();
+            alert('设备添加成功！');
+            loadDevices();
+          } else {
+            document.getElementById('addError').textContent = data.message || '添加失败';
+            document.getElementById('addError').classList.remove('hidden');
+          }
+        }).catch(function(e) {
+          document.getElementById('addError').textContent = '网络错误，请重试';
+          document.getElementById('addError').classList.remove('hidden');
+        });
+    }
+
+    function repairDevice(deviceId) {
+      window.location.href = 'repair-form.html?deviceId=' + deviceId;
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

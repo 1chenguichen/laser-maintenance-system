@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>首页 - 设备报修门户</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="pb-20">
+  <!-- Header -->
+  <header class="bg-white px-4 py-4 border-b border-outline-variant">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-lg font-bold" style="color: #111827;">设备报修门户</h1>
+        <p class="text-xs text-on-surface-variant mt-1" id="welcomeText">您好</p>
+      </div>
+      <button class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center" onclick="window.location.href='profile.html'">
+        <span class="material-symbols-outlined" style="color: #1890ff;">person</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Quick Actions -->
+  <main class="p-4 space-y-4">
+    <!-- Quick Report -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h2 class="font-semibold mb-3" style="color: #111827;">快速报修</h2>
+      <button class="w-full py-4 rounded-xl text-white font-medium flex flex-col items-center justify-center" style="background: linear-gradient(135deg, #1890ff 0%, #0052d9 100%); box-shadow: 0 4px 12px rgba(24,144,255,0.35);" onclick="window.location.href='repair-form.html'">
+        <span class="material-symbols-outlined text-3xl mb-1">add_circle</span>
+        <span>提交维修工单</span>
+      </button>
+    </div>
+
+    <!-- Device List -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-semibold" style="color: #111827;">我的设备</h2>
+        <button class="text-xs px-3 py-1 rounded-lg" style="background-color: #e6f7ff; color: #1890ff;" onclick="window.location.href='devices.html'">管理</button>
+      </div>
+      <div id="deviceList">
+        <div class="text-center py-4">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant">devices</span>
+          <p class="text-sm text-on-surface-variant mt-2">暂无设备</p>
+          <button class="mt-2 text-sm" style="color: #1890ff;" onclick="window.location.href='devices.html'">添加设备</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-semibold" style="color: #111827;">最近工单</h2>
+        <button class="text-xs px-3 py-1 rounded-lg" style="background-color: #e6f7ff; color: #1890ff;" onclick="window.location.href='orders.html'">查看全部</button>
+      </div>
+      <div id="orderList">
+        <div class="text-center py-4">
+          <span class="material-symbols-outlined text-4xl text-on-surface-variant">receipt_long</span>
+          <p class="text-sm text-on-surface-variant mt-2">暂无工单</p>
+          <button class="mt-2 text-sm" style="color: #1890ff;" onclick="window.location.href='repair-form.html'">立即报修</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('home')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">home</span>
+      <span class="text-xs mt-1 font-medium">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="text-xs mt-1">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-xs mt-1">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var user = JSON.parse(localStorage.getItem('customer_user') || '{}');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (user.name) {
+        document.getElementById('welcomeText').textContent = '您好，' + user.name;
+      }
+      loadData();
+    });
+
+    function loadData() {
+      loadDevices();
+      loadRecentOrders();
+    }
+
+    function loadDevices() {
+      fetch(API_BASE + '/customer/devices', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(devices) {
+        if (devices.length > 0) {
+          var html = '';
+          devices.slice(0, 3).forEach(function(device) {
+            html += '<div class="flex items-center gap-3 py-2 border-b border-outline-variant last:border-0">';
+            html += '<span class="material-symbols-outlined text-xl" style="color: #1890ff;">precision_manufacturing</span>';
+            html += '<div class="flex-1">';
+            html += '<p class="text-sm font-medium">' + device.model + '</p>';
+            html += '<p class="text-xs text-on-surface-variant">' + device.serialNumber + '</p>';
+            html += '</div>';
+            html += '</div>';
+          });
+          document.getElementById('deviceList').innerHTML = html;
+        }
+      })
+      .catch(function(err) {
+        console.log('加载设备失败');
+      });
+    }
+
+    function loadRecentOrders() {
+      fetch(API_BASE + '/customer/work-orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(orders) {
+        if (orders.length > 0) {
+          var html = '';
+          orders.slice(0, 3).forEach(function(order) {
+            var statusMap = {
+              'PENDING': '待处理',
+              'DISPATCHED': '已派单',
+              'ACCEPTED': '已接单',
+              'PENDING_PAYMENT': '待付款',
+              'REPAIRING': '维修中',
+              'PENDING_FINAL_PAYMENT': '待付尾款',
+              'COMPLETED': '已完成',
+              'CANCELLED': '已取消'
+            };
+            html += '<div class="flex items-center gap-3 py-2 border-b border-outline-variant last:border-0 cursor-pointer" onclick="window.location.href=\'order-progress.html?id=' + order.id + '\'">';
+            html += '<span class="material-symbols-outlined text-xl" style="color: #1890ff;">receipt_long</span>';
+            html += '<div class="flex-1">';
+            html += '<p class="text-sm font-medium">' + order.faultType + '</p>';
+            html += '<p class="text-xs text-on-surface-variant">' + (order.orderNo || '') + '</p>';
+            html += '</div>';
+            html += '<span class="text-xs px-2 py-1 rounded" style="background-color: #e6f7ff; color: #1890ff;">' + (statusMap[order.status] || order.status) + '</span>';
+            html += '</div>';
+          });
+          document.getElementById('orderList').innerHTML = html;
+        }
+      })
+      .catch(function(err) {
+        console.log('加载工单失败');
+      });
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'home.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>历史订单 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.location.href='profile.html'">
+      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">历史订单</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 space-y-4">
+    <div id="historyList">
+      <div class="text-center py-12 text-on-surface-variant">加载中...</div>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadHistory();
+    });
+
+    function loadHistory() {
+      fetch(API_BASE + '/engineer/orders?status=COMPLETED', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var orders = Array.isArray(data) ? data : [];
+        var container = document.getElementById('historyList');
+
+        if (orders.length === 0) {
+          container.innerHTML = '<div class="text-center py-12"><span class="material-symbols-outlined text-5xl text-on-surface-variant">history</span><p class="mt-4 text-on-surface-variant">暂无历史订单</p></div>';
+          return;
+        }
+
+        var html = '';
+        orders.forEach(function(order) {
+          var addr = order.address ? [order.address.city, order.address.district, order.address.detail].filter(Boolean).join('') : '-';
+
+          html += '<article class="bg-white rounded-xl p-4 border border-outline-variant mb-4">';
+          html += '<div class="flex justify-between items-start mb-3 pb-3 border-b border-outline-variant">';
+          html += '<div class="flex flex-col gap-2">';
+          html += '<span class="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-on-surface">已完成</span>';
+          html += '<span class="text-xs text-on-surface-variant font-mono">' + (order.orderNo || order.id) + '</span>';
+          html += '</div>';
+          html += '<div class="text-lg font-bold" style="color: #006d33;">¥' + ((order.finalAmount || order.estimatedAmount) || 0).toFixed(0) + '</div>';
+          html += '</div>';
+
+          html += '<h3 class="font-semibold mb-3" style="color: #111827;">' + (order.faultType || '维修任务') + '</h3>';
+
+          html += '<div class="space-y-2 text-sm text-on-surface-variant mb-4">';
+          html += '<div class="flex items-center gap-2">';
+          html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">devices</span>';
+          html += '<span>' + (order.device ? order.device.model : '-') + '</span>';
+          html += '</div>';
+          html += '<div class="flex items-center gap-2">';
+          html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">location_on</span>';
+          html += '<span>' + addr + '</span>';
+          html += '</div>';
+          html += '<div class="flex items-center gap-2">';
+          html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">calendar_today</span>';
+          html += '<span>' + (order.completedAt || order.updatedAt || '-') + '</span>';
+          html += '</div>';
+          html += '</div>';
+
+          html += '<button class="w-full py-2 border font-medium rounded-lg text-sm" style="border-color: #006d33; color: #006d33;" onclick="viewDetail(\'' + order.id + '\')">查看详情</button>';
+          html += '</article>';
+        });
+
+        container.innerHTML = html;
+      })
+      .catch(function(err) {
+        document.getElementById('historyList').innerHTML = '<div class="text-center py-12 text-on-surface-variant">加载失败: ' + err.message + '</div>';
+      });
+    }
+
+    function viewDetail(orderId) {
+      window.location.href = 'task-detail.html#' + orderId;
+    }
+  </script>
+</body>
+</html>

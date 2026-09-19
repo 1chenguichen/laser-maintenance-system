@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>提交报修</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .photo-thumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-24 max-w-[414px]">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">提交报修</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <main class="pt-14 px-4 space-y-4 pb-4">
+    <!-- Emergency Level -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm mt-4">
+      <h3 class="font-semibold mb-3" style="color: #111827;">紧急程度</h3>
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="emergency" value="normal" checked class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">普通报修</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style="border: 1px solid #ffccc7; background-color: #fff2f0;">
+          <input type="radio" name="emergency" value="urgent" class="form-radio" style="accent-color: #ff4d4f;">
+          <span class="text-sm" style="color: #ff4d4f;">紧急报修（设备停机影响生产）</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Device Selection -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm" id="deviceSection">
+      <h3 class="font-semibold mb-3" style="color: #111827;">选择报修设备</h3>
+      <div id="deviceListContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- Fault Selection -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">故障类型</h3>
+      <select id="faultType" class="w-full px-3 py-3 border border-outline-variant rounded-lg text-sm bg-white">
+        <option value="">请选择故障类型</option>
+        <option value="激光器故障">激光器故障</option>
+        <option value="光路故障">光路故障</option>
+        <option value="水路故障">水路故障</option>
+        <option value="气路故障">气路故障</option>
+        <option value="电路故障">电路故障</option>
+        <option value="控制系统故障">控制系统故障</option>
+        <option value="机械传动故障">机械传动故障</option>
+        <option value="冷却系统故障">冷却系统故障</option>
+        <option value="除尘系统故障">除尘系统故障</option>
+        <option value="其他故障">其他故障</option>
+      </select>
+    </section>
+
+    <!-- Fault Description -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">故障描述</h3>
+      <textarea id="faultDesc" class="w-full p-3 border border-outline-variant rounded-lg text-sm" rows="4" placeholder="请详细描述设备故障现象，以便工程师更好地判断问题..."></textarea>
+      <p class="text-xs text-on-surface-variant mt-2">建议描述：故障首次出现时间、频率、是否有报警代码等</p>
+    </section>
+
+    <!-- Service Address -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm" id="addressSection">
+      <h3 class="font-semibold mb-3" style="color: #111827;">服务地址</h3>
+      <div id="addressListContainer" class="space-y-3"></div>
+      <button onclick="goToAddAddress()" class="w-full mt-3 py-3 border-2 border-dashed border-outline-variant rounded-lg text-sm" style="color: #1890ff;">
+        + 添加新地址
+      </button>
+    </section>
+
+    <!-- Preferred Time -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">期望上门时间</h3>
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="service_time" value="asap" checked class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">尽快上门</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="service_time" value="tomorrow" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">明天</span>
+        </label>
+        <label class="flex items-center gap-3 p-3 rounded-lg cursor-pointer" style="border: 1px solid #e5e7eb;">
+          <input type="radio" name="service_time" value="this_week" class="form-radio" style="accent-color: #1890ff;">
+          <span class="text-sm" style="color: #111827;">本周内</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Upload Photos -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">故障图片（选填）</h3>
+      <input type="file" id="photoInput" accept="image/*" multiple capture="environment" class="hidden" onchange="handlePhotoSelect(event)">
+      <div class="flex flex-wrap gap-2" id="photoPreview">
+        <div class="w-20 h-20 rounded-lg border-2 border-dashed border-outline-variant flex items-center justify-center cursor-pointer hover:border-primary transition-colors" onclick="document.getElementById('photoInput').click()">
+          <span class="material-symbols-outlined text-2xl text-on-surface-variant">add_a_photo</span>
+        </div>
+      </div>
+      <p class="text-xs text-on-surface-variant mt-2">点击添加故障照片，方便工程师快速判断问题</p>
+    </section>
+  </main>
+
+  <!-- Bottom Action -->
+  <div class="bg-white border-t border-outline-variant px-4 py-4 mt-4">
+    <div class="flex items-center justify-between mb-2">
+      <span class="text-sm text-on-surface-variant">预计费用</span>
+      <span class="text-sm text-on-surface-variant">上门检测费 ¥150 起</span>
+    </div>
+    <button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #1890ff;" onclick="submitRepair()">
+      提交报修
+    </button>
+  </div>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="text-xs mt-1">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-xs mt-1">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var selectedDeviceId = new URLSearchParams(window.location.search).get('deviceId') || '';
+    var selectedAddressId = '';
+    var devices = [];
+    var addresses = [];
+    var photoFiles = [];
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadData();
+    });
+
+    function loadData() {
+      Promise.all([
+        fetch(API_BASE + '/customer/devices', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
+        fetch(API_BASE + '/customer/addresses', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); })
+      ]).then(function(results) {
+        devices = results[0] || [];
+        addresses = results[1] || [];
+        initUI();
+      }).catch(function(err) {
+        console.error('加载数据失败', err);
+      });
+    }
+
+    function initUI() {
+      // Auto-select first device if none selected
+      if (!selectedDeviceId && devices.length > 0) {
+        selectedDeviceId = devices[0].id;
+      }
+      // Auto-select default address (or first address)
+      if (!selectedAddressId && addresses.length > 0) {
+        var defaultAddr = addresses.find(function(a) { return a.isDefault; }) || addresses[0];
+        selectedAddressId = defaultAddr.id;
+      }
+      renderDeviceList();
+      renderAddressList();
+    }
+
+    function renderDeviceList() {
+      var container = document.getElementById('deviceListContainer');
+      if (devices.length === 0) {
+        container.innerHTML = '<p class="text-sm text-on-surface-variant text-center py-4">暂无设备，请先添加设备</p>';
+        return;
+      }
+      container.innerHTML = devices.map(function(d) {
+        var isSelected = d.id === selectedDeviceId;
+        var warrantyStatus = getWarrantyStatus(d.warrantyExpire);
+        var bgColor = warrantyStatus === '在保' ? '#e6f7ff' : warrantyStatus === '部分过保' ? '#fff7e6' : '#fff2f0';
+        var textColor = warrantyStatus === '在保' ? '#52c41a' : warrantyStatus === '部分过保' ? '#faad14' : '#ff4d4f';
+        return '<div class="p-3 rounded-lg cursor-pointer border-2 ' + (isSelected ? 'border-primary' : 'border-outline-variant') + '" style="background-color: ' + (isSelected ? '#e6f7ff' : '#f7f9fb') + ';" onclick="selectDevice(\'' + d.id + '\')">' +
+          '<div class="flex items-start gap-3">' +
+            '<div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: ' + bgColor + ';">' +
+              '<span class="material-symbols-outlined text-lg" style="color: ' + textColor + ';">precision_manufacturing</span>' +
+            '</div>' +
+            '<div class="flex-1">' +
+              '<p class="font-medium text-sm" style="color: #111827;">' + (d.model || '未知设备') + '</p>' +
+              '<p class="text-xs text-on-surface-variant font-mono">SN: ' + (d.serialNumber || '无') + '</p>' +
+              '<span class="inline-block mt-1 px-2 py-0.5 rounded text-xs" style="background-color: ' + bgColor + '; color: ' + textColor + ';">' + warrantyStatus + '</span>' +
+            '</div>' +
+            (isSelected ? '<span class="material-symbols-outlined text-primary">check_circle</span>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function renderAddressList() {
+      var container = document.getElementById('addressListContainer');
+      if (addresses.length === 0) {
+        container.innerHTML = '<p class="text-sm text-on-surface-variant text-center py-4">暂无地址</p>';
+        return;
+      }
+      container.innerHTML = addresses.map(function(a) {
+        var isSelected = a.id === selectedAddressId;
+        var fullAddr = (a.province || '') + (a.city || '') + (a.district || '') + (a.detail || '');
+        return '<div class="p-3 rounded-lg cursor-pointer border-2 ' + (isSelected ? 'border-primary' : 'border-outline-variant') + '" style="background-color: ' + (isSelected ? '#e6f7ff' : '#f7f9fb') + ';" onclick="selectAddress(\'' + a.id + '\')">' +
+          '<div class="flex items-start gap-3">' +
+            '<div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background-color: ' + (isSelected ? '#e6f7ff' : '#f5f5f5') + ';">' +
+              '<span class="material-symbols-outlined text-lg" style="color: ' + (isSelected ? '#1890ff' : '#999') + ';">location_on</span>' +
+            '</div>' +
+            '<div class="flex-1">' +
+              '<p class="font-medium text-sm" style="color: #111827;">' + (a.label || '地址') + '</p>' +
+              '<p class="text-xs text-on-surface-variant">' + fullAddr + '</p>' +
+              '<p class="text-xs text-on-surface-variant mt-1">' + (a.contactName || '') + ' ' + (a.contactPhone || '').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') + '</p>' +
+            '</div>' +
+            (isSelected ? '<span class="material-symbols-outlined text-primary">check_circle</span>' : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function getWarrantyStatus(warrantyExpire) {
+      if (!warrantyExpire) return '未知';
+      var now = new Date();
+      var expire = new Date(warrantyExpire);
+      var monthsDiff = (expire.getFullYear() - now.getFullYear()) * 12 + (expire.getMonth() - now.getMonth());
+      if (expire < now) return '已过保';
+      if (monthsDiff < 3) return '部分过保';
+      return '在保';
+    }
+
+    function selectDevice(deviceId) {
+      selectedDeviceId = deviceId;
+      renderDeviceList();
+    }
+
+    function selectAddress(addressId) {
+      selectedAddressId = addressId;
+      renderAddressList();
+    }
+
+    function goToAddAddress() {
+      window.location.href = 'addresses.html?redirect=repair-form';
+    }
+
+    function handlePhotoSelect(event) {
+      var files = event.target.files;
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        if (!file.type.startsWith('image/')) continue;
+        photoFiles.push(file);
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var preview = document.getElementById('photoPreview');
+          var div = document.createElement('div');
+          div.className = 'relative';
+          div.innerHTML = '<img src="' + e.target.result + '" class="photo-thumb"><button class="absolute -top-2 -right-2 w-6 h-6 bg-error text-white rounded-full text-xs" onclick="removePhoto(this)">×</button>';
+          preview.insertBefore(div, preview.lastElementChild);
+        };
+        reader.readAsDataURL(file);
+      }
+      event.target.value = '';
+    }
+
+    function removePhoto(btn) {
+      var div = btn.parentElement;
+      var index = Array.from(div.parentElement.children).indexOf(div);
+      photoFiles.splice(index, 1);
+      div.remove();
+    }
+
+    function submitRepair() {
+      var faultType = document.getElementById('faultType').value;
+      var faultDesc = document.getElementById('faultDesc').value;
+      var emergency = document.querySelector('input[name="emergency"]:checked').value;
+
+      if (!selectedDeviceId) {
+        toggleDeviceList();
+        return;
+      }
+      if (!faultType) {
+        alert('请选择故障类型');
+        return;
+      }
+      if (!faultDesc) {
+        alert('请描述故障现象');
+        return;
+      }
+      if (!selectedAddressId) {
+        alert('请选择服务地址');
+        return;
+      }
+
+      var btn = event.target;
+      btn.disabled = true;
+      btn.textContent = '提交中...';
+
+      // Upload photos first, then submit work order
+      uploadPhotosAndSubmit(faultType, faultDesc, emergency);
+    }
+
+    async function uploadPhotosAndSubmit(faultType, faultDesc, emergency) {
+      var btn = document.querySelector('button[onclick="submitRepair()"]');
+
+      try {
+        var photoUrls = [];
+
+        // Upload each photo file
+        for (var i = 0; i < photoFiles.length; i++) {
+          var formData = new FormData();
+          formData.append('photo', photoFiles[i]);
+
+          var response = await fetch(API_BASE + '/customer/work-orders/photo', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token },
+            body: formData
+          });
+
+          if (!response.ok) throw new Error('图片上传失败');
+
+          var result = await response.json();
+          photoUrls.push(result.url);
+        }
+
+        // Submit work order with photo URLs
+        var workOrderData = {
+          deviceId: selectedDeviceId,
+          addressId: selectedAddressId,
+          faultType: faultType,
+          faultDescription: faultDesc,
+          emergencyLevel: emergency === 'urgent' ? 1 : 0,
+          faultPhotos: photoUrls
+        };
+
+        var res = await fetch(API_BASE + '/customer/work-orders', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(workOrderData)
+        });
+
+        var data = await res.json();
+        if (data.error) throw new Error(data.message);
+
+        alert('报修提交成功！工单号：' + (data.orderNo || ''));
+        window.location.href = 'orders.html';
+      } catch (err) {
+        alert('提交失败: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '提交报修';
+      }
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

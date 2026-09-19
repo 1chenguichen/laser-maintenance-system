@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>客服智能助手</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .chat-container {
+      height: calc(100vh - 56px - 60px);
+      overflow-y: auto;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body class="bg-surface">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <div class="text-center">
+      <h1 class="font-semibold text-base" style="color: #111827;">象小秘 智能排障</h1>
+      <p class="text-xs text-green-500 flex items-center justify-center gap-1">
+        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+        在线
+      </p>
+    </div>
+    <button class="text-primary">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </header>
+
+  <!-- Chat Messages -->
+  <main class="chat-container pt-14 pb-16 px-4">
+    <!-- Welcome Message -->
+    <div class="flex items-start space-x-2 mt-4">
+      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+        <span class="text-sm" style="color: #1890ff;">🤖</span>
+      </div>
+      <div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">
+        <p class="text-sm" style="color: #191c1e;">您好！我是象小秘，您的智能排障助手。</p>
+        <p class="text-sm mt-2" style="color: #191c1e;">请描述一下您遇到的设备故障现象，我可以帮您快速定位问题。</p>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-4 ml-10">
+      <div class="flex flex-wrap gap-2">
+        <button class="quick-btn px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-xs" style="color: #1890ff;" onclick="sendQuickMessage('设备不开机')">
+          设备不开机
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-xs" style="color: #1890ff;" onclick="sendQuickMessage('激光功率不足')">
+          激光功率不足
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-xs" style="color: #1890ff;" onclick="sendQuickMessage('切割精度差')">
+          切割精度差
+        </button>
+        <button class="quick-btn px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-full text-xs" style="color: #1890ff;" onclick="sendQuickMessage('报警代码E01')">
+          报警代码E01
+        </button>
+      </div>
+    </div>
+
+    <!-- Spacer for input -->
+    <div class="h-20"></div>
+  </main>
+
+  <!-- Input Area -->
+  <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant px-4 py-3">
+    <div class="flex items-center space-x-3">
+      <button class="text-gray-400 hover:text-primary">
+        <span class="material-symbols-outlined">add_circle</span>
+      </button>
+      <input type="text" id="messageInput" placeholder="输入您的问题..." class="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <button class="text-gray-400 hover:text-primary" onclick="sendMessage()">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var wsConnected = false;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    // 解析 token 获取 customerId
+    function getCustomerIdFromToken(t) {
+      try {
+        var payload = JSON.parse(atob(t.split('.')[1]));
+        return payload.sub;
+      } catch(e) {
+        return null;
+      }
+    }
+    var customerId = getCustomerIdFromToken(token);
+
+    // 连接 Socket.IO
+    var socket = io(window.location.protocol + '//' + window.location.hostname + ':8080/ws');
+
+    socket.on('connect', function() {
+      console.log('Socket.IO connected');
+      // 绑定客户身份
+      if (customerId) {
+        socket.emit('bind_customer', { customerId: customerId });
+      }
+      wsConnected = true;
+    });
+
+    socket.on('cs_message', function(data) {
+      console.log('CS message received:', data);
+      addBotMessage(data.message, true);
+    });
+
+    socket.on('cs_accepted', function(data) {
+      console.log('CS accepted:', data);
+      updateWaitingNotice();
+    });
+
+    socket.on('cs_ended', function(data) {
+      console.log('CS session ended:', data);
+      removeWaitingNotice();
+    });
+
+    socket.on('cs_rating_request', function(data) {
+      console.log('CS rating request:', data);
+      showRatingRequest(data);
+    });
+
+    socket.on('disconnect', function() {
+      console.log('Socket.IO disconnected');
+      wsConnected = false;
+    });
+
+    // 页面加载时获取历史聊天记录
+    function loadChatHistory() {
+      fetch(API_BASE + '/ai/chats', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(chats) {
+        chats.forEach(function(chat) {
+          if (chat.direction === 'INBOUND') {
+            addUserMessage(chat.content, false);
+          } else {
+            addBotMessage(chat.content, false);
+          }
+        });
+        var container = document.querySelector('.chat-container');
+        requestAnimationFrame(function() {
+          container.scrollTop = container.scrollHeight;
+        });
+      })
+      .catch(function(err) {
+        console.log('加载历史记录失败:', err);
+      });
+    }
+
+    // 页面加载时获取历史
+    loadChatHistory();
+
+    function sendMessage() {
+      var input = document.getElementById('messageInput');
+      var message = input.value.trim();
+      if (!message) return;
+
+      addUserMessage(message);
+      input.value = '';
+
+      // 显示正在输入状态
+      addTypingIndicator();
+
+      // 调用后端AI服务
+      fetch(API_BASE + '/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ message: message })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        // 移除正在输入状态
+        removeTypingIndicator();
+        // 添加AI回复（非空时显示）
+        if (data.reply) {
+          addBotMessage(data.reply);
+        }
+        // 如果需要转人工，显示等待提示（供 cs_accepted 事件更新）
+        if (data.needHuman) {
+          addHumanTransferNotice();
+        }
+      })
+      .catch(function(err) {
+        removeTypingIndicator();
+        addBotMessage('抱歉，网络出现问题，请稍后再试。');
+      });
+    }
+
+    function addUserMessage(message, scroll) {
+      if (scroll === undefined) scroll = true;
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4 justify-end">' +
+        '<div class="chat-bubble bg-blue-500 rounded-2xl rounded-tr-sm p-3 shadow-sm">' +
+        '<p class="text-sm text-white">' + escapeHtml(message) + '</p>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      if (scroll) container.scrollTop = container.scrollHeight;
+    }
+
+    function addBotMessage(message, scroll) {
+      if (scroll === undefined) scroll = true;
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4">' +
+        '<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">' +
+        '<span class="text-sm" style="color: #1890ff;">🤖</span></div>' +
+        '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+        '<p class="text-sm whitespace-pre-line" style="color: #191c1e;">' + escapeHtml(message) + '</p>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      if (scroll) container.scrollTop = container.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4 typing-indicator">' +
+        '<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">' +
+        '<span class="text-sm" style="color: #1890ff;">🤖</span></div>' +
+        '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+        '<div class="flex gap-1">' +
+        '<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>' +
+        '<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></span>' +
+        '<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s;"></span>' +
+        '</div></div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      var typing = document.querySelector('.typing-indicator');
+      if (typing) typing.remove();
+    }
+
+    function addHumanTransferNotice() {
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4">' +
+        '<div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">' +
+        '<span class="text-sm">👨‍💼</span></div>' +
+        '<div class="chat-bubble bg-orange-50 border border-orange-200 rounded-2xl rounded-tl-sm p-3 shadow-sm waiting-notice">' +
+        '<p class="text-sm" style="color: #ad6800;">人工客服已接入，请稍候...</p>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function updateWaitingNotice() {
+      var notice = document.querySelector('.waiting-notice');
+      if (notice) {
+        notice.innerHTML = '<p class="text-sm" style="color: #52c41a;">人工客服已接入，请开始对话</p>';
+        notice.classList.remove('bg-orange-50', 'border-orange-200');
+        notice.classList.add('bg-green-50', 'border-green-200');
+        notice.parentElement.querySelector('.rounded-full').innerHTML = '<span class="text-sm">🎧</span>';
+      }
+    }
+
+    function removeWaitingNotice() {
+      var notice = document.querySelector('.waiting-notice');
+      if (notice) {
+        notice.parentElement.parentElement.remove();
+      }
+    }
+
+    function showRatingRequest(data) {
+      var ratingNames = {5: '非常满意', 4: '满意', 3: '一般', 2: '不满意', 1: '非常不满意'};
+      var tagsText = data.tags && data.tags.length > 0 ? data.tags.join('、') : '';
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4 rating-request" id="rating-bubble-' + Date.now() + '">' +
+        '<div class="w-8 h-8 rounded-full bg-yellow-100 flex items-center justify-center flex-shrink-0">' +
+        '<span class="text-sm">⭐</span></div>' +
+        '<div class="chat-bubble bg-yellow-50 border border-yellow-200 rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+        '<p class="text-sm font-medium" style="color: #ad6800;">请对本次服务进行评价</p>' +
+        '<p class="text-sm mt-1" style="color: #ad6800;">服务评分：<span id="rating-stars">' +
+        '<span class="star-btn cursor-pointer" data-rating="1" style="color: #999;">☆</span>' +
+        '<span class="star-btn cursor-pointer" data-rating="2" style="color: #999;">☆</span>' +
+        '<span class="star-btn cursor-pointer" data-rating="3" style="color: #999;">☆</span>' +
+        '<span class="star-btn cursor-pointer" data-rating="4" style="color: #999;">☆</span>' +
+        '<span class="star-btn cursor-pointer" data-rating="5" style="color: #999;">☆</span>' +
+        '</span> · <span id="rating-text">点击星星评分</span></p>' +
+        (tagsText ? '<p class="text-sm mt-1" style="color: #ad6800;">服务标签：' + tagsText + '</p>' : '') +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+
+      // 绑定星星点击事件
+      document.querySelectorAll('.star-btn').forEach(function(star) {
+        star.onclick = function() {
+          var selectedRating = parseInt(this.getAttribute('data-rating'));
+          updateStars(selectedRating);
+          // 点击后显示感谢
+          setTimeout(function() {
+            showRatingThanks(selectedRating);
+          }, 300);
+        };
+      });
+
+      function updateStars(r) {
+        document.querySelectorAll('.star-btn').forEach(function(star, i) {
+          star.textContent = i < r ? '★' : '☆';
+          star.style.color = i < r ? '#faad14' : '#999';
+        });
+        document.getElementById('rating-text').textContent = ratingNames[r] || '';
+      }
+    }
+
+    function showRatingThanks(rating) {
+      var ratingNames = {5: '非常满意', 4: '满意', 3: '一般', 2: '不满意', 1: '非常不满意'};
+      var container = document.querySelector('.chat-container');
+      var html = '<div class="flex items-start space-x-2 mt-4">' +
+        '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
+        '<span class="text-sm">✅</span></div>' +
+        '<div class="chat-bubble bg-green-50 border border-green-200 rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+        '<p class="text-sm" style="color: #52c41a;">感谢您的评价！</p>' +
+        '<p class="text-sm mt-1" style="color: #52c41a;">您选择了 ' + rating + ' 星（' + (ratingNames[rating] || '') + '），您的反馈是我们改进的动力！</p>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendQuickMessage(message) {
+      document.getElementById('messageInput').value = message;
+      sendMessage();
+    }
+
+    function createWorkOrder() {
+      window.location.href = 'repair-form.html';
+    }
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>

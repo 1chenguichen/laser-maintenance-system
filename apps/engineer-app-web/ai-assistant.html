@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>问AI - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .chat-container {
+      height: calc(100vh - 56px - 70px);
+      overflow-y: auto;
+    }
+    .chat-bubble {
+      max-width: 80%;
+      word-wrap: break-word;
+    }
+    .typing-indicator span {
+      animation: bounce 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+    /* 思考动画 */
+    .thinking-dots .dot {
+      display: inline-block;
+      animation: thinkingPulse 1.4s infinite ease-in-out;
+    }
+    .thinking-dots .dot:nth-child(1) { animation-delay: 0s; }
+    .thinking-dots .dot:nth-child(2) { animation-delay: 0.2s; }
+    .thinking-dots .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes thinkingPulse {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-3px); }
+    }
+    .thinking-robot {
+      animation: robotBounce 0.6s infinite alternate ease-in-out;
+    }
+    @keyframes robotBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-3px); }
+    }
+  </style>
+</head>
+<body class="bg-surface">
+  <!-- Top App Bar with Back Button -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
+      <span class="material-symbols-outlined" style="color: #006d33; font-size: 24px;">arrow_back</span>
+    </button>
+    <span class="text-base font-semibold" style="color: #191c1e;">AI助手</span>
+    <button onclick="clearChatHistory()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" title="清空对话">
+      <span class="material-symbols-outlined" style="color: #006d33; font-size: 22px;">delete</span>
+    </button>
+  </header>
+
+  <!-- Chat Messages -->
+  <main class="chat-container pt-14 pb-20 px-4">
+    <div class="text-center py-8">
+      <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color:#e6f7ec;">
+        <span class="text-3xl">🤖</span>
+      </div>
+      <h2 class="text-lg font-semibold mb-1" style="color:#191c1e;">AI维修助手</h2>
+      <p class="text-sm" style="color:#43474f;">有什么可以帮您的？</p>
+    </div>
+    <div id="chatMessages"></div>
+  </main>
+
+  <!-- Input Area -->
+  <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant">
+    <div class="flex items-end gap-2 px-4 py-3">
+      <div class="flex-1 relative">
+        <input type="text" id="messageInput" placeholder="输入问题..."
+          class="w-full px-4 py-3 pr-12 border border-outline-variant rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary">
+      </div>
+      <button onclick="sendMessage()" class="w-12 h-12 flex items-center justify-center rounded-full flex-shrink-0" style="background-color:#006d33;">
+        <span class="material-symbols-outlined text-white">send</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var DIFY_API = window.location.protocol + '//' + window.location.hostname + ':8080/ai/engineer/chat';
+
+    // 获取当前工程师ID，用于数据隔离
+    var engineerUser = JSON.parse(localStorage.getItem('engineer_user') || '{}');
+    var engineerId = engineerUser.id || 'guest';
+    var storagePrefix = 'engineer_ai_' + engineerId + '_';
+
+    var chatHistory = [];
+    var conversationId = localStorage.getItem(storagePrefix + 'conversation_id') || '';
+
+    function escapeHtml(text) {
+      var div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function loadChatHistory() {
+      var saved = localStorage.getItem(storagePrefix + 'chat_history');
+      if (saved) {
+        try {
+          chatHistory = JSON.parse(saved);
+          var container = document.getElementById('chatMessages');
+          chatHistory.forEach(function(msg) {
+            if (msg.role === 'user') {
+              container.insertAdjacentHTML('beforeend',
+                '<div class="flex items-start space-x-2 mt-4 justify-end">' +
+                '<div class="chat-bubble rounded-2xl rounded-tr-sm p-3 shadow-sm" style="background-color:#006d33;">' +
+                '<p class="text-sm text-white">' + escapeHtml(msg.content) + '</p></div></div>');
+            } else if (msg.role === 'assistant') {
+              container.insertAdjacentHTML('beforeend',
+                '<div class="flex items-start space-x-2 mt-4">' +
+                '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:#e6f7ec;">' +
+                '<span class="text-sm">🤖</span></div>' +
+                '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
+                '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(msg.content) + '</p>' +
+                '</div></div>');
+            }
+          });
+          var chatContainer = document.querySelector('.chat-container');
+          requestAnimationFrame(function() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+          });
+        } catch (e) {
+          chatHistory = [];
+        }
+      }
+    }
+
+    function saveChatHistory() {
+      localStorage.setItem(storagePrefix + 'chat_history', JSON.stringify(chatHistory));
+    }
+
+    function clearChatHistory() {
+      if (confirm('确定要清空所有对话记录吗？')) {
+        chatHistory = [];
+        localStorage.removeItem(storagePrefix + 'chat_history');
+        localStorage.removeItem(storagePrefix + 'conversation_id');
+        conversationId = '';
+        document.getElementById('chatMessages').innerHTML = '';
+      }
+    }
+
+    function addUserMessage(message) {
+      var container = document.getElementById('chatMessages');
+      var html = '<div class="flex items-start space-x-2 mt-4 justify-end">' +
+        '<div class="chat-bubble rounded-2xl rounded-tr-sm p-3 shadow-sm" style="background-color:#006d33;">' +
+        '<p class="text-sm text-white">' + escapeHtml(message) + '</p></div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      var chatContainer = document.querySelector('.chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+      chatHistory.push({ role: 'user', content: message });
+      saveChatHistory();
+    }
+
+    function createThinkingMessage() {
+      var container = document.getElementById('chatMessages');
+      var id = 'thinking-' + Date.now();
+      var startTime = Date.now();
+      var html = '<div class="flex items-start space-x-2 mt-4" id="' + id + '">' +
+        '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 thinking-robot" style="background-color:#e6f7ec;">' +
+        '<span class="text-sm">🤖</span></div>' +
+        '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
+        '<div class="flex items-center gap-2 mb-2">' +
+        '<p class="text-sm" style="color:#43474f;" id="' + id + '-status">' +
+        '<span class="thinking-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span>' +
+        ' 正在思考</p>' +
+        '<span class="text-xs" style="color:#999;" id="' + id + '-timer">0.0秒</span>' +
+        '</div>' +
+        '<p class="text-sm" style="color:#191c1e;" id="' + id + '-answer"></p>' +
+        '</div></div>';
+      container.insertAdjacentHTML('beforeend', html);
+      var chatContainer = document.querySelector('.chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      var timerInterval = setInterval(function() {
+        var elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+        var timerEl = document.getElementById(id + '-timer');
+        if (timerEl) timerEl.textContent = elapsed + '秒';
+      }, 100);
+
+      window['timer_' + id] = timerInterval;
+      return id;
+    }
+
+    function updateThinkingMessage(id, answer) {
+      var answerEl = document.getElementById(id + '-answer');
+      var statusEl = document.getElementById(id + '-status');
+      if (!answerEl) return;
+
+      // finalAnswer 已经是干净的文本（思考标签已在 processLine 中移除）
+      answerEl.textContent = answer;
+
+      // 切换状态
+      if (statusEl) {
+        statusEl.innerHTML = '<span class="thinking-dots"><span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></span> 正在生成回答';
+      }
+      // 滚动聊天容器到底部
+      var chatContainer = document.querySelector('.chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function finishThinkingMessage(id, answer) {
+      var timerId = window['timer_' + id];
+      if (timerId) {
+        clearInterval(timerId);
+        delete window['timer_' + id];
+      }
+
+      var el = document.getElementById(id);
+      if (!el) return;
+      var bubble = el.querySelector('.chat-bubble');
+      var statusEl = document.getElementById(id + '-status');
+
+      if (statusEl) {
+        statusEl.textContent = '已完成';
+        statusEl.style.color = '#52c41a';
+      }
+
+      // 移除思考动画类
+      var robotEl = el.querySelector('.thinking-robot');
+      if (robotEl) robotEl.classList.remove('thinking-robot');
+
+      // finalAnswer 已经是干净的文本
+      bubble.innerHTML = '<div style="color:#191c1e;white-space:pre-wrap;">' + escapeHtml(answer) + '</div>';
+
+      // 滚动聊天容器到底部
+      var chatContainer = document.querySelector('.chat-container');
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      chatHistory.push({ role: 'assistant', content: answer });
+      saveChatHistory();
+    }
+
+    function removeThinkingMessage(id) {
+      var timerId = window['timer_' + id];
+      if (timerId) {
+        clearInterval(timerId);
+        delete window['timer_' + id];
+      }
+      var el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function sendMessage() {
+      var input = document.getElementById('messageInput');
+      var message = input.value.trim();
+      if (!message) return;
+
+      addUserMessage(message);
+      input.value = '';
+
+      var thinkingId = createThinkingMessage();
+      var finalAnswer = '';
+      var inThink = false;
+      var decoder = new TextDecoder();
+      var chunkCount = 0;
+
+      fetch(DIFY_API, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          query: message,
+          conversation_id: conversationId || ''
+        })
+      })
+      .then(function(res) {
+        console.log('[AI] Response status:', res.status);
+        if (!res.ok) throw new Error('API error: ' + res.status);
+        var reader = res.body.getReader();
+        var buffer = '';
+
+        function read() {
+          reader.read().then(function(result) {
+            if (result.done) {
+              console.log('[AI] Stream done. Buffer:', buffer.substring(0, 200));
+              console.log('[AI] finalAnswer length:', finalAnswer.length, 'content:', finalAnswer.substring(0, 100));
+              if (buffer.trim()) processLine(buffer.trim());
+              console.log('[AI] After buffer process, finalAnswer length:', finalAnswer.length);
+              if (finalAnswer) {
+                console.log('[AI] Calling finishThinkingMessage with answer');
+                finishThinkingMessage(thinkingId, finalAnswer);
+              } else {
+                console.log('[AI] No answer, showing error message');
+                finishThinkingMessage(thinkingId, '抱歉，AI助手暂时无法回答您的问题。');
+              }
+              return;
+            }
+
+            buffer += decoder.decode(result.value, { stream: true });
+            chunkCount++;
+            console.log('[AI] Chunk #' + chunkCount + ', value byte length: ' + (result.value ? result.value.length : 0) + ', buffer len: ' + buffer.length);
+
+            var lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (var i = 0; i < lines.length; i++) {
+              var line = lines[i].trim();
+              if (line.startsWith('data:')) {
+                console.log('[AI] Found data line:', line.substring(0, 100));
+                processLine(line);
+              }
+            }
+
+            read();
+          });
+        }
+
+        read();
+      })
+      .catch(function(err) {
+        removeThinkingMessage(thinkingId);
+        var container = document.getElementById('chatMessages');
+        container.insertAdjacentHTML('beforeend',
+          '<div class="flex items-start space-x-2 mt-4">' +
+          '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
+          '<span class="text-sm">🤖</span></div>' +
+          '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
+          '<p class="text-sm" style="color: #f22;">抱歉，网络出现问题，请稍后再试。<br><span style="color:#999;font-size:11px;">' + escapeHtml(err.message) + '</span></p>' +
+          '</div></div>');
+        var chatContainer = document.querySelector('.chat-container');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      });
+
+      function processLine(line) {
+        try {
+          var data = JSON.parse(line.substring(5));
+
+          // 消息片段
+          if ((data.event === 'message' || data.event === 'agent_message') && data.answer) {
+            var chunk = data.answer;
+            var i = 0;
+            while (i < chunk.length) {
+              if (inThink) {
+                // 寻找思考结束标签
+                var endIdx = chunk.indexOf('</think>', i);
+                if (endIdx !== -1) {
+                  // 找到结束，跳过思考内容
+                  i = endIdx + 8; // 8 = length of "</think>"
+                  inThink = false;
+                } else {
+                  // 没有结束标签，丢弃剩余内容（包括未闭合的思考）
+                  break;
+                }
+              } else {
+                // 寻找思考开始标签
+                var startIdx = chunk.indexOf('<think>', i);
+                if (startIdx !== -1) {
+                  // 累积开始标签前的文本
+                  finalAnswer += chunk.substring(i, startIdx);
+                  i = startIdx + 7; // 7 = length of "<think>"
+                  inThink = true;
+                } else {
+                  // 没有更多思考标签，累加剩余文本
+                  finalAnswer += chunk.substring(i);
+                  break;
+                }
+              }
+            }
+            updateThinkingMessage(thinkingId, finalAnswer);
+          }
+
+          if (data.conversation_id) {
+            conversationId = data.conversation_id;
+            localStorage.setItem(storagePrefix + 'conversation_id', conversationId);
+          }
+        } catch (e) {
+          console.log('[AI] processLine error:', e);
+        }
+      }
+    }
+
+    // 清理答案，移除think标签
+    function cleanFinalAnswer(text) {
+      if (!text) return '';
+      // 移除所有think标签及其内容
+      return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+    }
+
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    document.addEventListener('DOMContentLoaded', loadChatHistory);
+  </script>
+</body>
+</html>

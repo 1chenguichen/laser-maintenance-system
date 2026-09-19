@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>完工签字 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <style>
+    .signature-canvas-wrapper {
+      border: 2px dashed var(--outline-variant);
+      border-radius: 12px;
+      background: #fff;
+      margin-top: 12px;
+    }
+    #signatureCanvas {
+      width: 100%;
+      height: 200px;
+      display: block;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-24">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
+      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">完工签字</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Order Summary -->
+    <div id="orderSummary" class="bg-white rounded-xl p-4 border border-outline-variant mt-4">
+      <div class="text-center py-4 text-on-surface-variant">加载中...</div>
+    </div>
+
+    <!-- Signature Section -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h3 class="font-semibold mb-2" style="color: #111827;">客户签字确认</h3>
+      <p class="text-xs text-on-surface-variant mb-4">请让客户在下方区域签字确认维修完成</p>
+
+      <div class="signature-canvas-wrapper">
+        <canvas id="signatureCanvas"></canvas>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button class="flex-1 py-3 border rounded-lg text-sm font-medium flex items-center justify-center gap-2" style="border-color: #006d33; color: #006d33;" onclick="clearSignature()">
+          <span class="material-symbols-outlined text-lg">refresh</span>
+          重写
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2 mt-4 text-xs" style="color: #ff4d4f;">
+        <span class="material-symbols-outlined text-lg">info</span>
+        签字代表客户确认维修已完成并认可维修结果
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Action -->
+  <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant px-4 py-4 z-40">
+    <button id="submitBtn" class="w-full py-3 text-white font-medium rounded-lg flex items-center justify-center gap-2" style="background-color: #006d33;" onclick="submitComplete()">
+      <span class="material-symbols-outlined">done</span>
+      确认完工
+    </button>
+  </div>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+    var orderId = null;
+    var orderData = null;
+    var signatureData = null;
+    var canvas, ctx;
+    var isDrawing = false;
+    var lastX = 0, lastY = 0;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      orderId = window.location.hash.slice(1);
+      if (!orderId) {
+        alert('缺少工单ID');
+        window.history.back();
+        return;
+      }
+      loadOrder();
+      initCanvas();
+    });
+
+    function loadOrder() {
+      fetch(API_BASE + '/engineer/orders/' + orderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        orderData = data;
+        renderSummary(data);
+      })
+      .catch(function(err) {
+        document.getElementById('orderSummary').innerHTML = '<div class="text-center py-8 text-error">加载失败</div>';
+      });
+    }
+
+    function renderSummary(order) {
+      var total = (Number(order.partsFee) || 0) + (Number(order.laborFee) || 0);
+      var html = '';
+      html += '<h3 class="font-semibold mb-4" style="color: #111827;">维修结算</h3>';
+      html += '<div class="space-y-3 text-sm">';
+      html += '<div class="flex justify-between">';
+      html += '<span class="text-on-surface-variant">配件费</span>';
+      html += '<span class="font-medium">¥' + (Number(order.partsFee) || 0).toFixed(2) + '</span>';
+      html += '</div>';
+      html += '<div class="flex justify-between">';
+      html += '<span class="text-on-surface-variant">人工费</span>';
+      html += '<span class="font-medium">¥' + (Number(order.laborFee) || 0).toFixed(2) + '</span>';
+      html += '</div>';
+      html += '<div class="flex justify-between">';
+      html += '<span class="text-on-surface-variant">维修设备</span>';
+      html += '<span class="font-medium">' + (order.device ? order.device.model : '-') + '</span>';
+      html += '</div>';
+      html += '</div>';
+      html += '<div class="flex justify-between items-center mt-4 pt-4 border-t border-outline-variant">';
+      html += '<span class="font-semibold">合计费用</span>';
+      html += '<span class="text-xl font-bold" style="color: #006d33;">¥' + total.toFixed(2) + '</span>';
+      html += '</div>';
+      document.getElementById('orderSummary').innerHTML = html;
+    }
+
+    function initCanvas() {
+      canvas = document.getElementById('signatureCanvas');
+      ctx = canvas.getContext('2d');
+
+      var wrapper = canvas.parentElement;
+      canvas.width = wrapper.clientWidth;
+      canvas.height = 200;
+
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mouseout', stopDrawing);
+
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      canvas.addEventListener('touchend', stopDrawing);
+    }
+
+    function getTouchPos(e) {
+      var rect = canvas.getBoundingClientRect();
+      var touch = e.touches[0];
+      return {
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      };
+    }
+
+    function handleTouchStart(e) {
+      e.preventDefault();
+      var pos = getTouchPos(e);
+      isDrawing = true;
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function handleTouchMove(e) {
+      e.preventDefault();
+      if (!isDrawing) return;
+      var pos = getTouchPos(e);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    }
+
+    function startDrawing(e) {
+      isDrawing = true;
+      lastX = e.offsetX;
+      lastY = e.offsetY;
+    }
+
+    function draw(e) {
+      if (!isDrawing) return;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.stroke();
+      lastX = e.offsetX;
+      lastY = e.offsetY;
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+      if (canvas) {
+        signatureData = canvas.toDataURL('image/png');
+      }
+    }
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      signatureData = null;
+    }
+
+    function submitComplete() {
+      if (!signatureData) {
+        alert('请让客户签字确认');
+        return;
+      }
+
+      var submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="material-symbols-outlined">hourglass_empty</span>提交中...';
+
+      fetch(API_BASE + '/engineer/orders/' + orderId + '/complete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          partsFee: orderData.partsFee,
+          laborFee: orderData.laborFee,
+          signatureUrl: signatureData
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        alert('完工确认成功');
+        // 跳转到 working tab
+        window.location.href = 'tasks.html#working';
+      })
+      .catch(function(err) {
+        alert('提交失败: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span class="material-symbols-outlined">done</span>确认完工';
+      });
+    }
+  </script>
+</body>
+</html>

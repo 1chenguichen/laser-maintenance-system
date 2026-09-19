@@ -14,8 +14,8 @@ export class Device {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ name: 'customer_id' })
-  customerId: string;
+  @Column({ name: 'customer_id', nullable: true })
+  customerId: string | null;
 
   @Column({ name: 'serial_number', length: 50 })
   serialNumber: string;

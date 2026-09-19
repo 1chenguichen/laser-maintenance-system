@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>支付成功</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"],
+            mono: ["JetBrains Mono"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-24">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">支付结果</h1>
+    <button class="text-primary">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </header>
+
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Success Icon -->
+    <section class="flex flex-col items-center justify-center py-8 mt-4">
+      <div class="w-20 h-20 rounded-full flex items-center justify-center mb-4" style="background-color: #f6ffed; border: 2px solid #b7eb8f;">
+        <span class="material-symbols-outlined fill text-4xl" style="color: #52c41a;">check_circle</span>
+      </div>
+      <h2 class="text-xl font-semibold mb-1" style="color: #111827;" id="statusTitle">支付成功</h2>
+      <p class="text-sm text-on-surface-variant" id="statusDesc">定金已收到，工程师即将开始维修</p>
+    </section>
+
+    <!-- Payment Details Card -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">支付详情</h3>
+      <div class="space-y-2 text-sm">
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">支付方式</span>
+          <span style="color: #111827;">微信支付</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">支付金额</span>
+          <span class="font-bold" style="color: #1890ff;" id="payAmount">¥ 204.00</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">工单编号</span>
+          <span class="font-mono" id="orderNo">WX20260915001</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-on-surface-variant">支付时间</span>
+          <span id="payTime">2026-09-15 16:30</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Order Info Card -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">工单信息</h3>
+      <div class="flex items-start space-x-3">
+        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+          <span class="text-lg">👨‍🔧</span>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium" style="color: #111827;" id="engineerName">张师傅</p>
+          <p class="text-sm text-on-surface-variant" id="engineerTitle">高级维修工程师</p>
+        </div>
+        <button class="px-3 py-1 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="viewProgress()">
+          查看进度
+        </button>
+      </div>
+    </section>
+
+    <!-- Invoice Application -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">发票开具</h3>
+      <p class="text-sm text-on-surface-variant mb-3">维修完成后可申请开具增值税普通发票或专用发票</p>
+      <div class="space-y-3">
+        <div class="flex items-center justify-between p-3 rounded-lg" style="background-color: #f7f9fb; border: 1px solid #e5e7eb;">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">receipt_long</span>
+            <span class="text-sm" style="color: #111827;">增值税普通发票</span>
+          </div>
+          <button class="text-xs px-3 py-1 rounded-lg" style="background-color: #e6f7ff; color: #1890ff;" onclick="applyInvoice('normal')">
+            申请
+          </button>
+        </div>
+        <div class="flex items-center justify-between p-3 rounded-lg" style="background-color: #f7f9fb; border: 1px solid #e5e7eb;">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant">business</span>
+            <span class="text-sm" style="color: #111827;">增值税专用发票</span>
+          </div>
+          <button class="text-xs px-3 py-1 rounded-lg" style="background-color: #e6f7ff; color: #1890ff;" onclick="applyInvoice('special')">
+            申请
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Action -->
+  <div class="fixed bottom-[80px] w-full max-w-[414px] left-1/2 -translate-x-1/2 bg-white border-t border-outline-variant px-4 py-4 z-40">
+    <button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #1890ff;" onclick="viewProgress()">
+      查看工单进度
+    </button>
+  </div>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('orders')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">receipt_long</span>
+      <span class="text-xs mt-1 font-medium">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
+      <span class="material-symbols-outlined">person</span>
+      <span class="text-xs mt-1">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var params = new URLSearchParams(window.location.search);
+    var status = params.get('status');
+    var orderId = params.get('orderId');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      if (status === 'success') {
+        document.getElementById('statusTitle').textContent = '支付成功';
+        document.getElementById('statusDesc').textContent = '定金已收到，工程师即将开始维修';
+      } else if (status === 'failed') {
+        document.getElementById('statusTitle').textContent = '支付失败';
+        document.getElementById('statusDesc').textContent = '请稍后重试或联系客服';
+      }
+      if (orderId) {
+        loadPaymentDetail(orderId);
+      }
+    });
+
+    function loadPaymentDetail(id) {
+      fetch(API_BASE + '/customer/work-orders/' + id, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.finalAmount) {
+            var deposit = Number(data.finalAmount) * 0.3;
+            document.getElementById('payAmount').textContent = '¥ ' + deposit.toFixed(2);
+          }
+          if (data.orderNo) {
+            document.getElementById('orderNo').textContent = data.orderNo;
+          }
+        }).catch(function(e) { console.error(e); });
+    }
+
+    function viewProgress() {
+      window.location.href = 'order-progress.html' + (orderId ? '?id=' + orderId : '');
+    }
+
+    function applyInvoice(type) {
+      alert('发票申请功能开发中...');
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

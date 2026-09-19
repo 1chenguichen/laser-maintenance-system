@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>收益中心 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.location.href='profile.html'">
+      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">收益中心</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 space-y-4">
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-2 gap-4 mt-4">
+      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
+        <div class="text-2xl font-bold" style="color: #006d33;" id="monthlyRevenue">¥0</div>
+        <div class="text-xs text-on-surface-variant mt-1">本月收益</div>
+      </div>
+      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
+        <div class="text-2xl font-bold" id="monthlyOrders">0</div>
+        <div class="text-xs text-on-surface-variant mt-1">本月订单</div>
+      </div>
+    </div>
+
+    <!-- Commission Tier -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h3 class="font-semibold mb-3" style="color: #111827;">提成等级</h3>
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm text-on-surface-variant">当前等级</span>
+        <span class="px-2 py-1 rounded-lg text-xs font-semibold" style="background-color: #e6f7ff; color: #006d33;" id="commissionTier">20%</span>
+      </div>
+      <p class="text-xs text-on-surface-variant mb-3" id="tierHint">再完成订单可升至更高等级</p>
+
+      <div class="h-2 rounded-full overflow-hidden" style="background-color: #f2f4f6;">
+        <div class="h-full rounded-full transition-all" style="background-color: #006d33; width: 0%;" id="tierProgress"></div>
+      </div>
+
+      <div class="flex justify-between mt-2 text-xs text-on-surface-variant">
+        <span>1-10单 20%</span>
+        <span>11-30单 25%</span>
+        <span>31+单 30%</span>
+      </div>
+    </div>
+
+    <!-- Total Stats -->
+    <div class="grid grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
+        <div class="text-2xl font-bold" id="totalOrders">0</div>
+        <div class="text-xs text-on-surface-variant mt-1">累计订单</div>
+      </div>
+      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
+        <div class="text-2xl font-bold" style="color: #006d33;" id="totalRevenue">¥0</div>
+        <div class="text-xs text-on-surface-variant mt-1">累计收益</div>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <div class="flex justify-between items-center">
+        <div>
+          <h3 class="font-semibold" style="color: #111827;">工程师评分</h3>
+          <p class="text-xs text-on-surface-variant mt-1">基于维修质量和服务态度</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <span class="material-symbols-outlined fill" style="color: #faad14; font-size: 24px;">star</span>
+          <span class="text-xl font-bold" id="avgRating">5.0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission Rules -->
+    <div class="bg-white rounded-xl p-4 border border-outline-variant">
+      <h3 class="font-semibold mb-3" style="color: #111827;">提成规则</h3>
+      <table class="w-full text-sm">
+        <thead>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <th class="text-left py-2 text-on-surface-variant">月订单量</th>
+            <th class="text-right py-2 text-on-surface-variant">提成比例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td class="py-3">1-10 单</td>
+            <td class="text-right font-semibold" style="color: #006d33;">20%</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #e5e7eb;">
+            <td class="py-3">11-30 单</td>
+            <td class="text-right font-semibold" style="color: #006d33;">25%</td>
+          </tr>
+          <tr>
+            <td class="py-3">31+ 单</td>
+            <td class="text-right font-semibold" style="color: #006d33;">30%</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="text-xs text-on-surface-variant mt-4">每月1日重置订单统计</p>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadStats();
+    });
+
+    function loadStats() {
+      fetch(API_BASE + '/engineer/stats', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        document.getElementById('monthlyRevenue').textContent = '¥' + ((data.monthlyRevenue || 0).toFixed(2));
+        document.getElementById('monthlyOrders').textContent = (data.monthlyOrders || 0);
+        document.getElementById('totalOrders').textContent = (data.totalOrders || 0);
+        document.getElementById('totalRevenue').textContent = '¥' + ((data.totalRevenue || 0).toFixed(0));
+        document.getElementById('avgRating').textContent = (data.avgRating || 5.0).toFixed(1);
+
+        // Commission tier
+        var orders = data.monthlyOrders || 0;
+        var tier, progress, hint;
+
+        if (orders >= 31) {
+          tier = '30%';
+          progress = 100;
+          hint = '已达最高等级';
+        } else if (orders >= 11) {
+          tier = '25%';
+          progress = ((orders - 11) / 20 * 100).toFixed(0);
+          hint = '再完成 ' + (31 - orders) + ' 单可升至 30%';
+        } else {
+          tier = '20%';
+          progress = (orders / 10 * 100).toFixed(0);
+          hint = '再完成 ' + (11 - orders) + ' 单可升至 25%';
+        }
+
+        document.getElementById('commissionTier').textContent = tier;
+        document.getElementById('tierProgress').style.width = progress + '%';
+        document.getElementById('tierHint').textContent = hint;
+      })
+      .catch(function(err) {
+        console.log('加载收益统计失败:', err);
+      });
+    }
+  </script>
+</body>
+</html>

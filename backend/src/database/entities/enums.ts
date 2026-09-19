@@ -7,13 +7,16 @@ export enum EngineerStatus {
 }
 
 export enum WorkOrderStatus {
-  PENDING = 'PENDING',      // 待派单
-  DISPATCHED = 'DISPATCHED', // 已派单
-  CONFIRMED = 'CONFIRMED',   // 客户已确认报价
-  REPAIRING = 'REPAIRING',  // 维修中
-  COMPLETED = 'COMPLETED',   // 已完成
-  REFUSED = 'REFUSED',      // 客户拒绝报价
-  CANCELLED = 'CANCELLED',  // 已取消
+  PENDING = 'PENDING',         // 待派单
+  DISPATCHED = 'DISPATCHED',  // 已派单
+  ACCEPTED = 'ACCEPTED',      // 工程师已确认上门
+  CONFIRMED = 'CONFIRMED',    // 已确认(legacy)
+  PENDING_PAYMENT = 'PENDING_PAYMENT', // 等待客户付款（30%定金）
+  REPAIRING = 'REPAIRING',    // 维修中
+  PENDING_FINAL_PAYMENT = 'PENDING_FINAL_PAYMENT', // 待付尾款
+  COMPLETED = 'COMPLETED',     // 已完成
+  REFUSED = 'REFUSED',        // 客户拒绝报价
+  CANCELLED = 'CANCELLED',    // 已取消
 }
 
 export enum DispatchType {

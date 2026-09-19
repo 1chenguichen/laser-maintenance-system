@@ -16,14 +16,20 @@ export class DispatchRecord {
   @Column({ name: 'work_order_id' })
   workOrderId: string;
 
-  @Column({ name: 'engineer_id' })
-  engineerId: string;
+  @Column({ name: 'engineer_id', nullable: true })
+  engineerId: string | null;
 
   @Column({ name: 'dispatch_type', type: 'enum', enum: DispatchType })
   dispatchType: DispatchType;
 
-  @Column({ name: 'grab_time', nullable: true })
-  grabTime: Date;
+  @Column({ name: 'grab_time', type: 'timestamp', nullable: true })
+  grabTime: Date | null;
+
+  @Column({ name: 'response_time', default: 0 })
+  responseTime: number;
+
+  @Column({ name: 'remark', type: 'varchar', nullable: true })
+  remark: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

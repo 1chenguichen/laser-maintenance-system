@@ -1,0 +1,321 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>作业工作台</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 1,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "inverse-surface": "#303031",
+                      "on-tertiary-fixed": "#011a40",
+                      "on-primary": "#ffffff",
+                      "on-tertiary-container": "#283d64",
+                      "secondary-fixed": "#e5e2e1",
+                      "primary-fixed": "#66ff95",
+                      "on-secondary-container": "#636262",
+                      "inverse-primary": "#45e17c",
+                      "tertiary": "#4a5e87",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-secondary": "#ffffff",
+                      "outline-variant": "#bbcbba",
+                      "on-primary-container": "#00471f",
+                      "on-primary-fixed-variant": "#005225",
+                      "on-surface-variant": "#3d4a3d",
+                      "background": "#faf9f9",
+                      "surface-bright": "#faf9f9",
+                      "tertiary-fixed-dim": "#b2c6f6",
+                      "surface-tint": "#006d33",
+                      "surface-container-highest": "#e3e2e2",
+                      "on-error-container": "#93000a",
+                      "surface-container-low": "#f5f3f3",
+                      "on-background": "#1b1c1c",
+                      "on-surface": "#1b1c1c",
+                      "error": "#ba1a1a",
+                      "secondary-container": "#e2dfde",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-fixed-variant": "#32466e",
+                      "primary-container": "#07c160",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-container": "#efeded",
+                      "error-container": "#ffdad6",
+                      "surface-container-high": "#e9e8e8",
+                      "surface": "#faf9f9",
+                      "tertiary-container": "#94a8d6",
+                      "outline": "#6c7b6c",
+                      "surface-dim": "#dbdad9",
+                      "primary": "#006d33",
+                      "on-primary-fixed": "#00210b",
+                      "secondary": "#5f5e5e",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-tertiary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "inverse-on-surface": "#f2f0f0",
+                      "primary-fixed-dim": "#45e17c",
+                      "surface-variant": "#e3e2e2",
+                      "tertiary-fixed": "#d8e2ff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "24px",
+                      "stack-lg": "24px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "stack-sm": "8px",
+                      "stack-md": "16px",
+                      "section-gap": "32px"
+              },
+              "fontFamily": {
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Inter"
+                      ],
+                      "label-md": [
+                              "Inter"
+                      ],
+                      "headline-lg-mobile": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-lg": [
+                              "Inter"
+                      ],
+                      "headline-lg": [
+                              "Inter"
+                      ],
+                      "display-lg": [
+                              "Inter"
+                      ],
+                      "headline-md": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-lg": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "17px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.04em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-lg": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-lg min-h-screen pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14 bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flat no shadows">
+<button aria-label="返回" class="flex items-center justify-center p-2 text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-low rounded-full transition-opacity opacity-100 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="font-headline-sm text-headline-sm text-on-surface dark:text-on-surface flex-1 text-center font-bold tracking-tight">
+            工单执行中
+        </div>
+<button aria-label="通知" class="flex items-center justify-center p-2 text-primary dark:text-primary-fixed-dim hover:bg-surface-container-low dark:hover:bg-surface-container-low rounded-full transition-opacity opacity-100 active:opacity-70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</header>
+<main class="pt-20 px-margin-mobile max-w-screen-md mx-auto space-y-section-gap">
+<!-- Progress Stepper -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-lg p-stack-md">
+<div class="flex items-center justify-between relative">
+<!-- Line -->
+<div class="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container-high -z-10 -translate-y-1/2"></div>
+<!-- Step 1 (Completed) -->
+<div class="flex flex-col items-center gap-stack-sm bg-surface-container-lowest px-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="check">check</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface">到达现场</span>
+</div>
+<!-- Step 2 (Active) -->
+<div class="flex flex-col items-center gap-stack-sm bg-surface-container-lowest px-2">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-label-lg text-label-lg shadow-[0_0_0_4px_rgba(7,193,96,0.2)]">
+                        2
+                    </div>
+<span class="font-label-md text-label-md text-primary font-bold">故障检测</span>
+</div>
+<!-- Step 3 (Pending) -->
+<div class="flex flex-col items-center gap-stack-sm bg-surface-container-lowest px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-lg text-label-lg border border-outline-variant">
+                        3
+                    </div>
+<span class="font-label-md text-label-md text-on-surface-variant">维修实施</span>
+</div>
+<!-- Step 4 (Pending) -->
+<div class="flex flex-col items-center gap-stack-sm bg-surface-container-lowest px-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-label-lg text-label-lg border border-outline-variant">
+                        4
+                    </div>
+<span class="font-label-md text-label-md text-on-surface-variant">完工验收</span>
+</div>
+</div>
+</section>
+<!-- Form Section -->
+<section class="space-y-stack-lg">
+<!-- Category Selection -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface font-bold">故障分类 <span class="text-error">*</span></label>
+<div class="grid grid-cols-2 gap-gutter sm:grid-cols-4">
+<button class="h-11 rounded-lg border-2 border-primary-container bg-surface-container-lowest text-primary font-label-lg text-label-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="electrical_services">electrical_services</span>
+                        电气故障
+                    </button>
+<button class="h-11 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg hover:bg-surface-container-low flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+                        机械故障
+                    </button>
+<button class="h-11 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg hover:bg-surface-container-low flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="water_drop">water_drop</span>
+                        水路故障
+                    </button>
+<button class="h-11 rounded-lg border border-outline-variant bg-surface-container-lowest text-on-surface-variant font-label-lg text-label-lg hover:bg-surface-container-low flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="more_horiz">more_horiz</span>
+                        其他
+                    </button>
+</div>
+</div>
+<!-- Description -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface font-bold" for="fault-desc">详细描述 <span class="text-error">*</span></label>
+<textarea class="w-full rounded-lg border border-outline-variant bg-surface-container-lowest p-stack-md font-body-md text-body-md text-on-surface focus:border-primary-container focus:ring-1 focus:ring-primary-container transition-colors resize-none placeholder-on-surface-variant" id="fault-desc" placeholder="请详细描述设备故障现象、发生时间及可能的原因..." rows="4"></textarea>
+</div>
+<!-- Photo Upload -->
+<div class="space-y-stack-sm">
+<label class="block font-label-md text-label-md text-on-surface font-bold">现场照片 <span class="text-on-surface-variant font-normal">(最多上传5张)</span></label>
+<div class="grid grid-cols-3 gap-gutter sm:grid-cols-5">
+<!-- Uploaded Image 1 -->
+<div class="relative aspect-square rounded-lg border border-outline-variant bg-surface-container-low overflow-hidden group">
+<img alt="工业设备电气面板特写，显示复杂的线路和继电器" class="w-full h-full object-cover" data-alt="A close-up shot of a complex industrial electrical panel. The panel is filled with neatly organized, brightly colored wires and gray relays. The lighting is harsh and bright, typical of a factory setting, creating strong shadows and highlighting the metallic textures. The overall mood is technical and precise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_cRjhj4SI-amJw9WkcfGnggdVM_dPI1TY-k28mLfzqyI_fCKmv5wsl4rB-4kAxp7XDUJAmd3iKVgLRYE9XAWo3y6hlWtg82orCuvNA6FVMHs01gDTJS2OpcNvPcSK5YrYEILE2hHosqAZh3VDfTdM6TTf9YLUmjn9eAQphRGwdJ_OdMxosksIvoPUwuhKv0f3qyTe8bAph-Xprrh2nUSI35g0AGbiZ6r-M4RKw_zHGqYxmxbKCs4wE0fhhLUZE1wiAzyWSNvzPg">
+<button class="absolute top-1 right-1 w-6 h-6 bg-inverse-surface/80 text-on-primary rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[14px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Uploaded Image 2 -->
+<div class="relative aspect-square rounded-lg border border-outline-variant bg-surface-container-low overflow-hidden group">
+<img alt="技术人员的手持万用表测试电路" class="w-full h-full object-cover" data-alt="A close-up shot of a technician's hands holding a yellow digital multimeter, testing a circuit board. The red and black probes are touching specific components. The lighting is focused on the hands and the multimeter, creating a high-contrast industrial look. The background is slightly blurred, emphasizing the technical action." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHEdUsC89iPcj9nIcM0LHM9g7PgLvwlxFW-ehw2W9QFGm-6ALxulb_zg36DAYFa9l6XYcPnbAmzd9F5DqNQhAOGvHYV6WRTShLnVOlQMceved2aMKKSFh5AFE-0oflszeTtVglnDZOW4CczSHJ8st5jVCEQ0dGnbLAkDCSF5iVrQb7JS73xn33BFgLJpwjOM-oPloXllhxcAovy-V7ZYCbz6lcs86fvu43hf8zxBvpsnJTkE_pFpwqvdycNC1GvR5holnajGcB_w">
+<button class="absolute top-1 right-1 w-6 h-6 bg-inverse-surface/80 text-on-primary rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-[14px]" data-icon="close">close</span>
+</button>
+</div>
+<!-- Upload Button -->
+<button class="aspect-square rounded-lg border-2 border-dashed border-outline-variant bg-surface-container-lowest hover:bg-surface-container-low flex flex-col items-center justify-center gap-1 transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="add_a_photo">add_a_photo</span>
+<span class="font-label-md text-label-md">上传照片</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Action Bar -->
+<div class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant p-margin-mobile z-50">
+<div class="max-w-screen-md mx-auto flex gap-gutter">
+<button class="flex-1 h-12 rounded-lg bg-surface-container-lowest border border-on-surface text-on-surface font-label-lg text-label-lg flex items-center justify-center transition-colors hover:bg-surface-container-low">
+                暂存
+            </button>
+<button class="flex-[2] h-12 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center transition-colors hover:bg-primary/90">
+                保存并进入下一步
+            </button>
+</div>
+</div>
+</body></html>

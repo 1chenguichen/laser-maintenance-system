@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>工程师登录 - 激光设备维保</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background: linear-gradient(135deg, #006d33 0%, #07c160 100%);
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="flex flex-col justify-center px-6">
+  <main class="flex-1 flex flex-col justify-center">
+    <!-- Logo Section -->
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-lg mb-4 overflow-hidden">
+        <img src="logo.png" alt="logo" class="w-full h-full object-contain">
+      </div>
+      <h1 class="text-2xl font-bold text-white">激光设备维保</h1>
+      <p class="text-sm text-white/80 mt-2">工程师端</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="bg-white rounded-2xl p-6 shadow-xl">
+      <form id="loginForm" onsubmit="handleLogin(event)">
+        <div class="space-y-4">
+          <!-- Phone Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">手机号</label>
+            <input type="tel" id="phone" placeholder="请输入手机号"
+              class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              value="13900000002">
+          </div>
+
+          <!-- SMS Code Input -->
+          <div>
+            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">验证码</label>
+            <div class="flex gap-2">
+              <input type="text" id="code" placeholder="请输入验证码" maxlength="6"
+                class="flex-1 px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                value="000000">
+              <button type="button" id="sendCodeBtn" class="px-4 py-3 border border-outline-variant rounded-lg text-sm" style="color: #1890ff;" onclick="sendCode()">
+                获取验证码
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" id="loginBtn"
+            class="w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
+            style="background-color: #006d33; box-shadow: 0 4px 12px rgba(0,109,51,0.35);">
+            登录
+          </button>
+        </div>
+      </form>
+
+      <!-- Demo Hint -->
+      <div class="mt-4 p-3 rounded-lg" style="background-color: #f7f9fb;">
+        <p class="text-xs text-center" style="color: #43474f;">
+          测试模式：验证码 <span class="font-mono font-bold">000000</span> 可直接登录
+        </p>
+      </div>
+
+      <!-- Register Link -->
+      <div class="mt-4 text-center">
+        <p class="text-sm" style="color: #737780;">
+          还没有账号？<span onclick="alert('请联系管理员注册账号')" class="font-medium" style="color: #006d33; cursor: pointer;">立即注册</span>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+
+    function sendCode() {
+      var btn = document.getElementById('sendCodeBtn');
+      btn.textContent = '60s';
+      btn.disabled = true;
+      var countdown = 60;
+      var timer = setInterval(function() {
+        countdown--;
+        btn.textContent = countdown > 0 ? countdown + 's' : '获取验证码';
+        if (countdown <= 0) {
+          clearInterval(timer);
+          btn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      var phone = document.getElementById('phone').value;
+      var code = document.getElementById('code').value;
+      var btn = document.getElementById('loginBtn');
+
+      btn.textContent = '登录中...';
+      btn.disabled = true;
+
+      fetch(API_BASE + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone, code: code, role: 'engineer' })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.accessToken) {
+          localStorage.setItem('engineer_token', data.accessToken);
+          localStorage.setItem('engineer_user', JSON.stringify(data.user));
+          window.location.href = 'grab.html';
+        } else {
+          alert(data.message || data.error || '登录失败');
+          btn.textContent = '登录';
+          btn.disabled = false;
+        }
+      })
+      .catch(function(err) {
+        alert('登录失败: ' + err.message);
+        btn.textContent = '登录';
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>收益中心</title>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Design System Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-surface": "#303031",
+                        "on-tertiary-fixed": "#011a40",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-container": "#283d64",
+                        "secondary-fixed": "#e5e2e1",
+                        "primary-fixed": "#66ff95",
+                        "on-secondary-container": "#636262",
+                        "inverse-primary": "#45e17c",
+                        "tertiary": "#4a5e87",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#bbcbba",
+                        "on-primary-container": "#00471f",
+                        "on-primary-fixed-variant": "#005225",
+                        "on-surface-variant": "#3d4a3d",
+                        "background": "#faf9f9",
+                        "surface-bright": "#faf9f9",
+                        "tertiary-fixed-dim": "#b2c6f6",
+                        "surface-tint": "#006d33",
+                        "surface-container-highest": "#e3e2e2",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#f5f3f3",
+                        "on-background": "#1b1c1c",
+                        "on-surface": "#1b1c1c",
+                        "error": "#ba1a1a",
+                        "secondary-container": "#e2dfde",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed-variant": "#32466e",
+                        "primary-container": "#07c160",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-container": "#efeded",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#e9e8e8",
+                        "surface": "#faf9f9",
+                        "tertiary-container": "#94a8d6",
+                        "outline": "#6c7b6c",
+                        "surface-dim": "#dbdad9",
+                        "primary": "#006d33",
+                        "on-primary-fixed": "#00210b",
+                        "secondary": "#5f5e5e",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f2f0f0",
+                        "primary-fixed-dim": "#45e17c",
+                        "surface-variant": "#e3e2e2",
+                        "tertiary-fixed": "#d8e2ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "24px",
+                        "stack-lg": "24px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "section-gap": "32px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "headline-sm": ["17px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500"}],
+                        "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-lg": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Fill variation for Material Symbols */
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Hide scrollbar for clean UI */
+        ::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md text-body-md antialiased min-h-screen pb-[80px]">
+<!-- TopAppBar Shared Component -->
+<header class="bg-surface border-b border-outline-variant flat no shadows fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-mobile h-14">
+<button class="w-10 h-10 flex items-center justify-start text-primary hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex-1 flex justify-center text-center">
+<span class="font-headline-sm text-headline-sm text-on-surface">服务中心</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-end text-primary hover:bg-surface-container-low rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-[72px] max-w-[1280px] mx-auto w-full md:px-margin-desktop">
+<!-- Hero: Earnings Balance -->
+<section class="px-margin-mobile py-8 flex flex-col items-center justify-center text-center">
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-stack-sm w-full text-left">收益资产</h1>
+<div class="w-full flex flex-col items-center mt-section-gap">
+<span class="font-body-md text-body-md text-secondary mb-unit">总资产余额 (元)</span>
+<div class="flex items-baseline gap-unit text-on-surface">
+<span class="font-headline-md text-headline-md font-bold">¥</span>
+<span class="font-display-lg text-display-lg tracking-tight">12,450.00</span>
+</div>
+<button class="mt-stack-lg bg-primary-container text-on-primary font-label-lg text-label-lg px-8 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-sm">
+                    去提现
+                </button>
+</div>
+</section>
+<!-- Bento Grid: Daily Stats -->
+<section class="px-margin-mobile mt-section-gap">
+<div class="grid grid-cols-2 gap-gutter">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between h-[104px]">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+<span class="font-label-md text-label-md">今日完工</span>
+</div>
+<div class="flex items-baseline gap-1 mt-auto">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">8</span>
+<span class="font-body-sm text-body-sm text-secondary">单</span>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4 flex flex-col justify-between h-[104px]">
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+<span class="font-label-md text-label-md">今日入账</span>
+</div>
+<div class="flex items-baseline gap-1 mt-auto text-primary-container">
+<span class="font-body-sm text-body-sm font-bold">¥</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile">860.00</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Menu (Card Style List) -->
+<section class="px-margin-mobile mt-section-gap">
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg overflow-hidden">
+<!-- Menu Item 1 -->
+<button class="w-full flex items-center justify-between h-[56px] px-4 hover:bg-surface-container-low transition-colors border-b border-surface-variant active:bg-surface-dim group">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">提现记录</span>
+</div>
+<span class="material-symbols-outlined text-secondary">chevron_right</span>
+</button>
+<!-- Menu Item 2 -->
+<button class="w-full flex items-center justify-between h-[56px] px-4 hover:bg-surface-container-low transition-colors active:bg-surface-dim group">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]">credit_card</span>
+</div>
+<span class="font-body-lg text-body-lg text-on-surface">银行卡管理</span>
+</div>
+<span class="material-symbols-outlined text-secondary">chevron_right</span>
+</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Shared Component -->
+<nav class="bg-surface border-t border-outline-variant flat no shadows fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-margin-mobile py-2 md:hidden pb-safe">
+<!-- Tab 1: 抢单 (Inactive) -->
+<button class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md w-16 h-12 hover:bg-surface-container-lowest transition-colors rounded-lg">
+<span class="material-symbols-outlined mb-1">assignment_returned</span>
+<span>抢单</span>
+</button>
+<!-- Tab 2: 任务 (Inactive) -->
+<button class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md w-16 h-12 hover:bg-surface-container-lowest transition-colors rounded-lg">
+<span class="material-symbols-outlined mb-1">task_alt</span>
+<span>任务</span>
+</button>
+<!-- Tab 3: 移动仓 (Inactive) -->
+<button class="flex flex-col items-center justify-center text-secondary font-label-md text-label-md w-16 h-12 hover:bg-surface-container-lowest transition-colors rounded-lg">
+<span class="material-symbols-outlined mb-1">inventory_2</span>
+<span>移动仓</span>
+</button>
+<!-- Tab 4: 我的 (Active - Mapped semantically to 'Earnings/Profile' center) -->
+<button class="flex flex-col items-center justify-center text-primary font-bold font-label-md text-label-md w-16 h-12 hover:bg-surface-container-lowest active:scale-95 transition-transform duration-150 rounded-lg">
+<span class="material-symbols-outlined mb-1 icon-fill">person</span>
+<span>我的</span>
+</button>
+</nav>
+</body></html>

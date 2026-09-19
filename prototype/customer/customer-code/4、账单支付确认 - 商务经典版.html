@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="zh-CN" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>工单进度追踪 - Minimalist Industrial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Noto+Sans:wght@400&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary": "#ffffff",
+                "on-primary-container": "#799dd6",
+                "secondary-fixed-dim": "#45e17c",
+                "inverse-surface": "#2d3133",
+                "primary-fixed-dim": "#a7c8ff",
+                "secondary-fixed": "#66ff95",
+                "inverse-on-surface": "#eff1f3",
+                "on-error-container": "#93000a",
+                "secondary": "#006d33",
+                "on-tertiary": "#ffffff",
+                "outline-variant": "#c3c6d1",
+                "surface-dim": "#d8dadc",
+                "tertiary-container": "#243448",
+                "surface-tint": "#3a5f94",
+                "surface-container-high": "#e6e8ea",
+                "on-secondary-container": "#007437",
+                "background": "#f7f9fb",
+                "on-surface": "#191c1e",
+                "secondary-container": "#66ff95",
+                "on-surface-variant": "#43474f",
+                "surface": "#f7f9fb",
+                "primary-container": "#003366",
+                "on-secondary-fixed-variant": "#005225",
+                "tertiary": "#0e1f32",
+                "on-tertiary-fixed": "#0b1c30",
+                "on-error": "#ffffff",
+                "on-secondary-fixed": "#00210b",
+                "surface-variant": "#e0e3e5",
+                "on-secondary": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-container-low": "#f2f4f6",
+                "error": "#ba1a1a",
+                "on-tertiary-container": "#8c9cb5",
+                "error-container": "#ffdad6",
+                "tertiary-fixed": "#d3e4fe",
+                "surface-container-lowest": "#ffffff",
+                "outline": "#737780",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-background": "#191c1e",
+                "inverse-primary": "#a7c8ff",
+                "surface-bright": "#f7f9fb",
+                "on-primary-fixed-variant": "#1f477b",
+                "surface-container": "#eceef0",
+                "primary-fixed": "#d5e3ff",
+                "primary": "#001e40",
+                "on-primary-fixed": "#001b3c",
+                "tertiary-fixed-dim": "#b7c8e1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "item-gap": "12px",
+                "gutter": "8px",
+                "container-padding": "16px",
+                "section-margin": "24px",
+                "unit": "4px"
+        },
+        "fontFamily": {
+                "display-total": [
+                        "IBM Plex Sans"
+                ],
+                "body-sm": [
+                        "Noto Sans"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg-mobile": [
+                        "IBM Plex Sans"
+                ],
+                "headline-lg": [
+                        "IBM Plex Sans"
+                ],
+                "body-md": [
+                        "Noto Sans"
+                ]
+        },
+        "fontSize": {
+                "display-total": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-mono": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        body {
+            background-color: #F1F5F9; /* Level 0 Background */
+        }
+        
+        .voucher-card {
+            background-color: #ffffff; /* Level 1 Voucher */
+            border: 1px solid #E2E8F0;
+        }
+        
+        .dashed-border-bottom {
+            border-bottom: 1px dashed #CBD5E1;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased pt-14 pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex items-center justify-between px-container-padding h-14 bg-surface dark:bg-surface-dim border-b border-outline-variant dark:border-outline">
+<button aria-label="Back" class="hover:bg-surface-container-highest dark:hover:bg-surface-container-highest transition-colors active:opacity-70 flex items-center justify-center p-2 -ml-2 rounded-full" style="color: rgb(0, 0, 0);">
+<span class="text-body-md font-bold">&lt;</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-primary dark:text-primary-fixed-dim font-display-total text-center flex-1" style="color: rgb(0, 0, 0);">工单进度追踪</h1>
+<div class="w-10"></div>
+</header>
+<!-- Main Content -->
+<main class="px-container-padding py-section-margin max-w-lg mx-auto">
+<!-- Header Block -->
+<div class="bg-tertiary text-on-tertiary p-container-padding rounded-lg mb-section-margin shadow-sm" style="background: linear-gradient(135deg, rgb(9, 109, 217) 0%, rgb(24, 144, 255) 100%);">
+<div class="font-label-mono text-label-mono text-tertiary-fixed-dim mb-unit">WO-2023-0892</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile">工业冷水机组维修</h2>
+<div class="mt-item-gap flex justify-between items-end border-t border-outline/30 pt-item-gap">
+<div>
+<div class="font-body-sm text-body-sm text-tertiary-fixed-dim">维修工程师</div>
+<div class="font-body-md text-body-md font-bold">李师傅 (ID: ENG-482)</div>
+</div>
+<div class="bg-primary-container/20 text-primary border border-primary/20 px-2 py-1 rounded font-label-mono text-label-mono" style="background-color: rgba(224, 242, 254, 0.25); color: rgb(255, 255, 255); border-color: rgba(255, 255, 255, 0.4);">
+                    已完成
+                </div>
+</div>
+</div>
+<!-- Timeline Voucher -->
+<div class="voucher-card rounded-lg mb-section-margin p-container-padding shadow-sm">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile mb-section-margin flex items-center gap-2">
+<span class="material-symbols-outlined text-outline" data-icon="history">history</span>
+                服务进度
+            </h3>
+<div class="relative pl-6">
+<!-- Vertical Line -->
+<div class="absolute left-[11px] top-2 bottom-6 w-[2px] bg-surface-container-high"></div>
+<!-- Step 1: Completed -->
+<div class="relative mb-6">
+<div class="absolute -left-6 top-0 w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="check">check</span>
+</div>
+<div class="pl-4">
+<div class="font-body-sm text-body-sm text-outline-variant mb-1 font-label-mono">10-24 08:30</div>
+<div class="font-body-md text-body-md text-on-surface-variant">工单已分配</div>
+</div>
+</div>
+<!-- Step 2: Completed -->
+<div class="relative mb-6">
+<div class="absolute -left-6 top-0 w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="check">check</span>
+</div>
+<div class="pl-4">
+<div class="font-body-sm text-body-sm text-outline-variant mb-1 font-label-mono">10-24 09:15</div>
+<div class="font-body-md text-body-md text-on-surface-variant">工程师到达现场</div>
+</div>
+</div>
+<!-- Step 3: Completed -->
+<div class="relative mb-6">
+<div class="absolute -left-6 top-0 w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="check">check</span>
+</div>
+<div class="pl-4">
+<div class="font-body-sm text-body-sm text-outline-variant mb-1 font-label-mono">10-24 11:45</div>
+<div class="font-body-md text-body-md text-on-surface-variant">故障排查完毕，更换冷凝器阀门</div>
+</div>
+</div>
+<!-- Step 4: Payment (Highlighted) -->
+<div class="relative mb-6">
+<div class="absolute -left-6 top-0 w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center z-10 ring-4 ring-primary/10" style="background-color: rgb(24, 144, 255); box-shadow: rgba(24, 144, 255, 0.2) 0px 0px 0px 4px;">
+<span class="material-symbols-outlined text-[14px]" data-icon="payments">payments</span>
+</div>
+<div class="pl-4">
+<div class="font-body-sm text-body-sm text-primary mb-1 font-label-mono" style="color: rgb(24, 144, 255);">10-24 12:10</div>
+<div class="font-body-md text-body-md font-bold text-primary" style="color: rgb(24, 144, 255);">支付完成</div>
+<div class="bg-surface-container-low p-3 mt-2 rounded border border-outline-variant">
+<div class="flex justify-between items-center mb-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">发票凭证号</span>
+<span class="font-label-mono text-label-mono font-bold" style="color: rgb(24, 144, 255);">RCPT-9982-A</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-on-surface-variant">实付总额</span>
+<span class="font-body-md text-body-md font-bold text-primary" style="color: rgb(24, 144, 255);">¥ 3,450.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Step 5: Current Action -->
+<div class="relative">
+<div class="absolute -left-6 top-0 w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center z-10 ring-4 ring-primary/10 animate-pulse" style="background-color: rgb(24, 144, 255); box-shadow: rgba(24, 144, 255, 0.2) 0px 0px 0px 4px;">
+<span class="material-symbols-outlined text-[14px]" data-icon="star">star</span>
+</div>
+<div class="pl-4">
+<div class="font-body-sm text-body-sm text-primary mb-1 font-label-mono" style="color: rgb(24, 144, 255);">待处理</div>
+<div class="font-body-md text-body-md font-bold text-primary" style="color: rgb(24, 144, 255);">服务评价与验收</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Evaluation Form Voucher -->
+<div class="voucher-card rounded-lg mb-section-margin p-container-padding border-t-4 border-t-primary shadow-sm" style="border-top-color: rgb(24, 144, 255);">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile mb-4">最终验收确认</h3>
+<div class="bg-error-container/20 border border-error-container text-on-surface-variant p-3 rounded mb-item-gap font-body-sm text-body-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-error mt-0.5" data-icon="warning" style="font-variation-settings: &quot;FILL&quot; 1;">warning</span>
+<p class="">确认结案后，本次维修服务即告完成。如需后续跟进，需重新提交工单。</p>
+</div>
+<div class="mb-item-gap">
+<label class="block font-body-sm text-body-sm text-on-surface-variant mb-2">服务质量评分</label>
+<div class="flex gap-2 text-surface-container-high" id="star-rating"><span class="material-symbols-outlined text-3xl cursor-pointer transition-colors" data-icon="star" style="font-variation-settings: &quot;FILL&quot; 1; color: rgb(24, 144, 255);">star</span>
+<span class="material-symbols-outlined text-3xl cursor-pointer transition-colors" data-icon="star" style="font-variation-settings: &quot;FILL&quot; 1; color: rgb(24, 144, 255);">star</span>
+<span class="material-symbols-outlined text-3xl cursor-pointer transition-colors" data-icon="star" style="font-variation-settings: &quot;FILL&quot; 1; color: rgb(24, 144, 255);">star</span>
+<span class="material-symbols-outlined text-3xl cursor-pointer transition-colors" data-icon="star" style="font-variation-settings: &quot;FILL&quot; 1; color: rgb(24, 144, 255);">star</span>
+<span class="material-symbols-outlined text-3xl cursor-pointer transition-colors" data-icon="star" style="font-variation-settings: &quot;FILL&quot; 1; color: rgb(24, 144, 255);">star</span></div>
+</div>
+<div>
+<label class="block font-body-sm text-body-sm text-on-surface-variant mb-2">验收意见 (选填)</label>
+<textarea class="w-full border border-outline-variant rounded p-2 font-body-md text-body-md focus:ring-1 focus:ring-primary focus:border-primary bg-surface-bright" placeholder="请输入验收说明..." rows="3"></textarea>
+</div>
+</div>
+<!-- Sticky CTA -->
+<div class="mb-section-margin">
+<button class="w-full bg-primary text-on-primary font-body-md text-body-md py-2 px-4 rounded shadow-sm hover:opacity-90 active:scale-[0.98] transition-all flex justify-center items-center gap-2" style="background-color: rgb(24, 144, 255);"><span class="material-symbols-outlined text-[18px]" data-icon="check_circle">check_circle</span>提交评价并正式结案</button>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 left-0 w-full bg-surface border-t border-outline-variant pb-safe z-50">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-body-sm text-[10px]">首页报修</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-body-sm text-[10px]">我的账单</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary transition-colors" href="#" style="color: rgb(24, 144, 255);">
+<div class="px-4 py-1 rounded-full bg-primary-container/20 flex flex-col items-center" style="background-color: rgb(230, 247, 255); color: rgb(24, 144, 255);">
+<span class="material-symbols-outlined mb-1" data-icon="person" style="font-variation-settings: &quot;FILL&quot; 1;">person</span>
+</div>
+<span class="font-body-sm text-[10px] font-bold mt-1">个人中心</span>
+</a>
+</div>
+</nav>
+<script>
+        // Simple star rating interaction
+        const stars = document.querySelectorAll('#star-rating span');
+        stars.forEach((star, index) => {
+            star.addEventListener('click', () => {
+                stars.forEach((s, i) => {
+                    if (i <= index) {
+                        s.classList.remove('text-surface-container-high');
+                        s.classList.add('text-secondary');
+                    } else {
+                        s.classList.remove('text-secondary');
+                        s.classList.add('text-surface-container-high');
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+</body></html>

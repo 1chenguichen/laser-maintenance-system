@@ -1,0 +1,339 @@
+<!DOCTYPE html><html class="light" lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>官方延保购买</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;family=IBM+Plex+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-primary": "#ffffff",
+                "on-primary-container": "#799dd6",
+                "secondary-fixed-dim": "#45e17c",
+                "inverse-surface": "#2d3133",
+                "primary-fixed-dim": "#a7c8ff",
+                "secondary-fixed": "#66ff95",
+                "inverse-on-surface": "#eff1f3",
+                "on-error-container": "#93000a",
+                "secondary": "#006d33",
+                "on-tertiary": "#ffffff",
+                "outline-variant": "#c3c6d1",
+                "surface-dim": "#d8dadc",
+                "tertiary-container": "#243448",
+                "surface-tint": "#3a5f94",
+                "surface-container-high": "#e6e8ea",
+                "on-secondary-container": "#007437",
+                "background": "#f7f9fb",
+                "on-surface": "#191c1e",
+                "secondary-container": "#66ff95",
+                "on-surface-variant": "#43474f",
+                "surface": "#f7f9fb",
+                "primary-container": "#003366",
+                "on-secondary-fixed-variant": "#005225",
+                "tertiary": "#0e1f32",
+                "on-tertiary-fixed": "#0b1c30",
+                "on-error": "#ffffff",
+                "on-secondary-fixed": "#00210b",
+                "surface-variant": "#e0e3e5",
+                "on-secondary": "#ffffff",
+                "surface-container-highest": "#e0e3e5",
+                "surface-container-low": "#f2f4f6",
+                "error": "#ba1a1a",
+                "on-tertiary-container": "#8c9cb5",
+                "error-container": "#ffdad6",
+                "tertiary-fixed": "#d3e4fe",
+                "surface-container-lowest": "#ffffff",
+                "outline": "#737780",
+                "on-tertiary-fixed-variant": "#38485d",
+                "on-background": "#191c1e",
+                "inverse-primary": "#a7c8ff",
+                "surface-bright": "#f7f9fb",
+                "on-primary-fixed-variant": "#1f477b",
+                "surface-container": "#eceef0",
+                "primary-fixed": "#d5e3ff",
+                "primary": "#001e40",
+                "on-primary-fixed": "#001b3c",
+                "tertiary-fixed-dim": "#b7c8e1"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "item-gap": "12px",
+                "gutter": "8px",
+                "container-padding": "16px",
+                "section-margin": "24px",
+                "unit": "4px"
+        },
+        "fontFamily": {
+                "display-total": [
+                        "IBM Plex Sans"
+                ],
+                "body-sm": [
+                        "Noto Sans"
+                ],
+                "label-mono": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg-mobile": [
+                        "IBM Plex Sans"
+                ],
+                "headline-lg": [
+                        "IBM Plex Sans"
+                ],
+                "body-md": [
+                        "Noto Sans"
+                ]
+        },
+        "fontSize": {
+                "display-total": [
+                        "36px",
+                        {
+                                "lineHeight": "44px",
+                                "letterSpacing": "-0.02em",
+                                "fontWeight": "700"
+                        }
+                ],
+                "body-sm": [
+                        "14px",
+                        {
+                                "lineHeight": "20px",
+                                "fontWeight": "400"
+                        }
+                ],
+                "label-mono": [
+                        "12px",
+                        {
+                                "lineHeight": "16px",
+                                "letterSpacing": "0.05em",
+                                "fontWeight": "500"
+                        }
+                ],
+                "headline-lg-mobile": [
+                        "20px",
+                        {
+                                "lineHeight": "28px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "headline-lg": [
+                        "24px",
+                        {
+                                "lineHeight": "32px",
+                                "fontWeight": "600"
+                        }
+                ],
+                "body-md": [
+                        "16px",
+                        {
+                                "lineHeight": "24px",
+                                "fontWeight": "400"
+                        }
+                ]
+        }
+},
+    },
+  }
+</script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        /* Hide scrollbar for horizontal scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col pb-24">
+<!-- TopAppBar Component from JSON -->
+<header class="w-full top-0 sticky border-b border-outline-variant flex items-center px-container-padding h-14 w-full bg-surface z-40">
+<button aria-label="Back" class="mr-4 text-primary active:opacity-70 flex items-center justify-center p-1 rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary flex-1">延保方案选择</h1>
+</header>
+<main class="flex-1 px-container-padding py-section-margin flex flex-col gap-section-margin max-w-lg mx-auto w-full">
+<!-- Equipment Summary Voucher -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+<div class="flex items-start gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-primary-container shrink-0 mt-1" style="background-color: rgb(224, 242, 254); color: rgb(2, 132, 199);">
+<span class="material-symbols-outlined" data-icon="precision_manufacturing" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<div>
+<h2 class="font-body-sm text-body-sm text-on-surface-variant mb-1">目标设备</h2>
+<p class="font-body-md text-body-md text-on-surface font-medium leading-tight">手持激光焊接机</p>
+<div class="mt-2 inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-surface-container-low border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] text-outline" data-icon="barcode">barcode</span>
+<span class="font-label-mono text-label-mono text-on-surface">SN-772109</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Plan Selection (Horizontal Scroll) -->
+<section>
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-item-gap pl-1">延保套餐选择</h3>
+<div class="flex gap-4 overflow-x-auto no-scrollbar pb-2 -mx-container-padding px-container-padding snap-x">
+<!-- Card A (Recommended) -->
+<div class="snap-start shrink-0 w-[260px] bg-surface-container-lowest border border-primary-container rounded-lg relative overflow-hidden flex flex-col cursor-pointer ring-1 ring-primary-container shadow-sm" onclick="selectPlan(this, 1200)" style="border-color: rgb(24, 144, 255); --tw-ring-color: #1890ff;">
+<div class="absolute top-0 right-0 bg-primary-container text-white font-label-mono text-label-mono px-2 py-1 rounded-bl text-[10px]" style="background-color: rgb(24, 144, 255);">推荐</div>
+<div class="p-4 flex-1 flex flex-col">
+<h4 class="font-body-md text-body-md font-bold text-primary-container mb-2 pr-8" style="color: rgb(24, 144, 255);">整机延保 1 年</h4>
+<ul class="font-body-sm text-body-sm text-on-surface-variant flex-1 space-y-2 mb-4">
+<li class="flex items-start gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary-container shrink-0 mt-0.5" data-icon="check_circle" style="color: rgb(24, 144, 255);">check_circle</span>
+<span class="">包含 2 次免费深度保养</span>
+</li>
+<li class="flex items-start gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary-container shrink-0 mt-0.5" data-icon="check_circle" style="color: rgb(24, 144, 255);">check_circle</span>
+<span class="">所有配件保修</span>
+</li>
+</ul>
+<div class="mt-auto border-t border-dashed border-outline-variant pt-3 flex items-baseline gap-1">
+<span class="font-body-sm text-body-sm text-on-surface">¥</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">1200.00</span>
+</div>
+</div>
+<!-- Active Indicator -->
+<div class="absolute bottom-2 right-2 text-primary-container" style="color: rgb(24, 144, 255);">
+<span class="material-symbols-outlined" data-icon="radio_button_checked" style="font-variation-settings: 'FILL' 1;">radio_button_checked</span>
+</div>
+</div>
+<!-- Card B -->
+<div class="snap-start shrink-0 w-[260px] bg-surface-container-lowest border border-outline-variant rounded-lg relative overflow-hidden flex flex-col cursor-pointer hover:bg-surface-bright transition-colors opacity-80" onclick="selectPlan(this, 800)">
+<div class="p-4 flex-1 flex flex-col">
+<h4 class="font-body-md text-body-md font-bold text-on-surface mb-2">核心部件(激光器)延保 1 年</h4>
+<ul class="font-body-sm text-body-sm text-on-surface-variant flex-1 space-y-2 mb-4">
+<li class="flex items-start gap-1">
+<span class="material-symbols-outlined text-[16px] text-outline shrink-0 mt-0.5" data-icon="info">info</span>
+<span class="">仅限激光器本体</span>
+</li>
+</ul>
+<div class="mt-auto border-t border-dashed border-outline-variant pt-3 flex items-baseline gap-1">
+<span class="font-body-sm text-body-sm text-on-surface-variant">¥</span>
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface-variant">800.00</span>
+</div>
+</div>
+<!-- Inactive Indicator -->
+<div class="absolute bottom-2 right-2 text-outline-variant">
+<span class="material-symbols-outlined" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Benefits Description -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-lg p-4">
+<h3 class="font-body-md text-body-md font-bold text-on-surface border-b border-dashed border-outline-variant pb-2 mb-4">保障范围</h3>
+<div class="grid grid-cols-2 gap-y-4 gap-x-2"><div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded flex items-center justify-center" style="background-color: rgba(24, 144, 255, 0.1); color: #1890ff;">
+<span class="material-symbols-outlined text-[20px]" data-icon="home_repair_service">home_repair_service</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">免上门费</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded flex items-center justify-center" style="background-color: rgba(24, 144, 255, 0.1); color: #1890ff;">
+<span class="material-symbols-outlined text-[20px]" data-icon="sell">sell</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">备件8折</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded flex items-center justify-center" style="background-color: rgba(24, 144, 255, 0.1); color: #1890ff;">
+<span class="material-symbols-outlined text-[20px]" data-icon="local_shipping">local_shipping</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">优先派单</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded flex items-center justify-center" style="background-color: rgba(24, 144, 255, 0.1); color: #1890ff;">
+<span class="material-symbols-outlined text-[20px]" data-icon="support_agent">support_agent</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface">专属客服</span>
+</div></div>
+</section>
+</main>
+<!-- Bottom Bar (Fixed) - Custom transactional bar -->
+<div class="fixed bottom-0 w-full bg-surface border-t border-outline-variant p-4 pb-safe flex items-center justify-between z-50 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] max-w-lg left-1/2 -translate-x-1/2">
+<div class="flex flex-col">
+<span class="font-body-sm text-body-sm text-on-surface-variant">合计</span>
+<div class="flex items-baseline gap-1" style="color: rgb(0, 0, 0);"><span class="font-body-md text-body-md text-primary-container font-bold">¥</span>
+<span class="font-display-total text-display-total text-primary-container" id="total-price" style="color: rgb(0, 0, 0);">1200.00</span></div>
+</div>
+<button aria-label="Buy Now" class="bg-primary-container text-on-primary font-body-md text-body-md font-bold py-3 px-8 rounded-full flex items-center justify-center gap-2 active:scale-95 active:shadow-inner transition-all w-1/2 shadow-sm" style="background-color: rgb(24, 144, 255);">
+<span class="">立即购买</span>
+<span class="material-symbols-outlined text-[18px]" data-icon="shopping_cart" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+</button>
+</div>
+<script>
+        function selectPlan(element, price) {
+            // Reset all cards
+            const cards = element.parentElement.children;
+            for(let i=0; i<cards.length; i++) {
+                let card = cards[i];
+                card.classList.remove('border-primary', 'ring-1', 'ring-primary', 'shadow-sm');
+                card.classList.add('opacity-80');
+                
+                // Change titles back to normal
+                let title = card.querySelector('h4');
+                title.classList.remove('text-primary');
+                title.classList.add('text-on-surface');
+
+                // Update icon to unchecked
+                let iconContainer = card.querySelector('.absolute.bottom-2.right-2');
+                iconContainer.classList.remove('text-primary');
+                iconContainer.classList.add('text-outline-variant');
+                iconContainer.innerHTML = '<span class="material-symbols-outlined" data-icon="radio_button_unchecked">radio_button_unchecked</span>';
+            }
+
+            // Set active card
+            element.classList.add('border-primary', 'ring-1', 'ring-primary', 'shadow-sm');
+            element.classList.remove('opacity-80');
+            
+            let activeTitle = element.querySelector('h4');
+            activeTitle.classList.remove('text-on-surface');
+            activeTitle.classList.add('text-primary');
+
+            let activeIconContainer = element.querySelector('.absolute.bottom-2.right-2');
+            activeIconContainer.classList.remove('text-outline-variant');
+            activeIconContainer.classList.add('text-primary');
+            activeIconContainer.innerHTML = '<span class="material-symbols-outlined" data-icon="radio_button_checked" style="font-variation-settings: \'FILL\' 1;">radio_button_checked</span>';
+
+            // Update total price
+            document.getElementById('total-price').innerText = price.toFixed(2);
+        }
+    </script>
+
+
+
+
+
+
+
+
+</body></html>

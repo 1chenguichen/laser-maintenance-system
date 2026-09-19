@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>工单详情 - 工程师端</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#006d33",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-surface pb-24">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
+      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">工单详情</h1>
+    <div class="w-10"></div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="pt-14 px-4 space-y-4">
+    <div id="detailContent">
+      <div class="text-center py-12 text-on-surface-variant">加载中...</div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div id="actionButtons" class="space-y-3 mt-4"></div>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('engineer_token');
+    var orderId = null;
+    var orderData = null;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      orderId = window.location.hash.slice(1);
+      if (!orderId) {
+        alert('缺少工单ID');
+        window.location.href = 'tasks.html';
+        return;
+      }
+      loadDetail();
+    });
+
+    function loadDetail() {
+      fetch(API_BASE + '/engineer/orders/' + orderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        orderData = data;
+        renderDetail(data);
+      })
+      .catch(function(err) {
+        document.getElementById('detailContent').innerHTML = '<div class="text-center py-12 text-on-surface-variant">加载失败: ' + err.message + '</div>';
+      });
+    }
+
+    function renderDetail(order) {
+      var addr = order.address ? [order.address.province, order.address.city, order.address.district, order.address.detail].filter(Boolean).join('') : '-';
+
+      var statusMap = {
+        'PENDING': { text: '待派单', class: 'bg-gray-100 text-on-surface' },
+        'DISPATCHED': { text: '已派单', class: 'bg-primary-container text-primary' },
+        'ACCEPTED': { text: '已接单', class: 'bg-primary-container text-primary' },
+        'PENDING_PAYMENT': { text: '待付款', class: 'bg-warning-container text-[#ad6800]' },
+        'REPAIRING': { text: '维修中', class: 'bg-warning-container text-[#ad6800]' },
+        'PENDING_FINAL_PAYMENT': { text: '待尾款', class: 'bg-warning-container text-[#ad6800]' },
+        'COMPLETED': { text: '已完成', class: 'bg-secondary-container text-secondary' },
+        'REFUSED': { text: '已拒绝', class: 'bg-error-container text-error' },
+        'CANCELLED': { text: '已取消', class: 'bg-error-container text-error' }
+      };
+      var status = statusMap[order.status] || { text: order.status, class: 'bg-gray-100 text-on-surface' };
+
+      var html = '<div class="bg-white rounded-xl p-4 border border-outline-variant mt-4">';
+      html += '<div class="flex justify-between items-center mb-4">';
+      html += '<span class="px-2 py-1 rounded text-xs font-semibold ' + status.class + '">' + status.text + '</span>';
+      html += '<span class="text-xs text-on-surface-variant font-mono">' + (order.orderNo || order.id) + '</span>';
+      html += '</div>';
+
+      html += '<h3 class="font-semibold text-lg mb-4" style="color: #111827;">' + (order.faultType || '维修任务') + '</h3>';
+
+      html += '<div class="space-y-3 text-sm">';
+      html += '<div class="flex items-center gap-3">';
+      html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">devices</span>';
+      html += '<span>设备: ' + (order.device ? order.device.model : '-') + '</span>';
+      html += '</div>';
+      if (order.device && order.device.serialNumber) {
+        html += '<div class="flex items-center gap-3">';
+        html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">qr_code</span>';
+        html += '<span>序列号: ' + order.device.serialNumber + '</span>';
+        html += '</div>';
+      }
+      html += '<div class="flex items-center gap-3">';
+      html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">person</span>';
+      html += '<span>客户: ' + (order.customer ? order.customer.name : '-') + '</span>';
+      html += '</div>';
+      if (order.customer && order.customer.phone) {
+        html += '<div class="flex items-center gap-3">';
+        html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">phone</span>';
+        html += '<span>电话: ' + order.customer.phone + '</span>';
+        html += '</div>';
+      }
+      html += '<div class="flex items-center gap-3">';
+      html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">location_on</span>';
+      html += '<span>' + addr + '</span>';
+      html += '</div>';
+      if (order.appointmentTime) {
+        html += '<div class="flex items-center gap-3">';
+        html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">schedule</span>';
+        html += '<span>预约时间: ' + order.appointmentTime + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+
+      if (order.faultDescription) {
+        html += '<div class="bg-white rounded-xl p-4 border border-outline-variant">';
+        html += '<h3 class="font-semibold mb-2" style="color: #111827;">故障描述</h3>';
+        html += '<p class="text-sm text-on-surface-variant break-all">' + order.faultDescription + '</p>';
+        html += '</div>';
+      }
+
+      // Amount info
+      html += '<div class="bg-white rounded-xl p-4 border border-outline-variant">';
+      html += '<h3 class="font-semibold mb-3" style="color: #111827;">费用信息</h3>';
+      html += '<div class="space-y-2 text-sm">';
+      html += '<div class="flex justify-between">';
+      html += '<span class="text-on-surface-variant">预估费用</span>';
+      html += '<span>¥' + (Number(order.estimatedAmount) || 0).toFixed(2) + '</span>';
+      html += '</div>';
+      if (order.prepayAmount) {
+        html += '<div class="flex justify-between">';
+        html += '<span class="text-on-surface-variant">已付定金</span>';
+        html += '<span class="font-medium" style="color: #006d33;">¥' + (Number(order.prepayAmount) || 0).toFixed(2) + '</span>';
+        html += '</div>';
+      }
+      if (order.finalAmount) {
+        html += '<div class="flex justify-between">';
+        html += '<span class="text-on-surface-variant">最终费用</span>';
+        html += '<span class="font-bold" style="color: #006d33;">¥' + (Number(order.finalAmount) || 0).toFixed(2) + '</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+      html += '</div>';
+
+      // Photos
+      if (order.faultPhotos && order.faultPhotos.length > 0) {
+        html += '<div class="bg-white rounded-xl p-4 border border-outline-variant">';
+        html += '<h3 class="font-semibold mb-3" style="color: #111827;">故障照片</h3>';
+        html += '<div class="flex gap-3 overflow-x-auto">';
+        order.faultPhotos.forEach(function(photo) {
+          html += '<img src="' + photo + '" class="w-20 h-20 object-cover rounded-lg" onerror="this.style.display=\'none\'">';
+        });
+        html += '</div>';
+        html += '</div>';
+      }
+
+      document.getElementById('detailContent').innerHTML = html;
+
+      renderActionButtons(order);
+    }
+
+    function renderActionButtons(order) {
+      var container = document.getElementById('actionButtons');
+      var html = '';
+
+      if (order.status === 'DISPATCHED') {
+        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="confirmOrder()">';
+        html += '<span class="material-symbols-outlined mr-2">check</span>确认上门';
+        html += '</button>';
+      }
+
+      if (order.status === 'ACCEPTED') {
+        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="submitQuote()">';
+        html += '<span class="material-symbols-outlined mr-2">request_quote</span>提交报价';
+        html += '</button>';
+      }
+
+      if (order.status === 'PENDING_PAYMENT') {
+        html += '<div class="bg-warning-container rounded-xl p-4 text-center">';
+        html += '<span class="material-symbols-outlined text-3xl text-[#ad6800]">schedule</span>';
+        html += '<p class="text-sm mt-2 text-[#ad6800]">等待客户确认报价并支付定金</p>';
+        html += '</div>';
+      }
+
+      if (order.status === 'REPAIRING') {
+        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="completeRepair()">';
+        html += '<span class="material-symbols-outlined mr-2">done</span>完工确认';
+        html += '</button>';
+      }
+
+      if (order.status === 'PENDING_FINAL_PAYMENT') {
+        html += '<div class="bg-warning-container rounded-xl p-4 text-center">';
+        html += '<span class="material-symbols-outlined text-3xl text-[#ad6800]">schedule</span>';
+        html += '<p class="text-sm mt-2 text-[#ad6800]">等待客户支付尾款</p>';
+        html += '</div>';
+      }
+
+      html += '<button class="w-full py-3 border font-medium rounded-lg" style="border-color: #006d33; color: #006d33;" onclick="window.location.href=\'tasks.html\'">返回任务列表</button>';
+
+      container.innerHTML = html;
+    }
+
+    function confirmOrder() {
+      fetch(API_BASE + '/engineer/orders/' + orderId + '/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        alert('已确认上门');
+        window.location.reload();
+      })
+      .catch(function(err) {
+        alert('操作失败: ' + err.message);
+      });
+    }
+
+    function completeRepair() {
+      if (!confirm('确定要完工吗？')) return;
+      window.location.href = 'signature.html#' + orderId;
+    }
+
+    function submitQuote() {
+      window.location.href = 'quote.html#' + orderId;
+    }
+  </script>
+</body>
+</html>

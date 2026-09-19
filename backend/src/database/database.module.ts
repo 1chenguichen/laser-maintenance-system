@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 @Module({
   imports: [
@@ -11,12 +16,19 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         type: 'postgres',
         host: config.get('DB_HOST', 'localhost'),
         port: config.get<number>('DB_PORT', 5432),
-        username: config.get('DB_USERNAME', 'postgres'),
-        password: config.get('DB_PASSWORD', 'postgres'),
+        username: config.get('DB_USERNAME', 'laser_user'),
+        password: config.get('DB_PASSWORD', 'laser_pass_2024'),
         database: config.get('DB_DATABASE', 'laser_maintenance'),
-        entities: [__dirname + '/entities/*.entity{.ts,.js}'],
-        synchronize: config.get('NODE_ENV') === 'development', // 生产环境用 migration
-        logging: config.get('NODE_ENV') === 'development',
+        options: {
+          statement_timeout: 30000,
+        },
+        extra: {
+          client_encoding: 'UTF8',
+        },
+        logging: false,
+        entityPrefix: '',
+        entities: [join(__dirname, 'entities', '*.entity.{js,ts}')],
+        synchronize: config.get('NODE_ENV') === 'development',
       }),
     }),
   ],

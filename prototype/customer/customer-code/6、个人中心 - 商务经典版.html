@@ -1,0 +1,165 @@
+<!DOCTYPE html><html class="light" lang="zh-CN" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>个人中心 - 商务经典版</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100..900&amp;family=JetBrains+Mono:wght@100..900&amp;family=Noto+Sans:wght@100..900&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#f7f9fb",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary-container": "#243448",
+                        "secondary-container": "#66ff95",
+                        "on-primary-fixed-variant": "#1f477b",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#45e17c",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-container": "#007437",
+                        "on-background": "#191c1e",
+                        "background": "#f7f9fb",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-fixed": "#66ff95",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#3a5f94",
+                        "tertiary-fixed-dim": "#b7c8e1",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#006d33",
+                        "on-surface-variant": "#43474f",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "inverse-primary": "#a7c8ff",
+                        "surface-container": "#eceef0",
+                        "on-tertiary-container": "#8c9cb5",
+                        "tertiary-fixed": "#d3e4fe",
+                        "tertiary": "#0e1f32",
+                        "outline-variant": "#c3c6d1",
+                        "inverse-surface": "#2d3133",
+                        "primary-container": "#003366",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed": "#001b3c",
+                        "outline": "#737780",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00210b",
+                        "on-primary-container": "#799dd6",
+                        "primary-fixed-dim": "#a7c8ff",
+                        "on-tertiary-fixed-variant": "#38485d",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#d5e3ff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-secondary-fixed-variant": "#005225",
+                        "on-tertiary-fixed": "#0b1c30",
+                        "surface-container-high": "#e6e8ea",
+                        "primary": "#001e40"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "8px",
+                        "unit": "4px",
+                        "section-margin": "24px",
+                        "container-padding": "16px",
+                        "item-gap": "12px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Noto Sans"],
+                        "label-mono": ["JetBrains Mono"],
+                        "headline-lg": ["IBM Plex Sans"],
+                        "headline-lg-mobile": ["IBM Plex Sans"],
+                        "body-sm": ["Noto Sans"],
+                        "display-total": ["IBM Plex Sans"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-mono": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-total": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen pb-[80px]">
+<!-- TopAppBar -->
+<header class="w-full top-0 sticky bg-surface border-b border-outline-variant transition-colors duration-200 z-40">
+<div class="flex items-center justify-between px-container-padding h-14 w-full">
+<button class="flex items-center justify-center text-on-surface-variant hover:bg-surface-variant rounded-full p-2 transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary flex-1 text-center">个人中心</h1>
+<button class="flex items-center justify-center text-on-surface-variant hover:bg-surface-variant rounded-full p-2 transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</div>
+</header>
+<main class="px-container-padding py-section-margin flex flex-col gap-section-margin">
+<!-- User Info Area -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl p-6 flex flex-col items-center justify-center text-center shadow-sm">
+<div class="w-20 h-20 rounded-full border border-outline-variant overflow-hidden mb-4 bg-surface-variant shrink-0 relative">
+<img alt="Avatar" class="w-full h-full object-cover" data-alt="A professional corporate headshot of an Asian male manager in his 40s. He is wearing a crisp white shirt and a dark blue tie. The lighting is soft and studio-quality, casting subtle shadows to emphasize a trustworthy and rigorous business demeanor. The background is a clean, neutral slate gray, fitting a high-contrast, modern corporate mobile app interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdIQx4pFdcBwwnvq-_Oy8VyCC-2WFr2ZnFtg4zZqvMmpqObKDCen0Alah8FhT9o1s8VmUGRft5PuHGrFZpMBn6pMX5GFlafaqNi644clxsc740WiYVhg3tYKYV509gGt1u1eM0RssjDzpimeSMFlU0N-pctABVvS6l01Sno9N3m6oFyqZRBdg7BUqjwqyDF6Xz4KJn3BsdAd2PxnLfkuIV3H4Hpi_QKH9gx6vQdAa7lE0cK0e1vtNYmWPl71O23YPVrKbRVWspOteE">
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface mb-2">张主管</h2>
+<div class="flex items-center gap-1 bg-[#f3f4f6] px-3 py-1.5 rounded-full border border-[#e5e7eb]"><span class="material-symbols-outlined text-[#111827] text-[16px] icon-fill" data-icon="shield">shield</span><span class="font-label-mono text-label-mono text-[#111827] font-medium">🏢 已认证企业：某某机械加工厂</span></div>
+</section>
+<!-- Data Statistics Area -->
+<section class="flex bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden"><div class="flex-1 p-4 flex flex-col justify-center border-r border-dashed border-outline-variant relative"><span class="font-body-sm text-body-sm text-on-surface-variant mb-1">累计报修</span><div class="flex items-baseline gap-1 text-[#111827]"><span class="font-headline-lg-mobile text-headline-lg-mobile font-bold">12</span><span class="font-body-sm text-body-sm">次</span></div></div><div class="flex-1 p-4 flex flex-col justify-center relative"><span class="font-body-sm text-body-sm text-on-surface-variant mb-1">累计消费</span><div class="flex items-baseline gap-1 text-on-surface"><span class="font-body-sm text-body-sm">¥</span><span class="font-headline-lg-mobile text-headline-lg-mobile font-bold tracking-tight">3450.00</span></div></div></section>
+<!-- Menu List Area -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col"><button class="flex items-center justify-between w-full p-4 border-b border-dashed border-outline-variant hover:bg-surface-variant transition-colors group"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#111827] group-hover:text-primary transition-colors" data-icon="precision_manufacturing">precision_manufacturing</span><span class="font-body-md text-body-md text-on-surface">我的设备</span></div><span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]" data-icon="chevron_right">chevron_right</span></button><button class="flex items-center justify-between w-full p-4 border-b border-dashed border-outline-variant hover:bg-surface-variant transition-colors group"><div class="flex items-center gap-3"><span class="material-symbols-outlined group-hover:text-primary transition-colors text-[#111827]" data-icon="receipt_long">receipt_long</span><span class="font-body-md text-body-md text-on-surface">维修账单与发票</span></div><span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]" data-icon="chevron_right">chevron_right</span></button><button class="flex items-center justify-between w-full p-4 border-b border-dashed border-outline-variant hover:bg-surface-variant transition-colors group"><div class="flex items-center gap-3"><span class="material-symbols-outlined group-hover:text-primary transition-colors text-[#111827]" data-icon="factory">factory</span><span class="font-body-md text-body-md text-on-surface">常用厂区地址管理</span></div><span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]" data-icon="chevron_right">chevron_right</span></button><button class="flex items-center justify-between w-full p-4 hover:bg-surface-variant transition-colors group rounded-b-xl"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[#111827] group-hover:text-primary transition-colors" data-icon="support_agent">support_agent</span><span class="font-body-md text-body-md text-on-surface">联系平台专属客服</span></div><span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors text-[20px]" data-icon="chevron_right">chevron_right</span></button></section>
+<!-- Unbind Action -->
+<button class="w-full py-4 mt-2 bg-surface-variant hover:bg-surface-container-high border border-outline-variant rounded-xl font-body-md text-body-md text-on-surface-variant flex items-center justify-center gap-2 transition-colors duration-150 active:scale-[0.98]">
+<span class="material-symbols-outlined text-[20px]" data-icon="link_off">link_off</span>
+            解除微信绑定
+        </button>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 py-2 bg-surface border-t border-outline-variant z-50">
+<!-- 首页报修 (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 px-4 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home_repair_service">home_repair_service</span>
+<span class="font-label-mono text-label-mono">首页</span>
+</a>
+<!-- 我的账单 (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors duration-200 px-4 py-1 rounded-xl" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="receipt_long">receipt_long</span>
+<span class="font-label-mono text-label-mono">工单</span>
+</a>
+<!-- 个人中心 (Active) -->
+<a class="flex flex-col items-center justify-center text-[#1890ff] bg-[#e6f7ff] border border-[#91d5ff] rounded-xl px-4 py-1 scale-95 duration-150 ease-in-out" href="#"><span class="material-symbols-outlined mb-1 icon-fill text-[#1890ff]" data-icon="person">person</span><span class="font-label-mono text-label-mono font-bold text-[#1890ff]">我的</span></a>
+</nav>
+
+
+
+
+
+
+
+
+</body></html>

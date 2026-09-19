@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>工单进度与评价</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a",
+            "error": "#ff4d4f"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -16px;
+      width: 2px;
+      background-color: #e5e7eb;
+    }
+    .timeline-item:last-child::before {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-surface">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">工单进度</h1>
+    <button class="text-primary">
+      <span class="material-symbols-outlined">more_vert</span>
+    </button>
+  </header>
+
+  <main class="pt-14 px-4 pb-6">
+    <!-- Order Info Card -->
+    <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="font-semibold" style="color: #111827;" id="orderTitle">3000W 激光切割机维修</h2>
+        <span id="orderStatus" class="px-2 py-1 rounded-lg text-xs font-medium" style="background-color: #e6f7ff; color: #1890ff;">维修中</span>
+      </div>
+      <p class="text-sm text-on-surface-variant" id="orderNo">工单号：WX20260915001</p>
+      <p class="text-sm text-on-surface-variant mt-1" id="orderTime">创建时间：2026-09-15 14:30</p>
+    </section>
+
+    <!-- Engineer Info -->
+    <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm flex items-center space-x-4">
+      <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+        <span class="text-xl">👨‍🔧</span>
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold" style="color: #111827;" id="engineerName">暂无工程师</p>
+        <p class="text-sm text-on-surface-variant" id="engineerTitle">-</p>
+        <div class="flex items-center gap-1 mt-1">
+          <span class="text-sm" style="color: #faad14;" id="engineerRating">-</span>
+          <span class="text-xs text-on-surface-variant" id="engineerScore">-</span>
+        </div>
+      </div>
+      <button class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center" onclick="callEngineer()">
+        <span class="material-symbols-outlined" style="color: #1890ff;">phone</span>
+      </button>
+    </section>
+
+    <!-- Progress Timeline -->
+    <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm">
+      <h3 class="font-semibold mb-4" style="color: #111827;">维修进度</h3>
+      <div class="space-y-0" id="timeline">
+        <!-- Timeline items will be inserted here -->
+      </div>
+    </section>
+
+    <!-- Fault Description -->
+    <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm">
+      <h3 class="font-semibold mb-2" style="color: #111827;">故障描述</h3>
+      <p class="text-sm text-on-surface-variant break-all" id="faultDesc">-</p>
+      <div class="flex flex-wrap gap-2 mt-3" id="faultTags"></div>
+    </section>
+
+    <!-- Quote Info (if available) -->
+    <section id="quoteSection" class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm">
+      <h3 class="font-semibold mb-3" style="color: #111827;">报价信息</h3>
+      <div class="space-y-2">
+        <div class="flex justify-between text-sm">
+          <span class="text-on-surface-variant">配件费</span>
+          <span class="font-medium" id="partsFee">-</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span class="text-on-surface-variant">人工费</span>
+          <span class="font-medium" id="laborFee">-</span>
+        </div>
+        <div class="flex justify-between text-sm border-t border-outline-variant pt-2 mt-2">
+          <span class="font-semibold">合计</span>
+          <span class="font-bold" style="color: #1890ff;" id="totalFee">-</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Buttons -->
+    <section id="actionSection" class="mt-6 space-y-3">
+      <button id="confirmQuoteBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="confirmQuote()">
+        确认报价
+      </button>
+      <button id="payPrepaymentBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payPrepayment()">
+        支付定金 <span id="prepaymentAmount"></span>
+      </button>
+      <button id="payFinalBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payFinal()">
+        支付尾款 <span id="finalPaymentAmount"></span>
+      </button>
+      <button id="reviewBtn" class="w-full py-3 border font-medium rounded-lg hidden" style="border-color: #1890ff; color: #1890ff;" onclick="showReview()">
+        立即评价
+      </button>
+    </section>
+
+    <!-- Review Section (hidden by default) -->
+    <section id="reviewSection" class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm hidden">
+      <h3 class="font-semibold mb-3" style="color: #111827;">服务评价</h3>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-sm text-on-surface-variant">评分：</span>
+        <div id="starRating" class="flex gap-1">
+          <button class="text-2xl star-btn" data-rating="1" onclick="setRating(1)">☆</button>
+          <button class="text-2xl star-btn" data-rating="2" onclick="setRating(2)">☆</button>
+          <button class="text-2xl star-btn" data-rating="3" onclick="setRating(3)">☆</button>
+          <button class="text-2xl star-btn" data-rating="4" onclick="setRating(4)">☆</button>
+          <button class="text-2xl star-btn" data-rating="5" onclick="setRating(5)">☆</button>
+        </div>
+      </div>
+      <textarea id="reviewContent" class="w-full p-3 border border-outline-variant rounded-lg text-sm" rows="3" placeholder="请输入您的评价..."></textarea>
+      <button class="w-full py-3 mt-3 text-white font-medium rounded-lg" style="background-color: #1890ff;" onclick="submitReview()">
+        提交评价
+      </button>
+    </section>
+  </main>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+    var orderId = window.location.hash.slice(1);
+    var orderData = null;
+    var currentRating = 5;
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    // 脚本在 body 底部，DOM 已加载完成，直接调用
+    if (orderId) {
+      loadOrderDetail(orderId);
+    } else {
+      // Demo mode with mock data
+      renderMockData();
+    }
+
+    function loadOrderDetail(id) {
+      fetch(API_BASE + '/customer/work-orders/' + id, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          orderData = data;
+          renderOrderData(data);
+        }).catch(function(e) {
+          console.error('Load error:', e);
+          renderMockData();
+        });
+    }
+
+    function renderMockData() {
+      // 使用与 renderTimeline 一致的步骤
+      renderTimeline('PENDING');
+    }
+
+    function renderOrderData(data) {
+      document.getElementById('orderTitle').textContent = data.faultType || '设备维修';
+      document.getElementById('orderNo').textContent = '工单号：' + (data.orderNo || data.id);
+      document.getElementById('orderStatus').textContent = getStatusText(data.status);
+      document.getElementById('faultDesc').textContent = data.faultDescription || '-';
+
+      if (data.engineer) {
+        document.getElementById('engineerName').textContent = data.engineer.name || '未知工程师';
+      }
+
+      if (data.partsFee) document.getElementById('partsFee').textContent = '¥' + Number(data.partsFee).toFixed(2);
+      if (data.laborFee) document.getElementById('laborFee').textContent = '¥' + Number(data.laborFee).toFixed(2);
+      if (data.finalAmount) {
+        document.getElementById('totalFee').textContent = '¥' + Number(data.finalAmount).toFixed(2);
+        document.getElementById('prepaymentAmount').textContent = '¥' + (Number(data.finalAmount) * 0.3).toFixed(2);
+        document.getElementById('finalPaymentAmount').textContent = '¥' + (Number(data.finalAmount) * 0.7).toFixed(2);
+      }
+
+      // 渲染时间线
+      renderTimeline(data.status);
+
+      // Show/hide buttons based on status
+      var confirmQuoteBtn = document.getElementById('confirmQuoteBtn');
+      var payPrepaymentBtn = document.getElementById('payPrepaymentBtn');
+      var payFinalBtn = document.getElementById('payFinalBtn');
+      var reviewBtn = document.getElementById('reviewBtn');
+
+      // 初始隐藏所有按钮
+      confirmQuoteBtn.classList.add('hidden');
+      payPrepaymentBtn.classList.add('hidden');
+      payFinalBtn.classList.add('hidden');
+      reviewBtn.classList.add('hidden');
+
+      if (data.status === 'PENDING' || data.status === 'DISPATCHED' || data.status === 'ACCEPTED') {
+        // 报价未确认，显示"确认报价"按钮
+        if (data.partsFee || data.laborFee) {
+          confirmQuoteBtn.classList.remove('hidden');
+        }
+      } else if (data.status === 'PENDING_PAYMENT') {
+        // PENDING_PAYMENT 状态需要区分：customerConfirm 为 false 时需要确认报价，为 true 时支付定金
+        if (data.customerConfirm) {
+          // 已确认报价，待支付定金，显示"支付定金"按钮
+          payPrepaymentBtn.classList.remove('hidden');
+          document.getElementById('prepaymentAmount').textContent = '¥' + (Number(data.prepayAmount) || 0).toFixed(2);
+        } else {
+          // 待确认报价，显示"确认报价"按钮
+          confirmQuoteBtn.classList.remove('hidden');
+        }
+      } else if (data.status === 'PENDING_FINAL_PAYMENT') {
+        // 维修完成，待支付尾款，显示"支付尾款"按钮
+        payFinalBtn.classList.remove('hidden');
+        // 计算尾款：如果finalPaymentAmount未设置，则从总价计算
+        var totalAmount = Number(data.finalAmount) || (Number(data.partsFee || 0) + Number(data.laborFee || 0));
+        var finalPay = Number(data.finalPaymentAmount) || (totalAmount * 0.7);
+        document.getElementById('finalPaymentAmount').textContent = '¥' + finalPay.toFixed(2);
+      } else if (data.status === 'COMPLETED') {
+        // 只有未评价时才显示评价按钮
+        if (!data.reviewed) {
+          reviewBtn.classList.remove('hidden');
+        }
+      }
+    }
+
+    function renderTimeline(status) {
+      // 根据状态确定时间线步骤
+      var steps = [
+        { icon: 'check_circle', text: '已提交报修', done: true, current: false },
+        { icon: 'engineering', text: '工程师已接单', done: false, current: false },
+        { icon: 'location_on', text: '工程师已到达', done: false, current: false },
+        { icon: 'request_quote', text: '等待报价确认', done: false, current: false },
+        { icon: 'build', text: '维修中', done: false, current: false },
+        { icon: 'payment', text: '待付尾款', done: false, current: false },
+        { icon: 'task_alt', text: '已完成', done: false, current: false }
+      ];
+
+      // 根据状态确定当前步骤索引
+      var currentStep = 0;
+      if (status === 'PENDING') {
+        currentStep = 0;
+      } else if (status === 'DISPATCHED') {
+        currentStep = 1;
+      } else if (status === 'ACCEPTED') {
+        currentStep = 2;
+      } else if (status === 'PENDING_PAYMENT') {
+        currentStep = 3;
+      } else if (status === 'REPAIRING') {
+        currentStep = 4;
+      } else if (status === 'PENDING_FINAL_PAYMENT') {
+        currentStep = 5;
+      } else if (status === 'COMPLETED') {
+        currentStep = 6;
+      }
+
+      // 更新步骤的状态：done 表示已完成，current 表示当前步骤
+      for (var i = 0; i < steps.length; i++) {
+        if (i < currentStep) {
+          steps[i].done = true;
+          steps[i].current = false;
+        } else if (i === currentStep) {
+          steps[i].done = false;
+          steps[i].current = true;
+        } else {
+          steps[i].done = false;
+          steps[i].current = false;
+        }
+      }
+
+      var timelineHTML = '';
+      steps.forEach(function(step) {
+        var iconColor;
+        if (step.done) {
+          iconColor = 'color: #52c41a;';
+        } else if (step.current) {
+          iconColor = 'color: #1890ff;';
+        } else {
+          iconColor = 'color: #d1d5db;';
+        }
+        var textClass = step.current ? 'font-bold' : (step.done ? '' : 'text-on-surface-variant');
+        timelineHTML += '<div class="timeline-item relative pl-10 pb-6">' +
+          '<span class="material-symbols-outlined fill absolute left-0 w-8 h-8 flex items-center justify-center" style="' + iconColor + '">' + step.icon + '</span>' +
+          '<p class="text-sm font-medium ' + textClass + '" style="color: #191c1e;">' + step.text + '</p></div>';
+      });
+      document.getElementById('timeline').innerHTML = timelineHTML;
+    }
+
+    function getStatusText(status) {
+      var map = {
+        'PENDING': '待派单',
+        'DISPATCHED': '已派单',
+        'ACCEPTED': '已接单',
+        'PENDING_PAYMENT': '待支付定金',
+        'REPAIRING': '维修中',
+        'PENDING_FINAL_PAYMENT': '待付尾款',
+        'COMPLETED': '已完成'
+      };
+      return map[status] || status;
+    }
+
+    function setRating(rating) {
+      currentRating = rating;
+      var stars = document.querySelectorAll('.star-btn');
+      stars.forEach(function(star, index) {
+        star.textContent = index < rating ? '★' : '☆';
+        star.style.color = index < rating ? '#faad14' : '#d1d5db';
+      });
+    }
+
+    function confirmQuote() {
+      if (!orderId) {
+        alert('缺少工单ID');
+        return;
+      }
+      fetch(API_BASE + '/customer/work-orders/' + orderId + '/confirm', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true })
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          alert('报价已确认！');
+          loadOrderDetail(orderId);
+        }).catch(function(e) {
+          alert('确认失败: ' + e.message);
+        });
+    }
+
+    function payPrepayment() {
+      if (!orderId) {
+        alert('缺少工单ID');
+        return;
+      }
+      fetch(API_BASE + '/customer/work-orders/' + orderId + '/pay-prepayment', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          alert('定金支付成功！');
+          loadOrderDetail(orderId);
+        }).catch(function(e) {
+          alert('支付失败: ' + e.message);
+        });
+    }
+
+    function payFinal() {
+      if (!orderId) {
+        alert('演示模式：支付尾款功能');
+        return;
+      }
+      fetch(API_BASE + '/customer/work-orders/' + orderId + '/pay-final', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          alert('尾款支付成功！');
+          // 刷新页面状态
+          loadOrderDetail(orderId);
+        }).catch(function(e) {
+          alert('支付失败: ' + e.message);
+        });
+    }
+
+    function showReview() {
+      document.getElementById('reviewSection').classList.remove('hidden');
+      document.getElementById('reviewBtn').classList.add('hidden');
+      setRating(5);
+    }
+
+    function submitReview() {
+      if (!orderId) {
+        alert('演示模式：评价提交成功！');
+        return;
+      }
+      fetch(API_BASE + '/customer/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          workOrderId: orderId,
+          rating: currentRating,
+          content: document.getElementById('reviewContent').value || '服务很好！'
+        })
+      }).then(function(res) { return res.json(); })
+        .then(function(data) {
+          alert('评价成功，感谢您的反馈！');
+          document.getElementById('reviewSection').classList.add('hidden');
+          // 刷新页面状态
+          loadOrderDetail(orderId);
+        }).catch(function(e) {
+          alert('评价失败: ' + e.message);
+        });
+    }
+
+    function callEngineer() {
+      alert('即将拨打工程师电话');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>支付定金 - 客户</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@0..700,0..1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/shared.css">
+  <style>
+    .pay-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .amount-display {
+      text-align: center;
+      padding: 24px 0;
+    }
+    .amount-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+    .amount-value {
+      font-size: 40px;
+      font-weight: 700;
+      color: #1677ff;
+    }
+    .amount-unit {
+      font-size: 20px;
+      margin-left: 4px;
+    }
+    .pay-method {
+      display: flex;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pay-method.selected {
+      border-color: #1677ff;
+      background: #e6f4ff;
+    }
+    .pay-method-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 24px;
+    }
+    .pay-method-info {
+      flex: 1;
+    }
+    .pay-method-name {
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+    .pay-method-desc {
+      font-size: 12px;
+      color: #999;
+    }
+    .pay-method-radio {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #d9d9d9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pay-method.selected .pay-method-radio {
+      border-color: #1677ff;
+    }
+    .pay-method.selected .pay-method-radio::after {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: #1677ff;
+      border-radius: 50%;
+    }
+    .qr-code {
+      text-align: center;
+      padding: 24px;
+    }
+    .qr-code img {
+      width: 200px;
+      height: 200px;
+    }
+    .qr-expire {
+      font-size: 12px;
+      color: #999;
+      margin-top: 12px;
+    }
+    .wechat-icon { background: #07c160; color: #fff; }
+    .alipay-icon { background: #1677ff; color: #fff; }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <button class="header-btn" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1>支付定金</h1>
+    <div style="width: 40px;"></div>
+  </header>
+
+  <main class="app-content">
+    <!-- 金额显示 -->
+    <div class="pay-card">
+      <div class="amount-display">
+        <div class="amount-label">预付定金（30%）</div>
+        <div class="amount-value">¥<span id="amount">0.00</span></div>
+      </div>
+    </div>
+
+    <!-- 支付方式 -->
+    <div class="pay-card">
+      <h3 style="margin: 0 0 16px; font-size: 16px;">选择支付方式</h3>
+      <div class="pay-method selected" data-method="wechat" onclick="selectPayMethod('wechat')">
+        <div class="pay-method-icon wechat-icon">💳</div>
+        <div class="pay-method-info">
+          <div class="pay-method-name">微信支付</div>
+          <div class="pay-method-desc">推荐</div>
+        </div>
+        <div class="pay-method-radio"></div>
+      </div>
+      <div class="pay-method" data-method="alipay" onclick="selectPayMethod('alipay')">
+        <div class="pay-method-icon alipay-icon">💰</div>
+        <div class="pay-method-info">
+          <div class="pay-method-name">支付宝</div>
+          <div class="pay-method-desc">广泛使用</div>
+        </div>
+        <div class="pay-method-radio"></div>
+      </div>
+    </div>
+
+    <!-- 二维码区域（点击支付后显示） -->
+    <div id="qrCodeArea" class="pay-card" style="display: none;">
+      <div style="text-align: center; margin-bottom: 16px; color: #666;">
+        请使用<span id="payMethodName">微信</span>扫码支付
+      </div>
+      <div class="qr-code">
+        <img id="qrCode" src="" alt="支付二维码">
+        <div class="qr-expire">有效期至: <span id="expireTime">-</span></div>
+      </div>
+    </div>
+
+    <!-- 支付按钮 -->
+    <button id="payBtn" class="btn btn-primary btn-full" onclick="createPayOrder()">
+      确认支付
+    </button>
+
+    <!-- 支付状态提示 -->
+    <div id="payStatus" class="pay-card" style="display: none; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">⏳</div>
+      <div style="font-size: 16px; font-weight: 500;">支付处理中...</div>
+      <div style="font-size: 12px; color: #999; margin-top: 8px;">请稍候</div>
+    </div>
+
+    <div id="paySuccess" class="pay-card" style="display: none; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+      <div style="font-size: 16px; font-weight: 500;">支付成功</div>
+      <div style="font-size: 12px; color: #999; margin-top: 8px;">定金已支付，工单正在处理中</div>
+      <button class="btn btn-secondary btn-full" style="margin-top: 16px;" onclick="goToOrders()">查看工单</button>
+    </div>
+  </main>
+
+  <script>
+    var API_BASE = 'http://localhost:3000';
+    var token = localStorage.getItem('customer_token');
+    var workOrderId = null;
+    var selectedMethod = 'wechat';
+
+    if (!token) {
+      window.location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var params = new URLSearchParams(window.location.search);
+      workOrderId = params.get('orderId');
+      if (!workOrderId) {
+        alert('缺少工单ID');
+        window.location.href = 'index.html';
+        return;
+      }
+      loadOrderInfo();
+    });
+
+    function loadOrderInfo() {
+      fetch(API_BASE + '/customer/work-orders/' + workOrderId, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var prepayRate = 0.3;
+        var amount = Math.round((data.estimatedAmount || 0) * prepayRate * 100) / 100;
+        document.getElementById('amount').textContent = amount.toFixed(2);
+      })
+      .catch(function(err) {
+        console.error('Failed to load order:', err);
+      });
+    }
+
+    function selectPayMethod(method) {
+      selectedMethod = method;
+      document.querySelectorAll('.pay-method').forEach(function(el) {
+        el.classList.remove('selected');
+      });
+      document.querySelector('[data-method="' + method + '"]').classList.add('selected');
+    }
+
+    function createPayOrder() {
+      var btn = document.getElementById('payBtn');
+      btn.disabled = true;
+      btn.textContent = '创建支付订单...';
+
+      fetch(API_BASE + '/payment/prepay', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({
+          workOrderId: workOrderId,
+          payType: selectedMethod
+        })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        btn.style.display = 'none';
+        document.getElementById('qrCodeArea').style.display = 'block';
+        document.getElementById('qrCode').src = data.qrCode;
+        document.getElementById('payMethodName').textContent = selectedMethod === 'wechat' ? '微信' : '支付宝';
+        document.getElementById('expireTime').textContent = new Date(data.expireTime).toLocaleString('zh-CN');
+
+        // 模拟支付成功（实际需要轮询支付状态或回调）
+        simulatePaySuccess();
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        btn.textContent = '确认支付';
+        alert('创建支付订单失败: ' + err.message);
+      });
+    }
+
+    function simulatePaySuccess() {
+      // 模拟 3 秒后支付成功
+      setTimeout(function() {
+        document.getElementById('qrCodeArea').style.display = 'none';
+        document.getElementById('paySuccess').style.display = 'block';
+      }, 3000);
+    }
+
+    function goToOrders() {
+      window.location.href = 'orders.html';
+    }
+  </script>
+</body>
+</html>

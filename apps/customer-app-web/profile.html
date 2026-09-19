@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>个人中心</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">个人中心</h1>
+    <button class="text-primary" onclick="showSettings()">
+      <span class="material-symbols-outlined">settings</span>
+    </button>
+  </header>
+
+  <main class="pt-14 px-4 space-y-4">
+    <!-- User Profile Card -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm mt-4">
+      <div class="flex items-center space-x-4">
+        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+          <span class="text-3xl">👤</span>
+        </div>
+        <div class="flex-1">
+          <h2 class="font-semibold text-lg" style="color: #111827;" id="userName">张三</h2>
+          <p class="text-sm text-on-surface-variant" id="userPhone">138****8888</p>
+          <p class="text-xs text-on-surface-variant mt-1" id="userCompany">深圳市某某激光设备有限公司</p>
+        </div>
+        <button class="px-3 py-1.5 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="editProfile()">
+          编辑
+        </button>
+      </div>
+    </section>
+
+    <!-- Quick Stats -->
+    <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
+      <div class="grid grid-cols-3 gap-4 text-center">
+        <div class="flex flex-col items-center">
+          <span class="text-2xl font-bold" style="color: #1890ff;" id="orderCount">12</span>
+          <span class="text-xs text-on-surface-variant mt-1">报修工单</span>
+        </div>
+        <div class="flex flex-col items-center border-l border-r border-outline-variant">
+          <span class="text-2xl font-bold" style="color: #52c41a;" id="deviceCount">5</span>
+          <span class="text-xs text-on-surface-variant mt-1">绑定设备</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="text-2xl font-bold" style="color: #faad14;" id="reviewCount">8</span>
+          <span class="text-xs text-on-surface-variant mt-1">评价次数</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Menu List -->
+    <section class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+      <!-- Devices -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="navigateTo('devices')">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #1890ff;">precision_manufacturing</span>
+          <span class="text-sm font-medium" style="color: #111827;">我的设备</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-on-surface-variant" id="deviceMenuCount">加载中...</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+        </div>
+      </button>
+
+      <!-- Warranty -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="navigateTo('warranty')">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #52c41a;">shield</span>
+          <span class="text-sm font-medium" style="color: #111827;">延保套餐</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-on-surface-variant">查看详情</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+        </div>
+      </button>
+
+      <!-- Addresses -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="navigateTo('addresses')">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #1890ff;">location_on</span>
+          <span class="text-sm font-medium" style="color: #111827;">常用地址</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-on-surface-variant">管理地址</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+        </div>
+      </button>
+
+      <!-- Invoices -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors" onclick="showInvoices()">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #1890ff;">receipt_long</span>
+          <span class="text-sm font-medium" style="color: #111827;">发票记录</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-on-surface-variant">查看历史</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+        </div>
+      </button>
+    </section>
+
+    <!-- Support Menu -->
+    <section class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+      <!-- Help -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="showHelp()">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #1890ff;">help</span>
+          <span class="text-sm font-medium" style="color: #111827;">帮助中心</span>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+      </button>
+
+      <!-- Contact -->
+      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors" onclick="contactService()">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined" style="color: #1890ff;">phone</span>
+          <span class="text-sm font-medium" style="color: #111827;">联系客服</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-on-surface-variant">400-888-8888</span>
+          <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
+        </div>
+      </button>
+    </section>
+
+    <!-- Logout -->
+    <section class="pt-4">
+      <button class="w-full py-3 text-center text-sm rounded-lg" style="background-color: #fff2f0; color: #ff4d4f;" onclick="logout()">
+        退出登录
+      </button>
+    </section>
+  </main>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="text-xs mt-1">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('profile')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">person</span>
+      <span class="text-xs mt-1 font-medium">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadUserProfile();
+    });
+
+    function loadUserProfile() {
+      Promise.all([
+        fetch(API_BASE + '/auth/profile', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).then(function(res) { return res.json(); }),
+        fetch(API_BASE + '/customer/devices', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).then(function(res) { return res.json(); }),
+        fetch(API_BASE + '/customer/work-orders', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).then(function(res) { return res.json(); })
+      ]).then(function(results) {
+        var profile = results[0];
+        var devices = results[1] || [];
+        var workOrders = results[2] || [];
+
+        if (profile.name) document.getElementById('userName').textContent = profile.name;
+        if (profile.phone) document.getElementById('userPhone').textContent = profile.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+        if (profile.company) document.getElementById('userCompany').textContent = profile.company;
+
+        // Update counts from real data
+        document.getElementById('orderCount').textContent = workOrders.length;
+        document.getElementById('deviceCount').textContent = devices.length;
+        document.getElementById('deviceMenuCount').textContent = devices.length + '台设备';
+        document.getElementById('reviewCount').textContent = workOrders.filter(function(o) { return o.reviewed; }).length;
+      }).catch(function(e) { console.error(e); });
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html',
+        'devices': 'devices.html',
+        'warranty': 'warranty.html',
+        'addresses': 'addresses.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+
+    function editProfile() {
+      alert('编辑个人资料功能');
+    }
+
+    function showSettings() {
+      alert('设置页面');
+    }
+
+    function showInvoices() {
+      alert('发票记录');
+    }
+
+    function showHelp() {
+      window.location.href = 'chat.html';
+    }
+
+    function contactService() {
+      alert('客服热线：400-888-8888');
+    }
+
+    function logout() {
+      if (confirm('确定要退出登录吗？')) {
+        localStorage.removeItem('customer_token');
+        window.location.href = 'login.html';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>常用地址</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            primary: "#1890ff",
+            "on-primary": "#ffffff",
+            "surface": "#f7f9fb",
+            "surface-container-lowest": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#43474f",
+            "outline": "#737780",
+            "outline-variant": "#c3c6d1",
+            "secondary": "#52c41a"
+          },
+          fontFamily: {
+            display: ["IBM Plex Sans"],
+            body: ["Noto Sans"]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #f7f9fb;
+      max-width: 414px;
+      margin: 0 auto;
+      min-height: 100vh;
+    }
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 340px;
+      max-width: 90vw;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-surface pb-20">
+  <!-- Top App Bar -->
+  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
+    <button class="text-primary" onclick="window.history.back()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1 class="font-semibold text-base" style="color: #111827;">常用地址</h1>
+    <button class="text-primary" onclick="showAddModal()">
+      <span class="material-symbols-outlined">add</span>
+    </button>
+  </header>
+
+  <main class="pt-14 px-4 space-y-3">
+    <!-- Loading -->
+    <div id="loading" class="text-center py-10 text-on-surface-variant">
+      <span class="material-symbols-outlined animate-spin">progress_activity</span>
+      <p class="mt-2">加载中...</p>
+    </div>
+
+    <!-- Address List -->
+    <section class="space-y-3 mt-4 hidden" id="addressListSection">
+      <div id="addressList"></div>
+    </section>
+
+    <!-- Empty State -->
+    <section class="hidden text-center py-10" id="emptyState">
+      <span class="material-symbols-outlined text-5xl text-on-surface-variant">location_off</span>
+      <p class="mt-4 text-on-surface-variant">暂无地址</p>
+      <p class="text-sm text-on-surface-variant mt-1">点击右上角添加地址</p>
+    </section>
+
+    <!-- Hint -->
+    <section class="bg-white border border-dashed border-outline-variant rounded-xl p-4 text-center hidden" id="addHint">
+      <p class="text-sm text-on-surface-variant">
+        默认地址将自动填充到报修表单，方便您快速报修。
+      </p>
+    </section>
+  </main>
+
+  <!-- Add/Edit Address Modal -->
+  <div id="addressModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-lg" id="modalTitle">添加地址</h3>
+        <button onclick="hideModal()" class="text-on-surface-variant hover:text-on-surface">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <input type="hidden" id="addressId" />
+
+      <div class="form-group">
+        <label class="text-sm text-on-surface-variant mb-1 block">所在地区</label>
+        <div class="flex gap-2">
+          <select id="province" class="flex-1 px-3 py-2 border border-outline-variant rounded-lg text-sm bg-white">
+            <option value="">请选择省</option>
+          </select>
+          <select id="city" class="flex-1 px-3 py-2 border border-outline-variant rounded-lg text-sm bg-white">
+            <option value="">请选择市</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="text-sm text-on-surface-variant mb-1 block">区/县</label>
+        <input type="text" id="district" class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm" placeholder="区/县" />
+      </div>
+
+      <div class="form-group">
+        <label class="text-sm text-on-surface-variant mb-1 block">详细地址</label>
+        <input type="text" id="detail" class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm" placeholder="街道、门牌号等" />
+      </div>
+
+      <div class="form-group">
+        <label class="text-sm text-on-surface-variant mb-1 block">联系人</label>
+        <input type="text" id="contactName" class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm" placeholder="联系人姓名" />
+      </div>
+
+      <div class="form-group">
+        <label class="text-sm text-on-surface-variant mb-1 block">联系电话</label>
+        <input type="tel" id="contactPhone" class="w-full px-3 py-2 border border-outline-variant rounded-lg text-sm" placeholder="手机号" />
+      </div>
+
+      <div class="form-group">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" id="isDefault" class="w-4 h-4" style="accent-color: #1890ff;" />
+          <span class="text-sm">设为默认地址</span>
+        </label>
+      </div>
+
+      <p id="formError" class="text-error text-sm mb-3 hidden"></p>
+
+      <div class="flex gap-3">
+        <button onclick="hideModal()" class="flex-1 py-3 border border-outline-variant rounded-lg text-sm">取消</button>
+        <button onclick="submitAddress()" class="flex-1 py-3 bg-primary text-white rounded-lg text-sm font-medium">保存</button>
+      </div>
+
+      <button onclick="deleteAddressConfirm()" id="deleteBtn" class="w-full mt-3 py-3 text-error text-sm hidden">删除地址</button>
+    </div>
+  </div>
+
+  <!-- Bottom Nav Bar -->
+  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
+      <span class="material-symbols-outlined">home</span>
+      <span class="text-xs mt-1">首页</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
+      <span class="material-symbols-outlined">receipt_long</span>
+      <span class="text-xs mt-1">工单</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
+      <span class="material-symbols-outlined">support_agent</span>
+      <span class="text-xs mt-1">客服</span>
+    </button>
+    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('profile')">
+      <div class="absolute top-1 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
+      <span class="material-symbols-outlined fill">person</span>
+      <span class="text-xs mt-1 font-medium">我的</span>
+    </button>
+  </nav>
+
+  <script>
+    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var token = localStorage.getItem('customer_token');
+
+    if (!token) {
+      window.location.href = 'login.html';
+    }
+
+    // 省市區數據
+    var provinces = ['北京市','天津市','上海市','重庆市','河北省','山西省','辽宁省','吉林省','黑龙江省','江苏省','浙江省','安徽省','福建省','江西省','山东省','河南省','湖北省','湖南省','广东省','海南省','四川省','贵州省','云南省','陕西省','甘肃省','青海省','台湾省','内蒙古自治区','广西壮族自治区','西藏自治区','宁夏回族自治区','新疆维吾尔自治区','香港特别行政区','澳门特别行政区'];
+    var cities = {
+      '北京市': ['东城区','西城区','朝阳区','丰台区','石景山区','海淀区','门头沟区','房山区','通州区','顺义区','昌平区','大兴区','怀柔区','平谷区','密云区','延庆区'],
+      '天津市': ['和平区','河东区','河西区','南开区','河北区','红桥区','东丽区','西青区','津南区','北辰区','武清区','宝坻区','滨海新区','宁河区','静海区','蓟州区'],
+      '上海市': ['黄浦区','徐汇区','长宁区','静安区','普陀区','虹口区','杨浦区','闵行区','宝山区','嘉定区','浦东新区','金山区','松江区','青浦区','奉贤区','崇明区'],
+      '重庆市': ['万州区','涪陵区','渝中区','大渡口区','江北区','沙坪坝区','九龙坡区','南岸区','北碚区','渝北区','巴南区','黔江区','长寿区','江津区','合川区','永川区','南川区','璧山区','铜梁区','潼南区','荣昌区','开州区','梁平区','武隆区'],
+      '河北省': ['石家庄市','唐山市','秦皇岛市','邯郸市','邢台市','保定市','张家口市','承德市','沧州市','廊坊市','衡水市'],
+      '山西省': ['太原市','大同市','阳泉市','长治市','晋城市','朔州市','晋中市','运城市','忻州市','临汾市','吕梁市'],
+      '辽宁省': ['沈阳市','大连市','鞍山市','抚顺市','本溪市','丹东市','锦州市','营口市','阜新市','辽阳市','盘锦市','铁岭市','朝阳市','葫芦岛市'],
+      '吉林省': ['长春市','吉林市','四平市','辽源市','通化市','白山市','松原市','白城市','延边朝鲜族自治州'],
+      '黑龙江省': ['哈尔滨市','齐齐哈尔市','鸡西市','鹤岗市','双鸭山市','大庆市','伊春市','佳木斯市','七台河市','牡丹江市','黑河市','绥化市'],
+      '江苏省': ['南京市','无锡市','徐州市','常州市','苏州市','南通市','连云港市','淮安市','盐城市','扬州市','镇江市','泰州市','宿迁市'],
+      '浙江省': ['杭州市','宁波市','温州市','嘉兴市','湖州市','绍兴市','金华市','衢州市','舟山市','台州市','丽水市'],
+      '安徽省': ['合肥市','芜湖市','蚌埠市','淮南市','马鞍山市','淮北市','铜陵市','安庆市','黄山市','滁州市','阜阳市','宿州市','六安市','亳州市','池州市','宣城市'],
+      '福建省': ['福州市','厦门市','莆田市','三明市','泉州市','漳州市','南平市','龙岩市','宁德市'],
+      '江西省': ['南昌市','景德镇市','萍乡市','九江市','新余市','鹰潭市','赣州市','吉安市','宜春市','抚州市','上饶市'],
+      '山东省': ['济南市','青岛市','淄博市','枣庄市','东营市','烟台市','潍坊市','济宁市','泰安市','威海市','日照市','临沂市','德州市','聊城市','滨州市','菏泽市'],
+      '河南省': ['郑州市','开封市','洛阳市','平顶山市','安阳市','鹤壁市','新乡市','焦作市','濮阳市','许昌市','漯河市','三门峡市','南阳市','商丘市','信阳市','周口市','驻马店市'],
+      '湖北省': ['武汉市','黄石市','十堰市','宜昌市','襄阳市','鄂州市','荆门市','孝感市','荆州市','黄冈市','咸宁市','随州市','恩施土家族苗族自治州'],
+      '湖南省': ['长沙市','株洲市','湘潭市','衡阳市','邵阳市','岳阳市','常德市','张家界市','益阳市','郴州市','永州市','怀化市','娄底市','湘西土家族苗族自治州'],
+      '广东省': ['广州市','韶关市','深圳市','珠海市','汕头市','佛山市','江门市','湛江市','茂名市','肇庆市','惠州市','梅州市','汕尾市','河源市','阳江市','清远市','东莞市','中山市','潮州市','揭州市','云浮市'],
+      '海南省': ['海口市','三亚市','三沙市','儋州市'],
+      '四川省': ['成都市','自贡市','攀枝花市','泸州市','德阳市','绵阳市','广元市','遂宁市','内江市','乐山市','南充市','眉山市','宜宾市','广安市','达州市','雅安市','巴中市','资阳市','阿坝藏族羌族自治州','甘孜藏族自治州','凉山彝族自治州'],
+      '贵州省': ['贵阳市','六盘水市','遵义市','安顺市','毕节市','铜仁市','黔西南布依族苗族自治州','黔东南苗族侗族自治州','黔南布依族苗族自治州'],
+      '云南省': ['昆明市','曲靖市','玉溪市','保山市','昭通市','丽江市','普洱市','临沧市','楚雄彝族自治州','红河哈尼族彝族自治州','文山壮族苗族自治州','西双版纳傣族自治州','大理白族自治州','德宏傣族景颇族自治州','怒江傈僳族自治州','迪庆藏族自治州'],
+      '陕西省': ['西安市','铜川市','宝鸡市','咸阳市','渭南市','延安市','汉中市','榆林市','安康市','商洛市'],
+      '甘肃省': ['兰州市','嘉峪关市','金昌市','白银市','天水市','武威市','张掖市','平凉市','酒泉市','庆阳市','定西市','陇南市','临夏回族自治州','甘南藏族自治州'],
+      '青海省': ['西宁市','海东市','海北藏族自治州','黄南藏族自治州','海南藏族自治州','果洛藏族自治州','玉树藏族自治州','海西蒙古族藏族自治州'],
+      '台湾省': ['台北市','新北市','桃园市','台中市','台南市','高雄市'],
+      '内蒙古自治区': ['呼和浩特市','包头市','乌海市','赤峰市','通辽市','鄂尔多斯市','呼伦贝尔市','巴彦淖尔市','乌兰察布市','兴安盟','锡林郭勒盟','阿拉善盟'],
+      '广西壮族自治区': ['南宁市','柳州市','桂林市','梧州市','北海市','防城港市','钦州市','贵港市','玉林市','百色市','贺州市','河池市','来宾市','崇左市'],
+      '西藏自治区': ['拉萨市','日喀则市','昌都市','林芝市','山南市','那曲市','阿里地区'],
+      '宁夏回族自治区': ['银川市','石嘴山市','吴忠市','固原市','中卫市'],
+      '新疆维吾尔自治区': ['乌鲁木齐市','克拉玛依市','吐鲁番市','哈密市','昌吉回族自治州','博尔塔拉蒙古自治州','巴音郭楞蒙古自治州','阿克苏地区','克孜勒苏柯尔克孜自治州','喀什地区','和田地区','伊犁哈萨克自治州','塔城地区','阿勒泰地区'],
+      '香港特别行政区': ['中西区','东区','南区','湾仔区','东区','九龙城区','观塘区','深水埗区','黄大仙区','油尖旺区'],
+      '澳门特别行政区': ['花地玛堂区','圣安多尼堂区','大堂区','望德堂区','风顺堂区']
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      loadAddresses();
+      initProvinceSelect();
+    });
+
+    function initProvinceSelect() {
+      var provinceSelect = document.getElementById('province');
+      provinces.forEach(function(p) {
+        var opt = document.createElement('option');
+        opt.value = p;
+        opt.textContent = p;
+        provinceSelect.appendChild(opt);
+      });
+      provinceSelect.addEventListener('change', function() {
+        updateCities(this.value);
+      });
+    }
+
+    function updateCities(province) {
+      var citySelect = document.getElementById('city');
+      var districtSelect = document.getElementById('district');
+      citySelect.innerHTML = '<option value="">请选择</option>';
+      districtSelect.innerHTML = '<option value="">请选择</option>';
+
+      if (cities[province]) {
+        cities[province].forEach(function(c) {
+          var opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          citySelect.appendChild(opt);
+        });
+      }
+    }
+
+    function loadAddresses() {
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('addressListSection').classList.add('hidden');
+      document.getElementById('emptyState').classList.add('hidden');
+      document.getElementById('addHint').classList.add('hidden');
+
+      fetch(API_BASE + '/customer/addresses', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(addresses) {
+          document.getElementById('loading').classList.add('hidden');
+          renderAddresses(addresses || []);
+        }).catch(function(e) {
+          console.error(e);
+          document.getElementById('loading').classList.add('hidden');
+          document.getElementById('emptyState').classList.remove('hidden');
+          document.getElementById('addHint').classList.remove('hidden');
+        });
+    }
+
+    function renderAddresses(addresses) {
+      var listEl = document.getElementById('addressList');
+      var listSection = document.getElementById('addressListSection');
+      var emptyState = document.getElementById('emptyState');
+      var addHint = document.getElementById('addHint');
+
+      if (addresses.length === 0) {
+        listSection.classList.add('hidden');
+        emptyState.classList.remove('hidden');
+        addHint.classList.remove('hidden');
+        return;
+      }
+
+      listSection.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      addHint.classList.remove('hidden');
+
+      listEl.innerHTML = addresses.map(function(addr) {
+        var isDefault = addr.isDefault ? '<span class="px-2 py-0.5 rounded text-xs font-medium" style="background-color: #e6f7ff; color: #1890ff;">默认</span>' : '';
+        var fullAddress = (addr.province || '') + (addr.city || '') + (addr.district || '') + (addr.detail || '');
+        var phoneMask = addr.contactPhone ? addr.contactPhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2') : '';
+
+        return '<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">' +
+          '<div class="flex items-start justify-between">' +
+            '<div class="flex-1">' +
+              '<div class="flex items-center gap-2 mb-2">' +
+                isDefault +
+                '<h3 class="font-semibold" style="color: #111827;">' + (addr.label || '地址') + '</h3>' +
+              '</div>' +
+              '<p class="text-sm text-on-surface-variant">' + fullAddress + '</p>' +
+              '<p class="text-xs text-on-surface-variant mt-1">联系人：' + (addr.contactName || '') + ' | ' + phoneMask + '</p>' +
+            '</div>' +
+            '<button class="text-primary" onclick="editAddress(\'' + addr.id + '\')">' +
+              '<span class="material-symbols-outlined">edit</span>' +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function showAddModal() {
+      document.getElementById('modalTitle').textContent = '添加地址';
+      document.getElementById('addressId').value = '';
+      document.getElementById('province').value = '';
+      document.getElementById('city').innerHTML = '<option value="">请选择市</option>';
+      document.getElementById('district').value = '';
+      document.getElementById('detail').value = '';
+      document.getElementById('contactName').value = '';
+      document.getElementById('contactPhone').value = '';
+      document.getElementById('isDefault').checked = false;
+      document.getElementById('deleteBtn').classList.add('hidden');
+      document.getElementById('formError').classList.add('hidden');
+      document.getElementById('addressModal').classList.remove('hidden');
+    }
+
+    function editAddress(id) {
+      fetch(API_BASE + '/customer/addresses/' + id, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(res) { return res.json(); })
+        .then(function(addr) {
+          document.getElementById('modalTitle').textContent = '编辑地址';
+          document.getElementById('addressId').value = addr.id;
+          document.getElementById('province').value = addr.province || '';
+          // Update cities based on province
+          var citySelect = document.getElementById('city');
+          citySelect.innerHTML = '<option value="">请选择市</option>';
+          if (cities[addr.province]) {
+            cities[addr.province].forEach(function(c) {
+              var opt = document.createElement('option');
+              opt.value = c;
+              opt.textContent = c;
+              citySelect.appendChild(opt);
+            });
+          }
+          document.getElementById('city').value = addr.city || '';
+          document.getElementById('district').value = addr.district || '';
+          document.getElementById('detail').value = addr.detail || '';
+          document.getElementById('contactName').value = addr.contactName || '';
+          document.getElementById('contactPhone').value = addr.contactPhone || '';
+          document.getElementById('isDefault').checked = addr.isDefault || false;
+          document.getElementById('deleteBtn').classList.remove('hidden');
+          document.getElementById('formError').classList.add('hidden');
+          document.getElementById('addressModal').classList.remove('hidden');
+        }).catch(function(e) {
+          alert('获取地址信息失败');
+        });
+    }
+
+    function hideModal() {
+      document.getElementById('addressModal').classList.add('hidden');
+    }
+
+    function submitAddress() {
+      var id = document.getElementById('addressId').value;
+      var province = document.getElementById('province').value;
+      var city = document.getElementById('city').value;
+      var district = document.getElementById('district').value.trim();
+      var detail = document.getElementById('detail').value.trim();
+      var contactName = document.getElementById('contactName').value.trim();
+      var contactPhone = document.getElementById('contactPhone').value.trim();
+      var isDefault = document.getElementById('isDefault').checked;
+
+      if (!province) {
+        document.getElementById('formError').textContent = '请选择省份';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+      if (!city) {
+        document.getElementById('formError').textContent = '请选择城市';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+      if (!district) {
+        document.getElementById('formError').textContent = '请输入区/县';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+      if (!detail) {
+        document.getElementById('formError').textContent = '请输入详细地址';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+      if (!contactName) {
+        document.getElementById('formError').textContent = '请输入联系人';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+      if (!contactPhone) {
+        document.getElementById('formError').textContent = '请输入联系电话';
+        document.getElementById('formError').classList.remove('hidden');
+        return;
+      }
+
+      var data = { province, city, district, detail, contactName, contactPhone, isDefault };
+      var url = id ? API_BASE + '/customer/addresses/' + id : API_BASE + '/customer/addresses';
+      var method = id ? 'PUT' : 'POST';
+
+      fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(data)
+      }).then(function(res) { return res.json(); })
+        .then(function(result) {
+          if (result.id) {
+            hideModal();
+            loadAddresses();
+          } else {
+            document.getElementById('formError').textContent = result.message || '保存失败';
+            document.getElementById('formError').classList.remove('hidden');
+          }
+        }).catch(function(e) {
+          document.getElementById('formError').textContent = '网络错误，请重试';
+          document.getElementById('formError').classList.remove('hidden');
+        });
+    }
+
+    function deleteAddressConfirm() {
+      var id = document.getElementById('addressId').value;
+      if (!id) return;
+
+      if (confirm('确定要删除这个地址吗？')) {
+        fetch(API_BASE + '/customer/addresses/' + id, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + token }
+        }).then(function(res) { return res.json(); })
+          .then(function(result) {
+            hideModal();
+            loadAddresses();
+          }).catch(function(e) {
+            alert('删除失败');
+          });
+      }
+    }
+
+    function navigateTo(page) {
+      var pages = {
+        'home': 'index.html',
+        'orders': 'orders.html',
+        'chat': 'chat.html',
+        'profile': 'profile.html'
+      };
+      if (pages[page]) {
+        window.location.href = pages[page];
+      }
+    }
+  </script>
+</body>
+</html>

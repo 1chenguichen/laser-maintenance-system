@@ -25,7 +25,7 @@ export class PartsInventory {
   reservedQuantity: number;
 
   @Column({ name: 'restock_date', type: 'date', nullable: true })
-  restockDate: Date;
+  restockDate: Date | null;
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
