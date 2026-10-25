@@ -2,7 +2,12 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE = 'http://localhost:3000';
+// 后端 API 地址。
+// 默认指向本机 8080（后端默认端口）。
+// 真机 / 模拟器调试时请用 EXPO_PUBLIC_API_BASE 覆盖为电脑的局域网 IP，例如：
+//   EXPO_PUBLIC_API_BASE=http://192.168.1.10:8080 npx expo start
+const API_BASE =
+  process.env.EXPO_PUBLIC_API_BASE || 'http://localhost:8080';
 
 const TOKEN_KEY = 'engineer_token';
 const USER_KEY = 'engineer_user';
