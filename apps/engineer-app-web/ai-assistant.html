@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>问AI - 工程师端</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="/tailwind.js"></script>
+  <link href="https://fonts.googleapis.cn/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link href="/fonts/main.css" rel="stylesheet">
   <link rel="stylesheet" href="styles/shared.css">
   <script>
     tailwind.config = {
@@ -78,7 +78,7 @@
   <main class="chat-container pt-14 pb-20 px-4">
     <div class="text-center py-8">
       <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color:#e6f7ec;">
-        <span class="text-3xl">🤖</span>
+        <img src="my-ai-icon.png" class="text-3xl" alt="AI">
       </div>
       <h2 class="text-lg font-semibold mb-1" style="color:#191c1e;">AI维修助手</h2>
       <p class="text-sm" style="color:#43474f;">有什么可以帮您的？</p>
@@ -133,7 +133,7 @@
               container.insertAdjacentHTML('beforeend',
                 '<div class="flex items-start space-x-2 mt-4">' +
                 '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:#e6f7ec;">' +
-                '<span class="text-sm">🤖</span></div>' +
+                '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
                 '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
                 '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(msg.content) + '</p>' +
                 '</div></div>');
@@ -181,7 +181,7 @@
       var startTime = Date.now();
       var html = '<div class="flex items-start space-x-2 mt-4" id="' + id + '">' +
         '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 thinking-robot" style="background-color:#e6f7ec;">' +
-        '<span class="text-sm">🤖</span></div>' +
+        '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
         '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
         '<div class="flex items-center gap-2 mb-2">' +
         '<p class="text-sm" style="color:#43474f;" id="' + id + '-status">' +
@@ -338,7 +338,7 @@
         container.insertAdjacentHTML('beforeend',
           '<div class="flex items-start space-x-2 mt-4">' +
           '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
-          '<span class="text-sm">🤖</span></div>' +
+          '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
           '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
           '<p class="text-sm" style="color: #f22;">抱歉，网络出现问题，请稍后再试。<br><span style="color:#999;font-size:11px;">' + escapeHtml(err.message) + '</span></p>' +
           '</div></div>');

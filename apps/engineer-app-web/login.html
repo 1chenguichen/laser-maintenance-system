@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>工程师登录 - 激光设备维保</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <script src="/tailwind.js"></script>
+  <link href="/fonts/material-symbols.css" rel="stylesheet">
+  <link href="/fonts/main.css" rel="stylesheet">
   <script>
     tailwind.config = {
       darkMode: "class",
       theme: {
         extend: {
           colors: {
-            primary: "#1890ff",
+            primary: "#006d33",
             "on-primary": "#ffffff",
             "surface": "#f7f9fb",
             "surface-container-lowest": "#ffffff",
@@ -78,7 +78,7 @@
               <input type="text" id="code" placeholder="请输入验证码" maxlength="6"
                 class="flex-1 px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
                 value="000000">
-              <button type="button" id="sendCodeBtn" class="px-4 py-3 border border-outline-variant rounded-lg text-sm" style="color: #1890ff;" onclick="sendCode()">
+              <button type="button" id="sendCodeBtn" class="px-4 py-3 border border-outline-variant rounded-lg text-sm" style="color: #006d33;" onclick="sendCode()">
                 获取验证码
               </button>
             </div>
