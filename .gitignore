@@ -6,6 +6,10 @@ node_modules/
 # Build outputs
 dist/
 build/
+*.tsbuildinfo
+
+# 打包产物
+*.tar.gz
 
 # Database
 *.db
