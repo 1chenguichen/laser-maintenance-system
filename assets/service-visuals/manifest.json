@@ -1,0 +1,90 @@
+{
+  "generator": "built-in image_gen",
+  "purpose": "AI-generated demonstration imagery, not customer equipment photographs or actual service evidence",
+  "assets": [
+    {
+      "name": "hero",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Wide editorial photograph of an enclosed white and graphite CNC fiber laser cutting machine in a bright spacious workshop, dark blue detail trim, architectural depth, equipment concentrated right, left side calm dark navy negative space for separate HTML heading. Cinematic restrained commercial photography. Aspect 16:9.",
+      "original": "originals/hero.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/hero.webp"
+    },
+    {
+      "name": "device-cutting",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Catalog product photograph of a complete enclosed flatbed sheet metal fiber laser cutting machine, white and graphite housing with subtle blue detail, three-quarter front view, centered whole machine with generous margin on light grey studio workshop floor, no people. Aspect 4:3.",
+      "original": "originals/device-cutting.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/device-cutting.webp"
+    },
+    {
+      "name": "device-welding",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Catalog product photograph of an industrial fiber laser welding workstation: compact wheeled white and graphite welding power unit, cable and welding handpiece neatly resting in purpose-built holder, beside a metal workbench, whole unit fully visible, centered, generous margins, light grey background, no people. Aspect 4:3.",
+      "original": "originals/device-welding.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/device-welding.webp"
+    },
+    {
+      "name": "device-marking",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Catalog product photograph of a benchtop fiber laser marking machine: upright metal column with enclosed scanner head over a slotted steel worktable and compact control cabinet, white graphite and subtle blue detail, realistic laser marking station, centered whole equipment with generous margins, light grey studio backdrop, no people. Aspect 4:3.",
+      "original": "originals/device-marking.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/device-marking.webp"
+    },
+    {
+      "name": "service-repair",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Close documentary photograph of a maintenance technician in navy workwear inspecting an opened service panel of an enclosed laser cutting machine, power isolated, no operation, technician using a handheld diagnostic meter, genuine careful workmanship, avoid identifiable face. Aspect 16:9.",
+      "original": "originals/service-repair.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/service-repair.webp"
+    },
+    {
+      "name": "service-maintenance",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Close editorial photograph of gloved technician hands cleaning and inspecting the protective lens holder from a powered-down laser cutting head on a clean maintenance workbench, orderly precision tools, real optical maintenance context, no face visible. Aspect 16:9.",
+      "original": "originals/service-maintenance.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/service-maintenance.webp"
+    },
+    {
+      "name": "service-installation",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Documentary photograph of two technicians in navy workwear using a spirit level and checking the mechanical installation of a new enclosed laser equipment workstation in a bright workshop, equipment off, thoughtful coordination, faces turned away, tidy environment. Aspect 16:9.",
+      "original": "originals/service-installation.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/service-installation.webp"
+    },
+    {
+      "name": "service-inspection",
+      "prompt": "Create ONE polished photorealistic industrial photography image for a Chinese laser equipment after-sales service app. Cool neutral steel grey, soft daylight, subtle cobalt blue accents, believable modern Chinese precision manufacturing workshop, immaculate but real materials, realistic equipment, no logos, no lettering, no typography, no collage, no watermark. No exposed laser beams, no flying sparks, no unsafe work. Landscape composition. Close editorial photograph of a technician in navy workwear checking a powered-down laser machine with a tablet and measurement instrument, inspection of mechanical alignment and coolant connectors, realistic tidy industrial setting, face not prominent, composition clearly different from repair photo. Aspect 16:9.",
+      "original": "originals/service-inspection.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/service-inspection.webp"
+    },
+    {
+      "name": "service-welding",
+      "prompt": "Photorealistic commercial industrial photography for a Chinese laser equipment service mobile app. One landscape 16:9 image of a maintenance technician in navy workwear diagnosing a compact wheeled handheld fiber laser welding unit beside a stainless steel workbench. The unit is white and graphite with restrained cobalt blue detail, welding handpiece and cable neatly resting in a purpose built holder. Technician examines the side control connections with a diagnostic instrument, equipment powered down, no active welding, no exposed laser beams, no sparks. Composition three-quarter side view, machine left, technician gloved hands right, no prominent face. Bright clean real workshop, cool natural daylight, steel grey and navy palette, believable commercial photography, no text, no logos, no watermark. Strongly distinguish the compact welding unit from a large enclosed CNC laser cutting machine.",
+      "original": "originals/service-welding.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/service-welding.webp"
+    },
+    {
+      "name": "course-practice",
+      "prompt": "Create one photorealistic landscape image for a Chinese industrial laser equipment after-sales service app. Consistent clean editorial industrial photography, navy and cobalt blue accents, steel grey, soft natural daylight, believable modern workshop, no logos, no text, no watermark, no collage, no active laser beams or sparks. Practical training class: two adult technicians in navy workwear learning powered-down laser equipment maintenance at an orderly workbench, instructor points to a laser head component, faces not prominent, authentic training atmosphere. 16:9.",
+      "original": "originals/course-practice.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/course-practice.webp"
+    },
+    {
+      "name": "training-room",
+      "prompt": "Create one photorealistic landscape image for a Chinese industrial laser equipment after-sales service app. Consistent clean editorial industrial photography, navy and cobalt blue accents, steel grey, soft natural daylight, believable modern workshop, no logos, no text, no watermark, no collage, no active laser beams or sparks. A bright empty industrial training classroom with neatly arranged blue chairs, desks, a blank presentation screen and several enclosed demonstration laser machines along the wall, realistic spacious Chinese vocational training center, no people. 16:9.",
+      "original": "originals/training-room.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/training-room.webp"
+    },
+    {
+      "name": "part-lens",
+      "prompt": "Create one photorealistic landscape image for a Chinese industrial laser equipment after-sales service app. Consistent clean editorial industrial photography, navy and cobalt blue accents, steel grey, soft natural daylight, believable modern workshop, no logos, no text, no watermark, no collage, no active laser beams or sparks. Macro catalog photography of a round laser protective optical window lens inside a white protective case on a light grey clean workbench, transparent glass with subtle purple coating reflections, no engraved markings, whole object visible, generous margins. 4:3.",
+      "original": "originals/part-lens.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/part-lens.webp"
+    },
+    {
+      "name": "part-nozzle",
+      "prompt": "Create one photorealistic landscape image for a Chinese industrial laser equipment after-sales service app. Consistent clean editorial industrial photography, navy and cobalt blue accents, steel grey, soft natural daylight, believable modern workshop, no logos, no text, no watermark, no collage, no active laser beams or sparks. Catalog photograph of two precision copper laser cutting nozzles, one upright and one angled, isolated on a clean light grey workbench, realistic machined threads, sharp material detail, whole objects visible with generous margins. 4:3.",
+      "original": "originals/part-nozzle.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/part-nozzle.webp"
+    },
+    {
+      "name": "part-kit",
+      "prompt": "Create one photorealistic landscape image for a Chinese industrial laser equipment after-sales service app. Consistent clean editorial industrial photography, navy and cobalt blue accents, steel grey, soft natural daylight, believable modern workshop, no logos, no text, no watermark, no collage, no active laser beams or sparks. Catalog photograph of a neatly organized unbranded maintenance spare parts kit in a foam-lined grey box: protective optical windows in white cases, copper nozzles and sealed small spare fittings, blank label area with no invented model text, clean light grey background. 4:3.",
+      "original": "originals/part-kit.png",
+      "web": "../../apps/customer-app-web/media/service-visuals/part-kit.webp"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+/* Shared operational components, matched to the company-management console. */
+.platform-operations-shell .console-panel{padding:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px;box-shadow:0 2px 5px #152b4703}
+.platform-operations-shell .console-panel>h2{font-size:15px;font-weight:600;color:#2b405c;padding:22px 24px 0;line-height:1.5}
+.platform-operations-shell .console-panel>p{font-size:12px;color:var(--muted);padding:6px 24px 20px;line-height:1.8;max-width:1000px}
+.platform-operations-shell .console-panel>h2:has(+form){padding-bottom:18px}
+.platform-operations-shell .console-table{overflow:auto;border-top:1px solid var(--line)}
+.platform-operations-shell .console-table table{width:100%;border-collapse:collapse;font-size:12px;line-height:1.65}
+.platform-operations-shell .console-table th{background:#f8fafe;color:#8795a9;font-size:11px;font-weight:500;padding:14px 20px;white-space:nowrap;border-bottom:1px solid var(--line)}
+.platform-operations-shell .console-table td{padding:18px 20px;color:#344a66;border-bottom:1px solid var(--line);vertical-align:middle}
+.platform-operations-shell .console-table tr:last-child td{border-bottom:0}
+.platform-operations-shell .console-table tbody tr:hover{background:#fafcff}
+.platform-operations-shell .console-table small{font-size:11px;color:#94a1b4;line-height:1.7;margin-top:4px}
+.platform-operations-shell :is(#market-console,#network-root) :is(input,select,textarea){font:inherit;font-size:12px;color:#344a66;background:#fff;border:1px solid #dce3ed;border-radius:7px;padding:10px 12px;min-height:38px;max-width:100%;min-width:0;box-shadow:none}
+.platform-operations-shell :is(input,textarea)::placeholder{color:#a0aabc}
+.platform-operations-shell :is(input,select,textarea):focus-visible{outline:2px solid #d0e1ff;border-color:#8ab1f4;outline-offset:1px}
+.platform-operations-shell :is(#market-console,#network-root) button{font:inherit;font-size:12px;font-weight:500;min-height:38px;border:1px solid var(--blue);border-radius:8px;background:var(--blue);color:#fff;padding:9px 14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;box-shadow:0 3px 6px #2864dc16}
+.platform-operations-shell :is(#market-console,#network-root) button:hover{background:#2057c5;border-color:#2057c5}
+.platform-operations-shell :is(#market-console,#network-root) button:disabled{opacity:.5;cursor:not-allowed}
+.platform-operations-shell .network-row,.platform-operations-shell .console-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px 20px;margin:0;padding:20px 24px 24px;background:#fafbfd;border-top:1px solid var(--line);border-bottom:1px solid var(--line);align-items:end}
+.platform-operations-shell .network-row label,.platform-operations-shell .console-grid label{display:grid;gap:8px;font-size:12px;color:#6d7e95;min-width:0}
+.platform-operations-shell .network-row label :is(input,select),.platform-operations-shell .console-grid label :is(input,select,textarea){width:100%;max-width:none;margin:0}
+.platform-operations-shell .network-row>button,.platform-operations-shell .console-grid>button{justify-self:start;align-self:end}
+.platform-operations-shell .console-grid .wide{grid-column:1/-1}
+.platform-operations-shell .console-grid textarea{min-height:86px;resize:vertical}
+.platform-operations-shell .console-table td form{display:flex;align-items:center;flex-wrap:wrap;gap:8px;min-width:240px;max-width:360px}
+.platform-operations-shell .console-table td form select{flex:1 1 180px;width:180px;max-width:280px}
+.platform-operations-shell .console-table td form input{flex:1 1 180px;width:180px}
+.platform-operations-shell .console-item{margin:0;padding:22px 24px;border-top:1px solid var(--line)}
+.platform-operations-shell .console-item h3{font-size:13px;font-weight:600;line-height:1.6;color:#344a66}
+.platform-operations-shell .console-item p{font-size:12px;line-height:1.8;color:var(--muted);margin:6px 0 14px}
+.platform-operations-shell .console-item form{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.platform-operations-shell .console-item form input{flex:1 1 220px}
+.platform-operations-shell .console-anchors{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:22px}
+.platform-operations-shell .console-anchors a{background:transparent;border:0;border-radius:0;padding:12px 20px;font-size:12px;color:#72839b;position:relative}
+.platform-operations-shell .console-anchors a:hover,.platform-operations-shell .console-anchors a.active{color:var(--blue);background:transparent}
+.platform-operations-shell .console-anchors a.active:after{content:'';position:absolute;height:2px;background:var(--blue);bottom:-1px;left:20px;right:20px}
+.platform-operations-shell .console-message:empty{display:none}
+@media(max-width:1100px){.platform-operations-shell .network-row,.platform-operations-shell .console-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.platform-operations-shell .network-row,.platform-operations-shell .console-grid{grid-template-columns:1fr;padding:18px 16px}.platform-operations-shell .console-panel>h2{padding:18px 16px 0}.platform-operations-shell .console-panel>p{padding:6px 16px 18px}.platform-operations-shell .console-item{padding:18px 16px}.platform-operations-shell .console-anchors{flex-wrap:wrap}.platform-operations-shell .console-anchors a{padding:10px 12px}}
+.platform-operations-shell .assignment-control{display:flex;align-items:center;gap:10px;min-width:250px;max-width:360px}
+.platform-operations-shell #market-console .assignment-control select{width:220px;flex:1;min-width:150px}
+.platform-operations-shell .assignment-control button{flex:none}
+.platform-operations-shell #requests table{min-width:1050px}
+.platform-operations-shell #requests :is(th,td):nth-child(4){min-width:115px}
+.platform-operations-shell #requests :is(th,td):nth-child(5){min-width:90px;white-space:nowrap}
+.platform-operations-shell #requests td:first-child{white-space:nowrap}

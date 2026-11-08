@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { getParts, createPart, Part } from '../api';
+import useWorkspaceState from "../components/useWorkspaceState";
+import { useWorkspaceFeedback } from "../components/WorkspaceFeedback";
+import PageHeading from "../components/PageHeading";
+import React, { useState, useEffect } from "react";
+import VisualGallery from "../components/VisualGallery";
+import { getParts, createPart, Part } from "../api";
 
 export default function Parts() {
+  const [search, setSearch] = useWorkspaceState("parts:search", "");
+  const notify = useWorkspaceFeedback();
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [newPart, setNewPart] = useState({
-    code: '',
-    name: '',
-    category: '',
-    unit: '',
+    code: "",
+    name: "",
+    category: "",
+    unit: "",
     guidePrice: 0,
   });
   const [saving, setSaving] = useState(false);
@@ -23,7 +29,7 @@ export default function Parts() {
       const data = await getParts();
       setParts(data || []);
     } catch (err) {
-      console.error('Failed to load parts:', err);
+      console.error("Failed to load parts:", err);
     } finally {
       setLoading(false);
     }
@@ -31,33 +37,61 @@ export default function Parts() {
 
   async function handleCreate() {
     if (!newPart.code || !newPart.name || !newPart.category) {
-      alert('请填写完整信息');
+      notify("请填写完整信息");
       return;
     }
     try {
       setSaving(true);
       await createPart(newPart);
-      alert('创建成功');
+      notify("创建成功");
       setShowModal(false);
-      setNewPart({ code: '', name: '', category: '', unit: '', guidePrice: 0 });
+      setNewPart({ code: "", name: "", category: "", unit: "", guidePrice: 0 });
       loadParts();
     } catch (err: any) {
-      alert(err.message || '创建失败');
+      notify(err.message || "创建失败");
     } finally {
       setSaving(false);
     }
   }
 
+  const visibleRows = parts.filter(
+    (row) =>
+      !search.trim() ||
+      String(row.name || "")
+        .toLowerCase()
+        .includes(search.trim().toLowerCase()) ||
+      String(row.code || "")
+        .toLowerCase()
+        .includes(search.trim().toLowerCase()),
+  );
+
   if (loading) {
-    return <div className="card"><div className="loading">加载中...</div></div>;
+    return (
+      <div className="card">
+        <div className="loading">加载中...</div>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="workspace-page">
+      <PageHeading
+        title="配件库存"
+        description="维护配件档案、编码与指导价；实际库存与领退料在仓储中心管理。"
+      />
       <div className="card">
         <div className="filter-bar">
-          <input className="search-input" placeholder="搜索配件名称/编码..." disabled />
-          <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+          <input
+            className="search-input"
+            placeholder="搜索配件名称/编码..."
+            aria-label="搜索列表"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button
+            className="btn btn-primary"
+            onClick={() => setShowModal(true)}
+          >
             + 添加配件
           </button>
         </div>
@@ -73,23 +107,45 @@ export default function Parts() {
             </tr>
           </thead>
           <tbody>
-            {parts.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: 20 }}>
-                  暂无配件数据
+                <td colSpan={6} style={{ textAlign: "center", padding: 20 }}>
+                  {search.trim()
+                    ? "没有匹配的配件，请调整搜索内容"
+                    : "暂无配件数据"}
                 </td>
               </tr>
             ) : (
-              parts.map((p) => (
+              visibleRows.map((p) => (
                 <tr key={p.id}>
-                  <td>{p.name}</td>
+                  <td>
+                    {p.name}
+                    <details>
+                      <summary
+                        style={{
+                          cursor: "pointer",
+                          fontSize: 12,
+                          marginTop: 8,
+                        }}
+                      >
+                        配件图片与型号资料
+                      </summary>
+                      <VisualGallery
+                        kind="part"
+                        id={p.id}
+                        title={p.name + "图片"}
+                      />
+                    </details>
+                  </td>
                   <td>{p.code}</td>
                   <td>{p.category}</td>
                   <td>{p.unit}</td>
                   <td>¥{p.guidePrice}</td>
                   <td>
-                    <span className={`badge ${p.isActive ? 'badge-working' : 'badge-cancelled'}`}>
-                      {p.isActive ? '在售' : '停售'}
+                    <span
+                      className={`badge ${p.isActive ? "badge-working" : "badge-cancelled"}`}
+                    >
+                      {p.isActive ? "在售" : "停售"}
                     </span>
                   </td>
                 </tr>
@@ -105,7 +161,12 @@ export default function Parts() {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">添加配件</h3>
-              <button className="modal-close" onClick={() => setShowModal(false)}>×</button>
+              <button
+                className="modal-close"
+                onClick={() => setShowModal(false)}
+              >
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
@@ -114,7 +175,9 @@ export default function Parts() {
                   type="text"
                   className="form-input"
                   value={newPart.code}
-                  onChange={(e) => setNewPart({ ...newPart, code: e.target.value })}
+                  onChange={(e) =>
+                    setNewPart({ ...newPart, code: e.target.value })
+                  }
                   placeholder="如: PWR-LASER-001"
                 />
               </div>
@@ -124,7 +187,9 @@ export default function Parts() {
                   type="text"
                   className="form-input"
                   value={newPart.name}
-                  onChange={(e) => setNewPart({ ...newPart, name: e.target.value })}
+                  onChange={(e) =>
+                    setNewPart({ ...newPart, name: e.target.value })
+                  }
                   placeholder="如: 激光器模块"
                 />
               </div>
@@ -133,7 +198,9 @@ export default function Parts() {
                 <select
                   className="form-input"
                   value={newPart.category}
-                  onChange={(e) => setNewPart({ ...newPart, category: e.target.value })}
+                  onChange={(e) =>
+                    setNewPart({ ...newPart, category: e.target.value })
+                  }
                 >
                   <option value="">请选择类别</option>
                   <option value="激光管">激光管</option>
@@ -151,7 +218,9 @@ export default function Parts() {
                   type="text"
                   className="form-input"
                   value={newPart.unit}
-                  onChange={(e) => setNewPart({ ...newPart, unit: e.target.value })}
+                  onChange={(e) =>
+                    setNewPart({ ...newPart, unit: e.target.value })
+                  }
                   placeholder="如: 个/套/米"
                 />
               </div>
@@ -161,7 +230,12 @@ export default function Parts() {
                   type="number"
                   className="form-input"
                   value={newPart.guidePrice}
-                  onChange={(e) => setNewPart({ ...newPart, guidePrice: Number(e.target.value) })}
+                  onChange={(e) =>
+                    setNewPart({
+                      ...newPart,
+                      guidePrice: Number(e.target.value),
+                    })
+                  }
                   placeholder="0"
                 />
               </div>
@@ -170,7 +244,7 @@ export default function Parts() {
                 onClick={handleCreate}
                 disabled={saving}
               >
-                {saving ? '创建中...' : '确认添加'}
+                {saving ? "创建中..." : "确认添加"}
               </button>
             </div>
           </div>

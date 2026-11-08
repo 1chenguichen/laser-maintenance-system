@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>客服智能助手</title>
   <script src="/tailwind.js"></script>
-  <link href="https://fonts.googleapis.cn/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <link rel="stylesheet" href="/fonts/main.css">
+  <script>document.write('<script src="' + window.APP_API_BASE + '/socket.io/socket.io.js"><\/script>');</script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
   <script>
     tailwind.config = {
@@ -45,6 +46,10 @@
       margin: 0 auto;
       min-height: 100vh;
     }
+    /* Keep this standalone page centered after Tailwind resets body margins. */
+    html body {
+      margin-inline: auto;
+    }
     .chat-container {
       height: calc(100vh - 56px - 60px);
       overflow-y: auto;
@@ -54,8 +59,8 @@
       word-wrap: break-word;
     }
   </style>
-</head>
-<body class="bg-surface">
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface mobile-system" data-role="customer" data-page="chat" data-layout="chat">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -122,7 +127,7 @@
   </div>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
     var wsConnected = false;
 
@@ -140,9 +145,13 @@
       }
     }
     var customerId = getCustomerIdFromToken(token);
+    var isUnified=false;try{isUnified=JSON.parse(atob(token.split('.')[1])).purpose==='unified_access';}catch{}
+    var serviceId=new URLSearchParams(location.search).get('serviceId')||'';
+    var historyVersion=0;
+    var seenChatIds=new Set();
 
     // 连接 Socket.IO
-    var socket = io(window.location.protocol + '//' + window.location.hostname + ':8080/ws');
+    var socket = io((window.LASER_WS_BASE || window.APP_API_BASE) + '/ws', { auth: { token: token } });
 
     socket.on('connect', function() {
       console.log('Socket.IO connected');
@@ -154,21 +163,25 @@
     });
 
     socket.on('cs_message', function(data) {
+      if(isUnified&&data.serviceId!==serviceId)return;
       console.log('CS message received:', data);
-      addBotMessage(data.message, true);
+      addBotMessage(data.message, true,data.chatId);
     });
 
     socket.on('cs_accepted', function(data) {
+      if(isUnified&&data.serviceId!==serviceId)return;
       console.log('CS accepted:', data);
       updateWaitingNotice();
     });
 
     socket.on('cs_ended', function(data) {
+      if(isUnified&&data.serviceId!==serviceId)return;
       console.log('CS session ended:', data);
       removeWaitingNotice();
     });
 
     socket.on('cs_rating_request', function(data) {
+      if(isUnified&&data.serviceId!==serviceId)return;
       console.log('CS rating request:', data);
       showRatingRequest(data);
     });
@@ -180,20 +193,22 @@
 
     // 页面加载时获取历史聊天记录
     function loadChatHistory() {
-      fetch(API_BASE + '/ai/chats', {
+      if(isUnified&&!serviceId)return;var version=++historyVersion;
+      fetch(API_BASE + '/ai/chats'+(isUnified?'?serviceId='+encodeURIComponent(serviceId):''), {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(chats) {
+        if(version!==historyVersion)return;
         chats.forEach(function(chat) {
           if (chat.direction === 'INBOUND') {
-            addUserMessage(chat.content, false);
+            addUserMessage(chat.content, false,chat.id);
           } else {
-            addBotMessage(chat.content, false);
+            addBotMessage(chat.content, false,chat.id);
           }
         });
         var container = document.querySelector('.chat-container');
@@ -206,10 +221,20 @@
       });
     }
 
+    if(isUnified){
+      fetch(API_BASE+'/identity/services',{headers:{Authorization:'Bearer '+token}}).then(window.readApiResponse).then(function(services){
+        var section=document.createElement('section');section.id='serviceConversation';section.style.cssText='padding:14px;background:white;border:1px solid #e3e9f1;border-radius:12px;margin:16px 0';
+        section.innerHTML='<label style="display:block;font-size:12px;color:#7a8a9e;margin-bottom:8px" for="serviceSelect">联系服务商</label><select id="serviceSelect" style="width:100%;padding:10px;border:1px solid #dae2ed;border-radius:8px;font-size:14px"><option value="">请选择要咨询的服务商</option>'+services.map(function(service){return '<option value="'+service.id+'">'+window.escapeHtml(service.name)+'</option>';}).join('')+'</select>';
+        document.querySelector('.chat-container').prepend(section);var select=section.querySelector('select');if(services.length===1)serviceId=services[0].id;select.value=serviceId;
+        select.onchange=function(){serviceId=select.value;historyVersion++;seenChatIds=new Set();var container=document.querySelector('.chat-container');Array.from(container.children).forEach(function(child){if(child!==section)child.remove();});loadChatHistory();};if(serviceId)loadChatHistory();
+      }).catch(function(error){addBotMessage(error.message);});
+    }
+
     // 页面加载时获取历史
     loadChatHistory();
 
     function sendMessage() {
+      if(isUnified&&!serviceId){alert('请先选择要联系的服务商');return;}
       var input = document.getElementById('messageInput');
       var message = input.value.trim();
       if (!message) return;
@@ -227,9 +252,9 @@
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         },
-        body: JSON.stringify({ message: message })
+        body: JSON.stringify({ message: message,serviceId:isUnified?serviceId:undefined })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         // 移除正在输入状态
         removeTypingIndicator();
@@ -248,7 +273,8 @@
       });
     }
 
-    function addUserMessage(message, scroll) {
+    function addUserMessage(message, scroll,chatId) {
+      if(chatId&&seenChatIds.has(chatId))return;if(chatId)seenChatIds.add(chatId);
       if (scroll === undefined) scroll = true;
       var container = document.querySelector('.chat-container');
       var html = '<div class="flex items-start space-x-2 mt-4 justify-end">' +
@@ -259,7 +285,8 @@
       if (scroll) container.scrollTop = container.scrollHeight;
     }
 
-    function addBotMessage(message, scroll) {
+    function addBotMessage(message, scroll,chatId) {
+      if(chatId&&seenChatIds.has(chatId))return;if(chatId)seenChatIds.add(chatId);
       if (scroll === undefined) scroll = true;
       var container = document.querySelector('.chat-container');
       var html = '<div class="flex items-start space-x-2 mt-4">' +

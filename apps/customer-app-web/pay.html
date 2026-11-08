@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>支付成功</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -48,8 +49,8 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/product-design.css?v=2"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-24 mobile-system" data-role="customer" data-page="pay">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -163,7 +164,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
     var params = new URLSearchParams(window.location.search);
     var status = params.get('status');
@@ -174,13 +175,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      if (status === 'success') {
-        document.getElementById('statusTitle').textContent = '支付成功';
-        document.getElementById('statusDesc').textContent = '定金已收到，工程师即将开始维修';
-      } else if (status === 'failed') {
-        document.getElementById('statusTitle').textContent = '支付失败';
-        document.getElementById('statusDesc').textContent = '请稍后重试或联系客服';
-      }
+      document.getElementById('statusTitle').textContent = '正在查询支付状态';
+      document.getElementById('statusDesc').textContent = '请从工单详情进入查看支付结果';
       if (orderId) {
         loadPaymentDetail(orderId);
       }
@@ -189,12 +185,13 @@
     function loadPaymentDetail(id) {
       fetch(API_BASE + '/customer/work-orders/' + id, {
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
-          if (data.finalAmount) {
-            var deposit = Number(data.finalAmount) * 0.3;
-            document.getElementById('payAmount').textContent = '¥ ' + deposit.toFixed(2);
-          }
+          var paid = ['REPAIRING','PENDING_FINAL_PAYMENT','COMPLETED'].includes(data.status);
+          document.getElementById('statusTitle').textContent = paid ? '支付成功' : '待支付定金';
+          document.getElementById('statusDesc').textContent = paid ? (data.status === 'COMPLETED' ? '尾款已收到，工单已完成' : '定金已收到') : '请先在工单详情确认报价并支付定金';
+          var amount = data.status === 'COMPLETED' ? Number(data.finalPaymentAmount || 0) : Number(data.prepayAmount || 0);
+          document.getElementById('payAmount').textContent = '¥ ' + amount.toFixed(2);
           if (data.orderNo) {
             document.getElementById('orderNo').textContent = data.orderNo;
           }
@@ -202,7 +199,7 @@
     }
 
     function viewProgress() {
-      window.location.href = 'order-progress.html' + (orderId ? '?id=' + orderId : '');
+      window.location.href = 'order-progress.html' + (orderId ? '#' + orderId : '');
     }
 
     function applyInvoice(type) {

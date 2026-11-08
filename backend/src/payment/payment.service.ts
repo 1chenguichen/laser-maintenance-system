@@ -87,9 +87,9 @@ export class PaymentService {
     if (!workOrder) throw new NotFoundException('工单不存在');
 
     return {
-      paid: !!workOrder.prepayAmount,
+      paid: [WorkOrderStatus.REPAIRING, WorkOrderStatus.PENDING_FINAL_PAYMENT, WorkOrderStatus.COMPLETED].includes(workOrder.status),
       prepayAmount: workOrder.prepayAmount || 0,
-      payStatus: workOrder.prepayAmount ? 'paid' : 'unpaid',
+      payStatus: [WorkOrderStatus.REPAIRING, WorkOrderStatus.PENDING_FINAL_PAYMENT, WorkOrderStatus.COMPLETED].includes(workOrder.status) ? 'paid' : 'unpaid',
     };
   }
 

@@ -1,93 +1,37 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>移动仓 - 工程师端</title>
-  <script src="/tailwind.js"></script>
-  <link href="/fonts/material-symbols.css" rel="stylesheet">
-  <link href="/fonts/main.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#006d33",
-            "on-primary": "#ffffff",
-            "surface": "#f7f9fb",
-            "on-surface": "#191c1e"
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-surface pb-20">
-  <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <div class="w-10"></div>
-    <h1 class="font-semibold text-base" style="color: #111827;">移动仓</h1>
-    <div class="w-10"></div>
-  </header>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>我的移动仓 - 工程师端</title><script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css"><script src="/tailwind.js"></script><link href="/fonts/main.css" rel="stylesheet"><link href="/fonts/material-symbols.css" rel="stylesheet"><style>
+body{padding-bottom:100px}header{height:58px;background:white;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e5eaf0}header h1{font-size:17px;font-weight:650}main{padding:18px 16px}.wh-hero{border-radius:17px;padding:21px;background:linear-gradient(130deg,#006d33,#149a60);color:white;box-shadow:0 8px 20px #006d331c}.wh-hero small{opacity:.75}.wh-hero h2{font-size:19px;margin:7px 0 20px}.wh-stats{display:flex;gap:34px}.wh-stats strong{display:block;font-size:25px}.wh-stats span{font-size:11px;opacity:.8}.wh-actions{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin:17px 0}.wh-actions button{background:white;border:1px solid #dce7e0;border-radius:12px;padding:15px 2px;color:#006d33;font-size:12px}.wh-actions .material-symbols-outlined{display:block;margin-bottom:6px}.wh-tabs{display:flex;border-bottom:1px solid #e1e8e3;margin-bottom:15px;gap:20px}.wh-tabs button{border:0;background:none;padding:11px 0;color:#819087;font-size:13px}.wh-tabs button.active{color:#006d33;border-bottom:2px solid #006d33;font-weight:600}.wh-card{background:white;border:1px solid #e2e9e5;border-radius:12px;margin-bottom:11px;padding:15px;font-size:13px}.wh-card h3{font-weight:600;margin-bottom:5px}.wh-card small{font-size:11px;color:#819087}.wh-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.wh-qty{font-size:23px;color:#006d33;font-weight:700}.wh-status{font-size:11px;color:#247345;background:#e9f7ee;padding:4px 7px;border-radius:5px}.wh-status.pending{background:#fff3de;color:#a97613}.wh-status.shipped{background:#f0e9ff;color:#7952b4}.wh-detail{margin-top:12px;padding-top:10px;border-top:1px solid #f0f3f1;color:#738178;font-size:11px;line-height:1.8}.wh-primary{background:#006d33;color:white;border:0;border-radius:8px;padding:9px 12px;font-size:12px}.wh-empty{text-align:center;padding:38px 10px;color:#8b9a90;font-size:13px}.wh-message{background:#edf8f0;color:#26794e;border-radius:9px;padding:11px;font-size:12px;margin-bottom:14px;display:none}.wh-message.error{background:#fff0ed;color:#bd5846}dialog{margin:auto;position:fixed;inset:0;width:calc(100% - 32px);max-width:390px;max-height:85dvh;overflow:auto;border:none;border-radius:16px;padding:23px;color:#1d3528}dialog::backdrop{background:#102c1e66}dialog h2{font-size:19px;font-weight:650;margin-bottom:6px}dialog p{font-size:12px;color:#819087;line-height:1.7;margin-bottom:17px}.wh-field{display:block;font-size:12px;margin:15px 0}.wh-field span{display:block;margin-bottom:7px}.wh-field input,.wh-field select,.wh-field textarea{box-sizing:border-box;width:100%;border:1px solid #d9e4dd;padding:11px;border-radius:8px;background:white;font:inherit}.wh-field textarea{height:70px}.wh-form-actions{display:flex;gap:10px;margin-top:20px}.wh-form-actions button{flex:1;padding:12px;border-radius:8px;border:1px solid #d9e4dd;background:white}.wh-form-actions button[type=submit]{background:#006d33;color:white;border-color:#006d33}.wh-form-error{color:#bd5846;font-size:12px}
 
-  <!-- Main Content -->
-  <main class="pt-14 px-4 space-y-4">
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 gap-4 mt-4">
-      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
-        <div class="text-2xl font-bold" style="color: #006d33;">0</div>
-        <div class="text-xs text-on-surface-variant mt-1">配件种类</div>
-      </div>
-      <div class="bg-white rounded-xl p-4 border border-outline-variant text-center">
-        <div class="text-2xl font-bold">0</div>
-        <div class="text-xs text-on-surface-variant mt-1">可用数量</div>
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="bg-white rounded-xl p-4 border border-outline-variant">
-      <h3 class="font-semibold mb-2" style="color: #111827;">配件申领</h3>
-      <p class="text-xs text-on-surface-variant mb-3">当库存不足时，可以向仓库申领配件</p>
-      <button class="w-full py-3 text-white font-medium rounded-lg flex items-center justify-center gap-2" style="background-color: #006d33;" onclick="alert('功能开发中')">
-        <span class="material-symbols-outlined">add</span>
-        申领配件
-      </button>
-    </div>
-
-    <!-- Inventory List -->
-    <div class="bg-white rounded-xl p-4 border border-outline-variant">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-semibold" style="color: #111827;">库存明细</h3>
-        <button class="px-3 py-1.5 border rounded-lg text-xs flex items-center gap-1" style="border-color: #006d33; color: #006d33;" onclick="refreshInventory()">
-          <span class="material-symbols-outlined text-sm">refresh</span>
-          刷新
-        </button>
-      </div>
-
-      <div id="inventoryList">
-        <div class="text-center py-8">
-          <span class="material-symbols-outlined text-5xl text-on-surface-variant">inventory_2</span>
-          <p class="mt-4 text-sm text-on-surface-variant">暂无配件库存记录</p>
-          <p class="text-xs text-on-surface-variant mt-1">您还没有申领任何配件</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Transfer Request -->
-    <div class="bg-white rounded-xl p-4 border border-outline-variant">
-      <h3 class="font-semibold mb-2" style="color: #111827;">物料调拨申请</h3>
-      <p class="text-xs text-on-surface-variant mb-3">需要从其他工程师调拨配件时使用</p>
-      <button class="w-full py-3 border font-medium rounded-lg flex items-center justify-center gap-2" style="border-color: #006d33; color: #006d33;" onclick="alert('功能开发中')">
-        <span class="material-symbols-outlined">swap_horiz</span>
-        发起调拨申请
-      </button>
-    </div>
-  </main>
-
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
+/* Scope the modal to outrank Tailwind's injected dialog padding reset. */
+#materialDialog{width:calc(100vw - 32px);max-width:440px;max-height:min(88dvh,760px);padding:0;border:1px solid #e2ebe5;border-radius:20px;overflow:hidden;box-shadow:0 24px 80px #0c352333;margin:auto}
+#materialDialog::backdrop{background:#102c1e70;backdrop-filter:blur(3px)}
+#materialForm{display:flex;flex-direction:column;max-height:min(88dvh,760px);min-height:0}
+#materialDialog .wh-form-header{padding:24px 24px 18px;background:linear-gradient(140deg,#f5fbf7,#ffffff);border-bottom:1px solid #edf2ee;flex-shrink:0}
+#materialDialog .wh-form-heading{display:flex;align-items:center;gap:11px}
+#materialDialog .wh-form-icon{width:36px;height:36px;border-radius:11px;background:#e5f3eb;color:#087541;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#materialDialog h2{font-size:19px;line-height:1.4;font-weight:650;margin:0;letter-spacing:-.3px}
+#materialDialog .wh-form-close{margin-left:auto;width:30px;height:30px;border:0;border-radius:8px;color:#819087;background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#materialDialog .wh-form-close:hover{background:#eaf2ed}
+#materialDialog #formHint{font-size:12px;line-height:1.8;color:#788b80;margin:13px 0 0}
+#materialDialog .wh-form-body{padding:22px 24px;display:grid;gap:19px;overflow-y:auto;min-height:0;overscroll-behavior:contain}
+#materialDialog .wh-field{margin:0;display:block;min-width:0;font-size:13px}
+#materialDialog .wh-field>span{font-weight:550;color:#355343;margin-bottom:9px;line-height:1.5}
+#materialDialog .wh-field small{font-size:11px;font-weight:400;color:#91a095;margin-left:6px}
+#materialDialog .wh-field input,#materialDialog .wh-field select,#materialDialog .wh-field textarea{width:100%;min-width:0;box-sizing:border-box;border:1px solid #d9e5dd;border-radius:10px;padding:11px 12px;background:#fff;font-size:14px;line-height:1.5;color:#264233;min-height:44px;transition:border-color .15s,box-shadow .15s}
+#materialDialog .wh-field select{text-overflow:ellipsis;padding-right:30px}
+#materialDialog .wh-field textarea{height:84px;min-height:84px;resize:vertical}
+#materialDialog .wh-field textarea::placeholder{font-size:12px;color:#a0afa5}
+#materialDialog .wh-field input:focus,#materialDialog .wh-field select:focus,#materialDialog .wh-field textarea:focus{outline:none;border-color:#4a9c70;box-shadow:0 0 0 3px #08754112}
+#materialDialog .wh-form-error:empty{display:none}
+#materialDialog .wh-form-error{margin:0;font-size:12px;line-height:1.6;padding:10px;background:#fff3ef;border-radius:8px}
+#materialDialog .wh-form-actions{margin:0;padding:16px 24px 20px;gap:12px;flex-shrink:0;border-top:1px solid #edf2ee;background:#fff}
+#materialDialog .wh-form-actions button{min-width:0;min-height:44px;padding:11px 16px;font-size:14px;border-radius:10px;font-weight:550}
+#materialDialog .wh-form-actions button[type=submit]{box-shadow:0 4px 10px #006d3317}
+#materialDialog .wh-form-actions button:disabled{opacity:.55;cursor:wait}
+@media(max-height:650px){#materialDialog .wh-form-header{padding:18px 20px 13px}#materialDialog .wh-form-body{padding:17px 20px;gap:15px}#materialDialog .wh-form-actions{padding:12px 20px 16px}}
+</style><link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head><body class="product-screen mobile-system" data-role="engineer" data-refined="true" data-page="inventory"><header><span class="material-symbols-outlined" style="color:#006d33">inventory_2</span><h1>我的移动仓</h1><button onclick="loadWarehouse()" aria-label="刷新"><span class="material-symbols-outlined">refresh</span></button></header><main><div class="wh-hero"><small>工程师专属库存</small><h2 id="warehouseName">正在加载…</h2><div class="wh-stats"><div><strong id="availableCount">0</strong><span>可用配件</span></div><div><strong id="partCount">0</strong><span>配件种类</span></div><div><strong id="inTransit">0</strong><span>在途待收</span></div></div></div><div class="wh-actions"><button onclick="openForm('ISSUE')"><span class="material-symbols-outlined">add_box</span>申请领料</button><button onclick="openForm('CONSUME')"><span class="material-symbols-outlined">construction</span>登记工单用料</button><button onclick="openForm('RETURN')"><span class="material-symbols-outlined">assignment_return</span>申请退料</button></div><div id="message" class="wh-message"></div><div class="wh-tabs"><button class="active" data-tab="stock" onclick="switchTab('stock')">我的库存</button><button data-tab="requests" onclick="switchTab('requests')">领退料单据</button><button data-tab="history" onclick="switchTab('history')">工单用料</button></div><label class="field-stock-search">查找配件与单据<input id="stockSearch" type="search" placeholder="配件名称、编码或单号" oninput="render()"></label><p id="stockResult" class="field-result-count" aria-live="polite"></p><div id="inventoryList"><div class="wh-empty">正在加载…</div></div></main>  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
     <a href="grab.html" class="nav-item">
       <span class="material-symbols-outlined nav-icon">bolt</span>
       <span class="nav-label">抢单</span>
@@ -109,20 +53,37 @@
     </a>
   </nav>
 
-  <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
-    var token = localStorage.getItem('engineer_token');
-
-    if (!token) {
-      window.location.href = 'login.html';
-    }
-
-    function refreshInventory() {
-      document.getElementById('inventoryList').innerHTML = '<div class="text-center py-8"><span class="material-symbols-outlined text-5xl text-on-surface-variant">hourglass_empty</span><p class="mt-4 text-sm text-on-surface-variant">加载中...</p></div>';
-      setTimeout(function() {
-        document.getElementById('inventoryList').innerHTML = '<div class="text-center py-8"><span class="material-symbols-outlined text-5xl text-on-surface-variant">inventory_2</span><p class="mt-4 text-sm text-on-surface-variant">暂无配件库存记录</p></div>';
-      }, 500);
-    }
-  </script>
-</body>
-</html>
+<dialog id="materialDialog" aria-labelledby="formTitle" aria-describedby="formHint">
+  <form id="materialForm" onsubmit="submitMaterial(event)">
+    <div class="wh-form-header">
+      <div class="wh-form-heading"><div class="wh-form-icon"><span class="material-symbols-outlined">construction</span></div><h2 id="formTitle"></h2><button type="button" class="wh-form-close" aria-label="关闭用料窗口" onclick="window.EngineerInteraction.closeDialog(document.getElementById('materialDialog'))"><span class="material-symbols-outlined">close</span></button></div>
+      <p id="formHint"></p>
+    </div>
+    <div class="wh-form-body">
+      <label class="wh-field" id="warehouseField"><span>公司仓库</span><select id="sourceWarehouse" required></select></label>
+      <label class="wh-field" id="orderField"><span>我的维修中工单</span><select id="workOrder"></select></label>
+      <label class="wh-field"><span>配件</span><select id="part" required></select></label>
+      <label class="wh-field"><span>数量</span><input id="quantity" type="number" min="1" step="1" value="1" required></label>
+      <label class="wh-field"><span>用途 / 备注 <small>选填</small></span><textarea id="note" maxlength="500" placeholder="例如：更换保护镜片，原配件有划痕"></textarea></label>
+      <div id="formError" class="wh-form-error" role="alert"></div>
+    </div>
+    <div class="wh-form-actions"><button type="button" onclick="window.EngineerInteraction.closeDialog(document.getElementById('materialDialog'))">取消</button><button type="submit" id="materialSubmit">确认提交</button></div>
+  </form>
+</dialog>
+<script>
+var token=localStorage.getItem('engineer_token'), data,warehouses=[],parts=[],orders=[],tab='stock',kind='ISSUE',pending=false;
+if(!token)location.href='login.html';
+var text=window.escapeHtml;
+async function call(path,body){return window.readApiResponse(await fetch(window.APP_API_BASE+path,{method:body===undefined?'GET':'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},...(body===undefined?{}:{body:JSON.stringify(body)})}))}
+function message(value,error){var el=document.getElementById('message');el.textContent=value;el.className='wh-message'+(error?' error':'');el.style.display='block'}
+async function loadWarehouse(){try{var result=await Promise.all([call('/operations/mobile'),call('/operations/warehouses'),call('/parts'),call('/engineer/orders?status=REPAIRING')]);data=result[0];warehouses=result[1].filter(function(w){return w.kind==='CENTRAL'});parts=result[2];orders=result[3];document.getElementById('warehouseName').textContent=data.warehouse.name;document.getElementById('availableCount').textContent=data.inventory.reduce(function(n,r){return n+r.quantity-r.reservedQuantity},0);document.getElementById('partCount').textContent=data.inventory.filter(function(r){return r.quantity>0}).length;document.getElementById('inTransit').textContent=data.requests.filter(function(r){return r.kind==='ISSUE'&&r.status==='SHIPPED'}).reduce(function(n,r){return n+r.quantity},0);render()}catch(e){message(e.message,true)}}
+function switchTab(value){tab=value;document.querySelectorAll('[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);b.setAttribute('aria-pressed',String(b.dataset.tab===tab))});render()}
+function matchesStock(row){var query=document.getElementById('stockSearch').value.trim().toLowerCase();return !query||[row.part?.name,row.part?.code,row.number,row.note,row.reviewNote].some(function(value){return String(value||'').toLowerCase().includes(query)})}
+function render(){if(!data)return;document.querySelectorAll('[data-tab]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.tab===tab))});var el=document.getElementById('inventoryList');if(tab==='stock'){el.innerHTML=data.inventory.filter(function(r){return r.quantity>0&&matchesStock(r)}).map(function(r){return '<div class="wh-card"><div class="wh-row"><div class="part-heading">'+(window.VisualPages?.partThumb(r.part)||'')+'<div><h3>'+text(r.part.name)+'</h3><small>'+text(r.part.code)+' · '+text(r.part.unit)+'</small></div></div><div class="wh-qty">'+(r.quantity-r.reservedQuantity)+'</div></div><div class="wh-detail">在库 '+r.quantity+' · 预留 '+r.reservedQuantity+' · 仅显示您本人移动仓</div><details class="part-gallery-toggle"><summary>配件实物与型号</summary><div data-part-gallery="'+text(r.part.id)+'"></div></details></div>'}).join('')||'<div class="wh-empty">移动仓暂无库存<br><small>先申请领料，仓管发货后确认收货</small></div>'}else if(tab==='requests'){var status={PENDING:'待审批',APPROVED:'待发货',SHIPPED:'在途 · 待收货',RECEIVED:'已收货',REJECTED:'已驳回'};el.innerHTML=data.requests.filter(matchesStock).map(function(r){var button=r.kind==='ISSUE'&&r.status==='SHIPPED'?'<button class="wh-primary" data-id="'+r.id+'" data-action="receive" onclick="act(this.dataset.id,this.dataset.action)">确认收货</button>':r.kind==='RETURN'&&r.status==='APPROVED'?'<button class="wh-primary" data-id="'+r.id+'" data-action="ship" onclick="act(this.dataset.id,this.dataset.action)">确认寄回</button>':'';return '<div class="wh-card"><div class="wh-row"><h3>'+text(r.kind==='ISSUE'?'领料申请':'退料申请')+'</h3><span class="wh-status '+r.status.toLowerCase()+'">'+text(status[r.status]||r.status)+'</span></div><small>'+text(r.number)+'</small><div class="wh-row" style="margin-top:12px"><span>'+text(r.part.name)+' × '+r.quantity+'</span>'+button+'</div><div class="wh-detail">'+text(r.sourceWarehouse.name)+' → '+text(r.targetWarehouse.name)+(r.reviewNote?'<br>'+text(r.reviewNote):'')+'</div></div>'}).join('')||'<div class="wh-empty">暂无领退料单据</div>'}else{el.innerHTML=data.consumed.filter(matchesStock).map(function(r){return '<div class="wh-card"><div class="wh-row"><h3>'+text(r.part.name)+'</h3><strong>已使用 '+Math.abs(r.quantity)+' '+text(r.part.unit)+'</strong></div><small>'+new Date(r.createdAt).toLocaleString()+'</small><div class="wh-detail"><a href="task-detail.html#'+r.workOrderId+'">查看关联维修工单 →</a>'+(r.note?'<br>'+text(r.note):'')+'</div></div>'}).join('')||'<div class="wh-empty">暂无工单用料记录</div>'};var count=el.querySelectorAll('.wh-card').length;document.getElementById('stockResult').textContent='共 '+count+' 条记录';if(!count&&document.getElementById('stockSearch').value.trim())el.innerHTML='<div class="wh-empty">没有匹配的记录，请调整关键词</div>';}
+function options(el,rows,value,label){el.replaceChildren(new Option('请选择',''));rows.forEach(function(r){el.add(new Option(label(r),value(r)))})}
+function openForm(value){if(!data)return;kind=value;document.querySelector('.wh-form-icon .material-symbols-outlined').textContent={ISSUE:'add_box',RETURN:'assignment_return',CONSUME:'construction'}[kind];document.getElementById('note').placeholder={ISSUE:'例如：为本周上门维修补充备件',RETURN:'例如：剩余配件退回公司仓库',CONSUME:'例如：更换保护镜片，原配件有划痕'}[kind];document.getElementById('formError').textContent='';document.getElementById('quantity').value=1;document.getElementById('note').value='';document.getElementById('formTitle').textContent={ISSUE:'申请领料',RETURN:'申请退料',CONSUME:'登记工单用料'}[kind];document.getElementById('formHint').textContent=kind==='CONSUME'?'仅登记实际使用的配件，提交后扣减本人移动仓，并计入工单参考成本。':'提交后由仓管审批，发货与收货分别确认，库存会按实际流转更新。';document.getElementById('warehouseField').style.display=kind==='CONSUME'?'none':'block';document.getElementById('sourceWarehouse').required=kind!=='CONSUME';document.getElementById('orderField').style.display=kind==='CONSUME'?'block':'none';document.getElementById('workOrder').required=kind==='CONSUME';options(document.getElementById('sourceWarehouse'),warehouses,function(w){return w.id},function(w){return (w.serviceName?w.serviceName+' · ':'')+w.name});var selectable=kind==='ISSUE'?parts:data.inventory.filter(function(r){return r.quantity-r.reservedQuantity>0}).map(function(r){return {...r.part,available:r.quantity-r.reservedQuantity}});options(document.getElementById('part'),selectable,function(p){return p.id},function(p){return (p.serviceName?p.serviceName+' · ':'')+p.name+(p.available===undefined?'':' · 可用 '+p.available)});options(document.getElementById('workOrder'),orders,function(o){return o.id},function(o){return o.orderNo+' · '+o.faultType});var selected=new URLSearchParams(location.search).get('workOrderId');if(selected)document.getElementById('workOrder').value=selected;document.getElementById('sourceWarehouse').onchange=refreshParts;document.getElementById('workOrder').onchange=refreshParts;document.getElementById('materialDialog').showModal()}
+function refreshParts(){var source=kind==='CONSUME'?orders.find(function(o){return o.id===document.getElementById('workOrder').value}):warehouses.find(function(w){return w.id===document.getElementById('sourceWarehouse').value});var list=kind==='ISSUE'?parts:data.inventory.filter(function(r){return r.quantity-r.reservedQuantity>0}).map(function(r){return {...r.part,available:r.quantity-r.reservedQuantity,serviceId:r.serviceId,serviceName:r.serviceName}});if(source&&source.serviceId)list=list.filter(function(part){return part.serviceId===source.serviceId});options(document.getElementById('part'),list,function(p){return p.id},function(p){return (p.serviceName?p.serviceName+' · ':'')+p.name+(p.available===undefined?'':' · 可用 '+p.available)})}
+async function submitMaterial(e){e.preventDefault();if(pending)return;pending=true;document.getElementById('materialSubmit').disabled=true;document.getElementById('materialSubmit').setAttribute('aria-busy','true');try{var body={partId:document.getElementById('part').value,quantity:Number(document.getElementById('quantity').value),note:document.getElementById('note').value};if(kind==='CONSUME'){body.workOrderId=document.getElementById('workOrder').value;await call('/operations/consume',body)}else{body.kind=kind;body.warehouseId=document.getElementById('sourceWarehouse').value;await call('/operations/requests',body)}window.EngineerInteraction.closeDialog(document.getElementById('materialDialog'));message(kind==='CONSUME'?'工单用料已登记':'申请已提交，等待仓管审批');await loadWarehouse();switchTab(kind==='CONSUME'?'history':'requests')}catch(e){document.getElementById('formError').textContent=e.message}finally{pending=false;document.getElementById('materialSubmit').disabled=false;document.getElementById('materialSubmit').removeAttribute('aria-busy')}}
+async function act(id,action){if(pending)return;pending=true;try{await call('/operations/requests/'+id+'/'+action,{});message(action==='receive'?'收货已确认，移动仓库存已增加':'退料已寄回，等待仓库签收');await loadWarehouse()}catch(e){message(e.message,true)}finally{pending=false}}
+document.addEventListener('DOMContentLoaded',loadWarehouse);setInterval(function(){if(!document.hidden&&!document.getElementById('materialDialog').open)loadWarehouse()},8000);
+</script></body></html>

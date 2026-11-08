@@ -1,3 +1,4 @@
+import { currentTenant } from '../tenancy/context.js';
 import { Injectable } from '@nestjs/common';
 
 // 待接入客户队列
@@ -21,10 +22,12 @@ export interface ActiveSession {
 @Injectable()
 export class CsPollingService {
   // 待接入客户队列
-  private waitingCustomers = new Map<string, WaitingCustomer>();
+  private waitingCustomersByTenant = new Map<string, Map<string, WaitingCustomer>>();
+  private get waitingCustomers() { const id = currentTenant().id; if (!this.waitingCustomersByTenant.has(id)) this.waitingCustomersByTenant.set(id,new Map()); return this.waitingCustomersByTenant.get(id)!; }
 
   // 活跃会话（customerId -> session）
-  private activeSessions = new Map<string, ActiveSession>();
+  private activeSessionsByTenant = new Map<string, Map<string, ActiveSession>>();
+  private get activeSessions() { const id = currentTenant().id; if (!this.activeSessionsByTenant.has(id)) this.activeSessionsByTenant.set(id,new Map()); return this.activeSessionsByTenant.get(id)!; }
 
   // 添加等待中的客户
   addWaitingCustomer(data: WaitingCustomer) {

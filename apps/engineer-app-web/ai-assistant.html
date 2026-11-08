@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>问AI - 工程师端</title>
   <script src="/tailwind.js"></script>
-  <link href="https://fonts.googleapis.cn/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link href="/fonts/material-symbols.css" rel="stylesheet">
   <link href="/fonts/main.css" rel="stylesheet">
   <link rel="stylesheet" href="styles/shared.css">
   <script>
@@ -61,8 +65,8 @@
       100% { transform: translateY(-3px); }
     }
   </style>
-</head>
-<body class="bg-surface">
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface mobile-system" data-role="engineer" data-refined="true" data-page="ai-assistant" data-layout="chat">
   <!-- Top App Bar with Back Button -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
@@ -78,9 +82,9 @@
   <main class="chat-container pt-14 pb-20 px-4">
     <div class="text-center py-8">
       <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color:#e6f7ec;">
-        <img src="my-ai-icon.png" class="text-3xl" alt="AI">
+        <img src="my-ai-icon.png.png" class="text-3xl" alt="AI">
       </div>
-      <h2 class="text-lg font-semibold mb-1" style="color:#191c1e;">AI维修助手</h2>
+      <a href="repair-assist.html" style="display:block;color:#006d33;margin:12px 0;text-decoration:underline">工单维修协助 · 整理真实工单报告</a><h2 class="text-lg font-semibold mb-1" style="color:#191c1e;">AI维修助手</h2>
       <p class="text-sm" style="color:#43474f;">有什么可以帮您的？</p>
     </div>
     <div id="chatMessages"></div>
@@ -100,13 +104,13 @@
   </div>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
-    var DIFY_API = window.location.protocol + '//' + window.location.hostname + ':8080/ai/engineer/chat';
+    var API_BASE = window.APP_API_BASE;
+    var DIFY_API = window.APP_API_BASE + '/ai/engineer/chat';
 
     // 获取当前工程师ID，用于数据隔离
     var engineerUser = JSON.parse(localStorage.getItem('engineer_user') || '{}');
     var engineerId = engineerUser.id || 'guest';
-    var storagePrefix = 'engineer_ai_' + engineerId + '_';
+    var storagePrefix = 'engineer_ai_' + (engineerUser.tenantId || 'legacy') + '_' + engineerId + '_';
 
     var chatHistory = [];
     var conversationId = localStorage.getItem(storagePrefix + 'conversation_id') || '';
@@ -133,7 +137,7 @@
               container.insertAdjacentHTML('beforeend',
                 '<div class="flex items-start space-x-2 mt-4">' +
                 '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:#e6f7ec;">' +
-                '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
+                '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
                 '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
                 '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(msg.content) + '</p>' +
                 '</div></div>');
@@ -181,7 +185,7 @@
       var startTime = Date.now();
       var html = '<div class="flex items-start space-x-2 mt-4" id="' + id + '">' +
         '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 thinking-robot" style="background-color:#e6f7ec;">' +
-        '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
+        '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
         '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
         '<div class="flex items-center gap-2 mb-2">' +
         '<p class="text-sm" style="color:#43474f;" id="' + id + '-status">' +
@@ -281,7 +285,8 @@
       fetch(DIFY_API, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + localStorage.getItem('engineer_token')
         },
         body: JSON.stringify({
           query: message,
@@ -338,7 +343,7 @@
         container.insertAdjacentHTML('beforeend',
           '<div class="flex items-start space-x-2 mt-4">' +
           '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
-          '<img src="my-ai-icon.png" class="text-sm" alt="AI"></div>' +
+          '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
           '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
           '<p class="text-sm" style="color: #f22;">抱歉，网络出现问题，请稍后再试。<br><span style="color:#999;font-size:11px;">' + escapeHtml(err.message) + '</span></p>' +
           '</div></div>');

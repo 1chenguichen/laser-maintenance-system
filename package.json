@@ -12,6 +12,8 @@
     "dev:engineer": "npm run dev --workspace=apps/engineer-app",
     "dev:cs-admin": "npm run dev --workspace=apps/cs-admin",
     "build:all": "npm run build --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "test:product": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/test-product.ps1",
+    "preview:local": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/start-preview.ps1"
   }
 }

@@ -1,3 +1,4 @@
+import { Roles } from '../auth/roles.decorator.js';
 import { Controller, Get, Post, Put, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
 import { EngineerService } from './engineer.service.js';
 import { UpdateStatusDto, UpdateLocationDto, GrabOrderDto, AcceptDesignatedOrderDto, CompleteOrderDto, UploadPhotoDto, QuoteOrderDto } from './engineer.dto.js';
@@ -7,6 +8,7 @@ import type { AuthenticatedRequest } from '../auth/types.js';
 
 @Controller('engineer')
 @UseGuards(JwtAuthGuard)
+@Roles('engineer')
 export class EngineerController {
   constructor(private engineerService: EngineerService) {}
 

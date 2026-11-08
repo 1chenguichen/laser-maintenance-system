@@ -1,0 +1,141 @@
+.customer-service-hub {
+  background: #fff;
+  border: 1px solid #dbe7f5;
+  border-radius: 18px;
+  padding: 20px;
+  margin-bottom: 18px;
+  color: #15314e;
+}
+.customer-service-hub > small {
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: #527ba9;
+}
+.customer-service-hub h2 {
+  font-size: 21px;
+  line-height: 1.5;
+  font-weight: 650;
+  margin: 7px 0 12px;
+}
+.customer-hub-note {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #61758e;
+  margin: 9px 0 14px;
+}
+.customer-hub-actions {
+  display: flex;
+  gap: 10px;
+  margin: 16px 0 4px;
+}
+.customer-hub-actions a {
+  flex: 1;
+  padding: 11px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 13px;
+  background: #edf5ff;
+  color: #176fd1;
+  border: 1px solid #d5e7fb;
+  text-decoration: none;
+}
+.customer-hub-actions a:first-child {
+  background: #1878df;
+  color: white;
+  border-color: #1878df;
+}
+.customer-todo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid #e7edf6;
+  color: #176fd1;
+  text-decoration: none;
+  font-size: 12px;
+}
+.customer-todo strong {
+  display: block;
+  font-size: 14px;
+  color: #18314e;
+}
+.customer-todo small {
+  display: block;
+  font-size: 11px;
+  color: #6c7f96;
+  line-height: 1.7;
+  margin-top: 5px;
+}
+.customer-service-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 0 2px;
+  margin-top: 12px;
+  border-top: 1px solid #e4edf8;
+}
+.customer-service-row > img,
+.customer-service-row > .service-initial {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  object-fit: contain;
+  background: #edf5ff;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  color: #176fd1;
+}
+.customer-service-row > div {
+  flex: 1;
+  min-width: 0;
+}
+.customer-service-row small {
+  display: block;
+  color: #7c8da3;
+  font-size: 10px;
+}
+.customer-service-row strong {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.7;
+  color: #234766;
+  overflow-wrap: anywhere;
+}
+.customer-service-row > a {
+  font-size: 12px;
+  padding: 7px 9px;
+  background: #eef5ff;
+  color: #176fd1;
+  border-radius: 8px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.customer-service-hub summary {
+  font-size: 12px;
+  line-height: 1.7;
+  color: #58728f;
+  cursor: pointer;
+  padding-top: 14px;
+}
+.device-help h2 {
+  font-size: 18px;
+}
+.customer-service-contact {
+  display: inline-block;
+  margin-left: 12px;
+  color: #176fd1;
+  font-size: 12px;
+}
+.customer-next-action {
+  display: block;
+  background: #1878df;
+  color: #fff;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 13px;
+  margin-top: 12px;
+}

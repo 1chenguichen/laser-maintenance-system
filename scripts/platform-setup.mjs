@@ -1,0 +1,31 @@
+import {createRequire} from 'node:module';
+import {randomBytes} from 'node:crypto';
+import {readFileSync,writeFileSync,mkdirSync,existsSync,copyFileSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const require=createRequire(new URL('../backend/package.json',import.meta.url));
+const root=fileURLToPath(new URL('../',import.meta.url)),envFile=path.join(root,'backend/.env');
+require('dotenv').config({path:envFile,quiet:true});
+const database=process.env.DB_DATABASE_OVERRIDE || readFileSync(path.join(root,'.local-preview/database.txt'),'utf8').trim();
+const backup=path.join(root,'.local-preview/backups/platform-'+new Date().toISOString().replace(/[:.]/g,'-'));
+mkdirSync(backup,{recursive:true});copyFileSync(envFile,path.join(backup,'backend.env'));
+const {Client}=require('pg');
+const db=new Client({host:process.env.DB_HOST||'localhost',port:Number(process.env.DB_PORT||5432),user:process.env.DB_USERNAME||'laser_user',password:process.env.DB_PASSWORD||'laser_pass_2024',database:process.env.TENANT_CONTROL_DATABASE||database});
+await db.connect();
+try{
+ await db.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+ const tables=(await db.query("SELECT tablename FROM pg_tables WHERE schemaname='platform' ORDER BY tablename")).rows;
+ const snapshot={database,tables:{},identityTables:{}};
+ for(const {tablename} of tables)snapshot.tables[tablename]=(await db.query('SELECT * FROM platform."'+tablename.replaceAll('"','""')+'"')).rows;
+ const personal=(await db.query("SELECT tablename FROM pg_tables WHERE schemaname='identity' ORDER BY tablename")).rows;
+ for(const {tablename} of personal)snapshot.identityTables[tablename]=(await db.query('SELECT * FROM identity."'+tablename.replaceAll('"','""')+'"')).rows;
+ writeFileSync(path.join(backup,'control-data.json'),JSON.stringify(snapshot));await db.query('COMMIT');
+}finally{await db.end();}
+let env=readFileSync(envFile,'utf8');
+const username=process.env.PLATFORM_ADMIN_USERNAME||'admin',password=process.env.PLATFORM_ADMIN_PASSWORD||randomBytes(18).toString('base64url');
+if(!process.env.PLATFORM_ADMIN_USERNAME)env+='\nPLATFORM_ADMIN_USERNAME='+username+'\n';
+if(!process.env.PLATFORM_ADMIN_PASSWORD)env+='PLATFORM_ADMIN_PASSWORD='+password+'\n';
+writeFileSync(envFile,env);
+const credentials=path.join(root,'.local-preview/platform-credentials.json');
+if(!existsSync(credentials))writeFileSync(credentials,JSON.stringify({url:'http://localhost:3103/',username,password},null,2));
+console.log('Control snapshot:',backup);console.log('Platform credentials saved:',credentials);

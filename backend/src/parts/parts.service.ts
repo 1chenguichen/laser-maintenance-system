@@ -1,3 +1,4 @@
+import { StockMovement } from '../database/entities/operations.entity.js';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
@@ -24,7 +25,7 @@ export class PartsService {
     const exists = await this.partRepo.findOne({ where: { code: dto.code } });
     if (exists) throw new BadRequestException('配件编码已存在');
 
-    const part = this.partRepo.create({ ...dto, isActive: true });
+    const part = this.partRepo.create({ ...dto, guidePrice: dto.guidePrice ?? 0, isActive: true });
     return this.partRepo.save(part);
   }
 
@@ -68,99 +69,80 @@ export class PartsService {
     return all.filter((inv) => inv.quantity < inv.reservedQuantity);
   }
 
-  async stockIn(dto: StockInDto): Promise<PartsInventory> {
-    // 查找或创建库存记录
-    let inventory = await this.inventoryRepo.findOne({
-      where: { partId: dto.partId, warehouseId: dto.warehouseId },
+  // Serialize updates to the same part/warehouse, including creation of a new row.
+  private async withInventoryLocks<T>(keys: string[], action: (repo: Repository<PartsInventory>) => Promise<T>): Promise<T> {
+    return this.inventoryRepo.manager.transaction(async manager => {
+      for (const key of [...new Set(keys)].sort()) await manager.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [key]);
+      return action(manager.getRepository(PartsInventory));
     });
+  }
 
-    if (inventory) {
-      inventory.quantity += dto.quantity;
-      if (dto.restockDate) {
-        inventory.restockDate = new Date(dto.restockDate);
-      }
-    } else {
-      inventory = this.inventoryRepo.create({
-        partId: dto.partId,
-        warehouseId: dto.warehouseId,
-        quantity: dto.quantity,
-        reservedQuantity: 0,
-        restockDate: dto.restockDate ? new Date(dto.restockDate) : null,
-      });
-    }
+  private validQuantity(quantity: number) {
+    if (!Number.isInteger(quantity) || quantity <= 0) throw new BadRequestException('数量必须为正整数');
+  }
 
-    return this.inventoryRepo.save(inventory);
+  async stockIn(dto: StockInDto, actorId = 'system'): Promise<PartsInventory> {
+    this.validQuantity(dto.quantity);
+    if (!await this.partRepo.findOneBy({ id: dto.partId }) || !await this.warehouseRepo.findOneBy({ id: dto.warehouseId })) throw new NotFoundException('配件或仓库不存在');
+    return this.withInventoryLocks([dto.partId + ':' + dto.warehouseId], async repo => {
+      let item = await repo.findOneBy({ partId: dto.partId, warehouseId: dto.warehouseId });
+      if (!item) item = repo.create({ partId: dto.partId, warehouseId: dto.warehouseId, quantity: 0, reservedQuantity: 0 });
+      item.quantity += dto.quantity;
+      if (dto.restockDate) item.restockDate = new Date(dto.restockDate);
+      await repo.save(item);
+      const part = await repo.manager.findOneByOrFail(Part, { id: dto.partId });
+      await repo.manager.save(StockMovement, repo.manager.create(StockMovement, { warehouseId: dto.warehouseId, partId: dto.partId, quantity: dto.quantity, action: 'STOCK_IN', actorId, unitCost: Number(part.costPrice || 0), note: '配件入库' }));
+      return item;
+    });
   }
 
   async stockOut(dto: StockOutDto): Promise<PartsInventory> {
-    const inventory = await this.inventoryRepo.findOne({
-      where: { partId: dto.partId, warehouseId: dto.warehouseId },
+    this.validQuantity(dto.quantity);
+    return this.withInventoryLocks([dto.partId + ':' + dto.warehouseId], async repo => {
+      const item = await repo.findOneBy({ partId: dto.partId, warehouseId: dto.warehouseId });
+      if (!item) throw new NotFoundException('库存记录不存在');
+      if (item.quantity - item.reservedQuantity < dto.quantity) throw new BadRequestException('可用库存不足');
+      item.quantity -= dto.quantity;
+      return repo.save(item);
     });
-
-    if (!inventory) throw new NotFoundException('库存记录不存在');
-    if (inventory.quantity < dto.quantity) {
-      throw new BadRequestException(`库存不足，当前库存: ${inventory.quantity}`);
-    }
-
-    inventory.quantity -= dto.quantity;
-    return this.inventoryRepo.save(inventory);
   }
 
   async transfer(dto: TransferDto): Promise<{ from: PartsInventory; to: PartsInventory }> {
-    // 源仓库出库
-    const fromInventory = await this.inventoryRepo.findOne({
-      where: { partId: dto.partId, warehouseId: dto.fromWarehouseId },
+    this.validQuantity(dto.quantity);
+    if (dto.fromWarehouseId === dto.toWarehouseId) throw new BadRequestException('源仓库和目标仓库不能相同');
+    if (!await this.warehouseRepo.findOneBy({ id: dto.toWarehouseId })) throw new NotFoundException('目标仓库不存在');
+    return this.withInventoryLocks([dto.partId + ':' + dto.fromWarehouseId, dto.partId + ':' + dto.toWarehouseId], async repo => {
+      const from = await repo.findOneBy({ partId: dto.partId, warehouseId: dto.fromWarehouseId });
+      if (!from) throw new NotFoundException('源仓库库存不存在');
+      if (from.quantity - from.reservedQuantity < dto.quantity) throw new BadRequestException('源仓库可用库存不足');
+      let to = await repo.findOneBy({ partId: dto.partId, warehouseId: dto.toWarehouseId });
+      if (!to) to = repo.create({ partId: dto.partId, warehouseId: dto.toWarehouseId, quantity: 0, reservedQuantity: 0 });
+      from.quantity -= dto.quantity;
+      to.quantity += dto.quantity;
+      await repo.save([from, to]);
+      return { from, to };
     });
-    if (!fromInventory) throw new NotFoundException('源仓库库存不存在');
-    if (fromInventory.quantity < dto.quantity) {
-      throw new BadRequestException('源仓库库存不足');
-    }
-
-    fromInventory.quantity -= dto.quantity;
-    await this.inventoryRepo.save(fromInventory);
-
-    // 目标仓库入库
-    let toInventory = await this.inventoryRepo.findOne({
-      where: { partId: dto.partId, warehouseId: dto.toWarehouseId },
-    });
-
-    if (toInventory) {
-      toInventory.quantity += dto.quantity;
-    } else {
-      toInventory = this.inventoryRepo.create({
-        partId: dto.partId,
-        warehouseId: dto.toWarehouseId,
-        quantity: dto.quantity,
-        reservedQuantity: 0,
-      });
-    }
-
-    await this.inventoryRepo.save(toInventory);
-
-    return { from: fromInventory, to: toInventory };
   }
 
   async reserveStock(partId: string, warehouseId: string, quantity: number): Promise<PartsInventory> {
-    const inventory = await this.inventoryRepo.findOne({
-      where: { partId, warehouseId },
+    this.validQuantity(quantity);
+    return this.withInventoryLocks([partId + ':' + warehouseId], async repo => {
+      const item = await repo.findOneBy({ partId, warehouseId });
+      if (!item) throw new NotFoundException('库存不存在');
+      if (item.quantity - item.reservedQuantity < quantity) throw new BadRequestException('可用库存不足');
+      item.reservedQuantity += quantity;
+      return repo.save(item);
     });
-
-    if (!inventory) throw new NotFoundException('库存不存在');
-    if (inventory.quantity - inventory.reservedQuantity < quantity) {
-      throw new BadRequestException('可用库存不足');
-    }
-
-    inventory.reservedQuantity += quantity;
-    return this.inventoryRepo.save(inventory);
   }
 
   async releaseStock(partId: string, warehouseId: string, quantity: number): Promise<PartsInventory> {
-    const inventory = await this.inventoryRepo.findOne({
-      where: { partId, warehouseId },
+    this.validQuantity(quantity);
+    return this.withInventoryLocks([partId + ':' + warehouseId], async repo => {
+      const item = await repo.findOneBy({ partId, warehouseId });
+      if (!item) throw new NotFoundException('库存不存在');
+      if (item.reservedQuantity < quantity) throw new BadRequestException('释放数量超过已预留数量');
+      item.reservedQuantity -= quantity;
+      return repo.save(item);
     });
-
-    if (!inventory) throw new NotFoundException('库存不存在');
-    inventory.reservedQuantity = Math.max(0, inventory.reservedQuantity - quantity);
-    return this.inventoryRepo.save(inventory);
   }
 }

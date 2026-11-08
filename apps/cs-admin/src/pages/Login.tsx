@@ -1,51 +1,17 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { login } from '../api';
-
-export default function Login() {
-  const [phone, setPhone] = useState('13900000001');
-  const [code, setCode] = useState('000000');
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
-
-  const handleLogin = async () => {
-    try {
-      setError('');
-      await login(phone, code);
-      navigate('/');
-    } catch (e: any) {
-      setError(e.message || '登录失败');
-    }
-  };
-
-  return (
-    <div className="login-container">
-      <div className="login-card">
-        <h1>客服管理后台</h1>
-        <div className="form-group">
-          <label>手机号</label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="请输入手机号"
-          />
-        </div>
-        <div className="form-group">
-          <label>验证码</label>
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="请输入验证码"
-          />
-        </div>
-        {error && <div className="error-message">{error}</div>}
-        <button className="btn btn-primary" style={{ width: '100%' }} onClick={handleLogin}>
-          登录
-        </button>
-        <p className="hint">测试模式：验证码 000000 可直接登录</p>
-      </div>
-    </div>
-  );
+import {ThemeSwitcher} from '../components/AdminAppearance';
+import {EyeOutlined,EyeInvisibleOutlined,ArrowRightOutlined,NodeIndexOutlined} from '@ant-design/icons';
+import './login-experience.css';
+import React,{useState} from 'react';
+import {useNavigate} from 'react-router-dom';
+import {API_BASE,setToken} from '../api';
+export default function Login(){
+ const [visible,setVisible]=useState(false);
+ const [username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[pending,setPending]=useState(false);const navigate=useNavigate();
+ async function submit(event:React.FormEvent){event.preventDefault();setPending(true);setError('');try{const r=await fetch(`${API_BASE}/identity/business-login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:username.trim(),password})});const data=await r.json();if(!r.ok)throw new Error(data.message||'登录失败');setToken(data.accessToken);sessionStorage.setItem('cs_admin_user',JSON.stringify(data.user));localStorage.removeItem('laser_organization');localStorage.removeItem('laser_tenant_code');navigate('/');}catch(error:any){setError(error.message);}finally{setPending(false);}}
+ return <main className="enterprise-login">
+ <header className="login-top"><a href="/login" className="login-brand"><NodeIndexOutlined aria-hidden />激光维保<span>企业工作空间</span></a><ThemeSwitcher /></header>
+ <section className="login-stage"><div className="login-story"><p className="login-category">设备服务 · 协同管理</p><h1>让每一次服务，<br/>连接得更紧密。</h1><p className="login-description">从设备报修到现场维修，从配件流转到服务结算。<br/>在同一个工作空间，让业务有序推进。</p>
+ <div className="service-orbit" aria-hidden="true"><div className="orbit-ring ring-one"/><div className="orbit-ring ring-two"/><div className="orbit-core"><NodeIndexOutlined /><span>服务协同</span></div>{['设备','工单','工程师','配件'].map((label,i)=><span className={'orbit-node node-'+i} key={label}><i/>{label}</span>)}<div className="orbit-scan"/></div>
+ <div className="login-capabilities"><span>设备与工单</span><span>仓储与用料</span><span>合同与结算</span></div></div>
+ <section className="enterprise-login-panel" aria-labelledby="loginTitle"><div className="login-panel-heading"><span className="login-mark"><NodeIndexOutlined aria-hidden /></span><h2 id="loginTitle">登录企业后台</h2><p>使用平台发放的企业管理账号</p></div><form onSubmit={submit} aria-busy={pending}><label className="login-field" htmlFor="username">登录账号<input id="username" name="username" autoComplete="username" value={username} onChange={event=>setUsername(event.target.value)} required placeholder="请输入登录账号" disabled={pending}/></label><label className="login-field" htmlFor="password">密码<div className="login-password"><input id="password" name="password" type={visible?'text':'password'} autoComplete="current-password" value={password} onChange={event=>setPassword(event.target.value)} required placeholder="请输入密码" disabled={pending}/><button type="button" aria-label={visible?'隐藏密码':'显示密码'} aria-pressed={visible} onClick={()=>setVisible(!visible)}>{visible?<EyeInvisibleOutlined/>:<EyeOutlined/>}</button></div></label>{error&&<div className="login-inline-error" role="alert">{error}</div>}<button id="loginBtn" type="submit" className="login-submit" disabled={pending}><span>{pending?'正在验证账号…':'登录'}</span><ArrowRightOutlined aria-hidden /></button><p className="login-support">忘记密码？请联系平台管理员重置。</p></form><div className="login-account-note">账号已关联企业，登录后进入对应公司的工作空间。</div></section></section><footer className="login-footer"><span>激光维保 · 企业管理后台</span><span>连接设备，协同服务。</span></footer></main>;
 }

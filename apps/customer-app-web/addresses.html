@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>常用地址</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -69,8 +70,8 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
     }
   </style>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="customer" data-page="addresses">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -193,7 +194,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
 
     if (!token) {
@@ -281,7 +282,7 @@
 
       fetch(API_BASE + '/customer/addresses', {
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(addresses) {
           document.getElementById('loading').classList.add('hidden');
           renderAddresses(addresses || []);
@@ -351,7 +352,7 @@
     function editAddress(id) {
       fetch(API_BASE + '/customer/addresses/' + id, {
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(addr) {
           document.getElementById('modalTitle').textContent = '编辑地址';
           document.getElementById('addressId').value = addr.id;
@@ -434,7 +435,7 @@
         method: method,
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify(data)
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(result) {
           if (result.id) {
             hideModal();
@@ -457,7 +458,7 @@
         fetch(API_BASE + '/customer/addresses/' + id, {
           method: 'DELETE',
           headers: { 'Authorization': 'Bearer ' + token }
-        }).then(function(res) { return res.json(); })
+        }).then(window.readApiResponse)
           .then(function(result) {
             hideModal();
             loadAddresses();

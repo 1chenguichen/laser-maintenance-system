@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>退款申请</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -50,8 +51,8 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/product-design.css?v=2"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-24 mobile-system" data-role="customer" data-page="refund">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -69,9 +70,9 @@
         <div class="text-sm" style="color: #ad6800;">
           <p class="font-medium mb-1">退款说明</p>
           <ul class="list-disc list-inside space-y-1 text-xs">
-            <li>定金支付后24小时内可申请全额退款</li>
-            <li>工程师已上门后，退款需扣除相应上门费</li>
-            <li>维修完成后退款申请需客服审核</li>
+            <li>已支付的工单可提交退款申请</li>
+            <li>申请金额不得超过该工单已支付金额</li>
+            <li>退款申请需客服审核，提交不代表资金已退回</li>
           </ul>
         </div>
       </div>
@@ -82,8 +83,6 @@
       <h3 class="font-semibold mb-3" style="color: #111827;">选择工单</h3>
       <select id="orderSelect" class="w-full p-3 border border-outline-variant rounded-lg text-sm bg-white" onchange="loadOrderInfo()">
         <option value="">请选择要退款的工单</option>
-        <option value="1">WX20260915001 - 3000W激光切割机</option>
-        <option value="2">WX20260912002 - 2000W激光焊接机</option>
       </select>
     </section>
 
@@ -177,7 +176,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
     var selectedOrder = null;
 
@@ -191,45 +190,43 @@
       });
     });
 
+    var refundOrders = [];
+    async function loadRefundOrders() {
+      try {
+        var orders = await window.readApiResponse(await fetch(API_BASE + '/customer/work-orders', { headers: { Authorization: 'Bearer ' + token } }));
+        refundOrders = orders.filter(function (o) { return ['REPAIRING','PENDING_FINAL_PAYMENT','COMPLETED'].includes(o.status); });
+        var select = document.getElementById('orderSelect');
+        select.replaceChildren(new Option(refundOrders.length ? '请选择要退款的工单' : '暂无可退款工单', ''));
+        refundOrders.forEach(function (o) { select.add(new Option(o.orderNo + ' - ' + (o.device ? o.device.model : ''), o.id)); });
+      } catch (err) { alert(err.message); }
+    }
     function loadOrderInfo() {
-      var orderId = document.getElementById('orderSelect').value;
-      if (!orderId) {
-        document.getElementById('orderDetails').classList.add('hidden');
-        selectedOrder = null;
-        document.getElementById('submitBtn').disabled = true;
-        return;
-      }
-
-      // Demo data
-      var demoOrders = {
-        '1': { orderNo: 'WX20260915001', device: '3000W激光切割机', paid: 204, refund: 204 },
-        '2': { orderNo: 'WX20260912002', device: '2000W激光焊接机', paid: 150, refund: 150 }
-      };
-
-      var order = demoOrders[orderId] || demoOrders['1'];
-      selectedOrder = order;
-
-      document.getElementById('orderDetails').classList.remove('hidden');
-      document.getElementById('refundOrderNo').textContent = order.orderNo;
-      document.getElementById('refundDevice').textContent = order.device;
-      document.getElementById('refundPaid').textContent = '¥ ' + order.paid.toFixed(2);
-      document.getElementById('refundAmount').textContent = '¥ ' + order.refund.toFixed(2);
-
-      var reason = document.querySelector('input[name="refund_reason"]:checked');
-      document.getElementById('submitBtn').disabled = !reason;
+      var id = document.getElementById('orderSelect').value;
+      selectedOrder = refundOrders.find(function (o) { return o.id === id; }) || null;
+      document.getElementById('orderDetails').classList.toggle('hidden', !selectedOrder);
+      if (!selectedOrder) { document.getElementById('submitBtn').disabled = true; return; }
+      var paid = Number(selectedOrder.prepayAmount || 0) + Number(selectedOrder.finalPaymentAmount || 0);
+      document.getElementById('refundOrderNo').textContent = selectedOrder.orderNo;
+      document.getElementById('refundDevice').textContent = selectedOrder.device ? selectedOrder.device.model : '—';
+      document.getElementById('refundPaid').textContent = '¥ ' + paid.toFixed(2);
+      document.getElementById('refundAmount').textContent = '¥ ' + paid.toFixed(2);
+      document.getElementById('submitBtn').disabled = !document.querySelector('input[name="refund_reason"]:checked');
     }
-
-    function submitRefund() {
+    async function submitRefund() {
       var reason = document.querySelector('input[name="refund_reason"]:checked');
-      if (!reason) {
-        alert('请选择退款原因');
-        return;
-      }
-
-      var notes = document.getElementById('refundNotes').value;
-      alert('退款申请已提交，1-3个工作日内处理');
-      window.location.href = 'orders.html';
+      if (!selectedOrder || !reason) { alert('请选择工单和退款原因'); return; }
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      try {
+        await window.readApiResponse(await fetch(API_BASE + '/customer/refund', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+          body: JSON.stringify({ workOrderId: selectedOrder.id, amount: Number(selectedOrder.prepayAmount || 0) + Number(selectedOrder.finalPaymentAmount || 0), reason: reason.value + ' ' + document.getElementById('refundNotes').value })
+        }));
+        alert('退款申请已提交，请等待客服审核');
+        window.location.href = 'orders.html';
+      } catch (err) { alert(err.message); btn.disabled = false; }
     }
+    document.addEventListener('DOMContentLoaded', loadRefundOrders);
 
     function navigateTo(page) {
       var pages = {

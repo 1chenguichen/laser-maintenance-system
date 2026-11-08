@@ -1,0 +1,1793 @@
+/* Shared engineer components and authoritative white surface system. */
+/* Engineer field-service system: task first, consistent spacing and actions. */
+body[data-role="engineer"] [hidden] {
+  display: none !important;
+}
+body[data-role="engineer"] .field-photo-settings > summary {
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: #20352d;
+  list-style: none;
+}
+body[data-role="engineer"]
+  .field-photo-settings
+  > summary::-webkit-details-marker {
+  display: none;
+}
+body[data-role="engineer"] .field-photo-settings > summary:after {
+  content: "＋";
+  color: #63766d;
+  font-size: 18px;
+  font-weight: 400;
+}
+body[data-role="engineer"] .field-photo-settings[open] > summary:after {
+  content: "−";
+}
+body[data-role="engineer"] .field-photo-settings[open] > summary {
+  margin-bottom: 16px;
+}
+body[data-role="engineer"] .field-logout {
+  display: block;
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid #e3e8e5;
+  border-radius: 12px;
+  background: #fff;
+  color: #b8473c;
+  font-size: 13px;
+  margin-top: 16px;
+}
+body[data-role="engineer"] .field-filter-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 10px;
+  margin: 16px 0 8px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #dfe6e0;
+  border-radius: 12px;
+}
+body[data-role="engineer"] .field-filter-panel label,
+body[data-role="engineer"] .field-stock-search {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #63766d;
+  min-width: 0;
+}
+body[data-role="engineer"] .field-filter-panel input,
+body[data-role="engineer"] .field-filter-panel select,
+body[data-role="engineer"] .field-stock-search input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  margin: 6px 0 0;
+  padding: 10px;
+  border: 1px solid #dfe6e0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  background: #fff;
+  color: #20352d;
+}
+body[data-role="engineer"] .field-result-count {
+  font-size: 11px;
+  color: #63766d;
+  margin: 10px 0 14px;
+  line-height: 1.6;
+}
+body[data-role="engineer"] .field-empty {
+  padding: 28px 16px;
+  background: #fff;
+  border: 1px dashed #d3dfd7;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #63766d;
+}
+body[data-role="engineer"] .pool-summary {
+  padding: 16px;
+  border: 1px solid #d2e5d9;
+  border-radius: 12px;
+  background: #eaf3ed;
+  gap: 12px;
+}
+body[data-role="engineer"] .pool-summary strong {
+  font-size: 18px;
+}
+body[data-role="engineer"] .pool-summary small {
+  font-size: 12px;
+  line-height: 1.7;
+}
+body[data-role="engineer"] .pool-task .task-city {
+  font-size: 12px;
+}
+body[data-role="engineer"] .pool-task .task-footer {
+  border-top: 1px solid #e5ebe7;
+  margin-top: 14px;
+  padding-top: 12px;
+  gap: 12px;
+}
+body[data-role="engineer"] .pool-task .task-footer > span {
+  font-size: 12px;
+  color: #63766d;
+  overflow-wrap: anywhere;
+}
+body[data-role="engineer"] .field-qualifications {
+  background: #eaf3ed;
+  border-color: #d2e5d9;
+}
+body[data-role="engineer"] .field-qualifications h2 {
+  font-size: 16px;
+}
+body[data-role="engineer"] .course-card {
+  overflow: hidden;
+}
+body[data-role="engineer"] .course-card .course-cover {
+  height: 132px;
+  object-fit: cover;
+  margin-bottom: 0;
+  border-radius: 8px;
+  width: 100%;
+}
+body[data-role="engineer"] .course-card .course-demo-label {
+  font-size: 10px;
+  margin: 4px 0 12px;
+  color: #7a8b81;
+}
+body[data-role="engineer"] .course-card details {
+  border-top: 1px solid #e5ebe7;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+body[data-role="engineer"] .course-card summary {
+  min-height: 32px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #147552;
+}
+body[data-role="engineer"] #engineerForm {
+  display: grid;
+  gap: 16px;
+}
+body[data-role="engineer"] #engineerForm label {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+body[data-role="engineer"] #engineerForm :is(input, select, textarea) {
+  margin-top: 7px;
+  border-radius: 9px;
+  min-height: 44px;
+  font-size: 14px;
+}
+body[data-role="engineer"] #engineerForm .market-primary {
+  margin: 0;
+  width: 100%;
+}
+body[data-role="engineer"][data-page="inventory"] .wh-hero {
+  border: 1px solid #d2e5d9;
+  border-radius: 12px;
+  background: #eaf3ed;
+  padding: 16px;
+  color: #20352d;
+  box-shadow: none;
+}
+body[data-role="engineer"] .wh-hero small {
+  opacity: 1;
+  color: #63766d;
+  font-size: 11px;
+}
+body[data-role="engineer"] .wh-hero h2 {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 5px 0 18px;
+}
+body[data-role="engineer"] .wh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+body[data-role="engineer"] .wh-stats > div {
+  border-right: 1px solid #cfe0d4;
+}
+body[data-role="engineer"] .wh-stats > div:last-child {
+  border: 0;
+}
+body[data-role="engineer"] .wh-stats strong {
+  font-size: 24px;
+  color: #147552;
+  line-height: 1.4;
+}
+body[data-role="engineer"] .wh-stats span {
+  font-size: 11px;
+  opacity: 1;
+  color: #63766d;
+}
+body[data-role="engineer"] .wh-actions {
+  margin: 16px 0 20px;
+  gap: 8px;
+}
+body[data-role="engineer"] .wh-actions button {
+  min-height: 76px;
+  border-radius: 12px;
+  border: 1px solid #dfe6e0;
+  font-size: 12px;
+  padding: 12px 4px;
+}
+body[data-role="engineer"] .wh-tabs {
+  background: #e9eeeb;
+  border: 0;
+  border-radius: 10px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+body[data-role="engineer"] .wh-tabs button {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 4px;
+  font-size: 12px;
+  color: #63766d;
+}
+body[data-role="engineer"] .wh-tabs button.active {
+  border: 0;
+  background: #fff;
+  color: #147552;
+  box-shadow: 0 1px 3px #183b2514;
+}
+body[data-role="engineer"] .wh-card {
+  padding: 16px;
+  border-color: #dfe6e0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+body[data-role="engineer"] .wh-card h3 {
+  font-size: 14px;
+  line-height: 1.5;
+}
+body[data-role="engineer"] .wh-primary {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  background: #147552;
+  font-size: 13px;
+}
+body[data-role="engineer"] .wh-empty {
+  border: 1px dashed #d3dfd7;
+  border-radius: 12px;
+  background: #fff;
+  padding: 28px 14px;
+  line-height: 1.8;
+}
+body[data-role="engineer"] .field-stock-search {
+  margin-bottom: 10px;
+}
+body[data-role="engineer"] .engineer-workspace {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #eaf3ed;
+  border-color: #d2e5d9;
+}
+body[data-role="engineer"] .workspace-brand strong {
+  font-size: 14px;
+  line-height: 1.6;
+}
+body[data-role="engineer"] .engineer-workspace p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+body[data-role="engineer"] .field-profile-card {
+  padding: 16px !important;
+  border-radius: 12px !important;
+  border-color: #dfe6e0 !important;
+}
+body[data-role="engineer"] .field-profile-card [data-ui-avatar] {
+  border-radius: 12px;
+  background: #eaf3ed !important;
+}
+body[data-role="engineer"] .profile-maintenance-note {
+  font-size: 11px;
+  color: #63766d;
+  margin: 8px 0;
+}
+body[data-role="engineer"] .field-account-links {
+  background: #fff;
+  border: 1px solid #dfe6e0;
+  border-radius: 12px;
+  padding: 16px;
+}
+body[data-role="engineer"] .field-account-links h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+body[data-role="engineer"] .field-account-links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  font-size: 13px;
+  color: #20352d;
+  text-decoration: none;
+  border-top: 1px solid #edf1ee;
+}
+body[data-role="engineer"] .status-btn {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+body[data-role="engineer"] .profile-feedback {
+  font-size: 11px;
+  color: #63766d;
+  line-height: 1.7;
+}
+@media (max-width: 360px) {
+  body[data-role="engineer"] .field-filter-panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  body[data-role="engineer"] .pool-task .task-footer {
+    flex-wrap: wrap;
+  }
+  body[data-role="engineer"] .pool-task .task-footer .market-primary {
+    width: 100%;
+    margin: 0;
+  }
+}
+/* All engineer screens use this surface system in place of engineer-workflow.css. */
+body[data-role="engineer"] {
+  --market-accent: #174d3d;
+  --market-ink: #202c28;
+  --market-muted: #68756b;
+  --market-ground: #ffffff;
+  --market-border: #e5e8e2;
+  --market-soft: #edf1eb;
+  --app-accent: #174d3d;
+  --app-ground: #ffffff;
+  --app-ink: #202c28;
+  --app-muted: #68756b;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif !important;
+  font-size: 15px;
+  color: #202c28;
+  background: #ffffff !important;
+}
+body[data-role="engineer"] [hidden] {
+  display: none !important;
+}
+body[data-role="engineer"] .market-top {
+  background: #ffffff;
+  border: 0;
+  padding: 18px 24px;
+}
+body[data-role="engineer"] .market-top a {
+  color: #354b40;
+  font-size: 13px;
+}
+body[data-role="engineer"] .market-root {
+  padding: 12px 24px 112px;
+}
+body[data-role="engineer"] .market-heading {
+  margin-bottom: 24px;
+}
+body[data-role="engineer"] .market-heading > small {
+  display: none;
+}
+body[data-role="engineer"] .market-heading h1 {
+  font-size: 27px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.7px;
+  margin: 8px 0 10px;
+}
+body[data-role="engineer"] .market-heading p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #68756b;
+}
+body[data-screen="workbench"] .market-heading p {
+  display: none;
+}
+body[data-role="engineer"] .market-card {
+  border: 0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: none;
+  padding: 22px;
+  margin-bottom: 16px;
+}
+body[data-role="engineer"] .section-heading {
+  margin: 30px 0 16px;
+  gap: 12px;
+}
+body[data-role="engineer"] .section-heading h2 {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+body[data-role="engineer"] .section-heading a {
+  font-size: 12px;
+  color: #68756b;
+}
+body[data-role="engineer"] .engineer-identity {
+  padding: 0;
+  margin: 0 0 24px;
+  border: 0;
+  gap: 12px;
+}
+body[data-role="engineer"] .engineer-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+}
+body[data-role="engineer"] .engineer-identity strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+body[data-role="engineer"] .engineer-identity small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #68756b;
+}
+body[data-role="engineer"] .engineer-identity a {
+  font-size: 12px;
+  white-space: nowrap;
+  color: #174d3d;
+}
+body[data-role="engineer"] .work-metrics {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0 0 26px;
+  gap: 0;
+  border-radius: 0;
+}
+body[data-role="engineer"] .work-metrics a {
+  padding: 0 12px;
+  border-right: 1px solid #dfe4dc;
+  align-items: flex-start;
+}
+body[data-role="engineer"] .work-metrics a:first-child {
+  padding-left: 0;
+}
+body[data-role="engineer"] .work-metrics a:last-child {
+  border: 0;
+}
+body[data-role="engineer"] .work-metrics strong,
+body[data-role="engineer"] .work-metrics a:first-child strong {
+  font-size: 33px;
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -1px;
+  color: #202c28;
+  font-variant-numeric: tabular-nums;
+}
+body[data-role="engineer"] .work-metrics span {
+  font-size: 12px;
+  color: #68756b;
+  margin-top: 8px;
+}
+body[data-role="engineer"] .market-order-card {
+  border: 0;
+  padding: 22px;
+  border-radius: 18px;
+}
+body[data-role="engineer"] .market-order-card h3 {
+  font-size: 19px;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: -0.3px;
+}
+body[data-role="engineer"] .order-category {
+  font-size: 12px;
+  color: #68756b;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+body[data-role="engineer"] .order-source {
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: 0;
+  font-size: 11px;
+  color: #68756b;
+}
+body[data-role="engineer"] .market-badge {
+  border-radius: 20px;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 4px 9px;
+  font-weight: 500;
+}
+body[data-role="engineer"] .order-description {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #68756b;
+  margin: 12px 0;
+}
+body[data-role="engineer"] .order-meta {
+  font-size: 12px;
+  color: #68756b;
+  line-height: 1.7;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+body[data-role="engineer"] .order-card-bottom {
+  padding-top: 16px;
+  margin-top: 18px;
+  border-top: 1px solid #eef0eb;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+body[data-role="engineer"] .order-card-bottom small {
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  color: #949b94;
+}
+body[data-role="engineer"] .order-card-bottom > span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #174d3d;
+}
+body[data-role="engineer"] .engineer-priority-task .market-order-card {
+  box-shadow: 0 8px 30px #233c2410;
+  padding: 22px;
+}
+body[data-role="engineer"] .engineer-priority-task .engineer-task-identity {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+  margin: 16px 0 10px;
+}
+body[data-role="engineer"] .engineer-priority-task .engineer-equipment-thumb {
+  width: 100%;
+  height: 150px;
+  flex: auto;
+  border-radius: 12px;
+  background: #edf1ec;
+}
+body[data-role="engineer"]
+  .engineer-priority-task
+  .engineer-equipment-thumb
+  img {
+  object-position: center 52%;
+}
+body[data-role="engineer"] .engineer-priority-task .order-card-bottom > span {
+  background: #174d3d;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 10px 14px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-left: auto;
+}
+body[data-role="engineer"] .engineer-tools {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 0;
+  margin: 0 0 20px;
+  border: 0;
+  background: none;
+  gap: 12px;
+}
+body[data-role="engineer"] .engineer-tools a {
+  padding: 0;
+  gap: 10px;
+  min-width: 0;
+}
+body[data-role="engineer"] .engineer-tools .material-symbols-outlined {
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: #ebeee7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #365143;
+}
+body[data-role="engineer"] .engineer-tools strong {
+  font-size: 12px;
+  color: #526054;
+  font-weight: 400;
+}
+body[data-role="engineer"] .qualification-notice {
+  border: 0;
+  background: #ecefe7;
+  border-radius: 12px;
+  padding: 14px;
+  margin: 0 0 16px;
+  color: #65715e;
+  font-size: 12px;
+  gap: 10px;
+}
+body[data-role="engineer"] .qualification-notice strong {
+  font-weight: 500;
+  font-size: 13px;
+}
+body[data-role="engineer"] .qualification-notice small {
+  display: none;
+}
+body[data-screen="workbench"] > .market-root > .market-order-card {
+  padding: 20px 0;
+  background: transparent;
+  border-radius: 0;
+  border-bottom: 1px solid #e2e6de;
+  margin: 0;
+}
+body[data-screen="workbench"]
+  > .market-root
+  > .market-order-card
+  .engineer-equipment-thumb {
+  width: 72px;
+  height: 60px;
+}
+body[data-screen="workbench"]
+  > .market-root
+  > .market-order-card
+  .order-description {
+  margin: 6px 0;
+  font-size: 13px;
+}
+body[data-screen="workbench"]
+  > .market-root
+  > .market-order-card
+  .order-card-bottom {
+  border: 0;
+  margin: 10px 0 0;
+  padding: 0;
+}
+body[data-role="engineer"] .workspace-footnote {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #949b94;
+  margin-top: 24px;
+}
+body[data-role="engineer"] .mobile-navigation {
+  border: 0;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 -1px 0 #233c2408;
+}
+body[data-role="engineer"] .mobile-navigation a {
+  color: #90988f;
+  font-size: 11px;
+}
+body[data-role="engineer"] .mobile-navigation a[aria-current="page"] {
+  background: none;
+  color: #174d3d;
+  font-weight: 600;
+}
+body[data-role="engineer"] .mobile-navigation a[aria-current="page"]:before {
+  display: none;
+}
+body[data-role="engineer"]
+  :is(.market-primary, .market-secondary, .workspace-primary) {
+  min-height: 48px;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+  background: #174d3d;
+  border-color: #174d3d;
+}
+body[data-role="engineer"] .market-secondary {
+  background: #f0f2ec;
+  color: #365143;
+  border-color: transparent;
+}
+body[data-role="engineer"]
+  :is(a, button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid #174d3d;
+  outline-offset: 4px;
+}
+body[data-role="engineer"] .detail-status {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0 0 24px;
+  align-items: flex-start;
+  gap: 14px;
+}
+body[data-role="engineer"] .detail-status .status-symbol {
+  width: 44px;
+  height: 44px;
+  background: #e8eee4;
+  border-radius: 50%;
+  color: #174d3d;
+}
+body[data-role="engineer"] .detail-status h2 {
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+body[data-role="engineer"] .detail-status p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #68756b;
+}
+body[data-role="engineer"] .detail-action-bar {
+  position: static;
+  transform: none;
+  left: auto;
+  bottom: auto;
+  width: 100%;
+  border: 0;
+  border-radius: 16px;
+  background: #e9eee4;
+  padding: 18px;
+  margin: 0 0 22px;
+  box-shadow: none;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+body[data-role="engineer"] .detail-action-bar strong {
+  font-size: 14px;
+}
+body[data-role="engineer"] .detail-action-bar small {
+  font-size: 11px;
+}
+body[data-role="engineer"] .detail-action-bar button {
+  margin: 0;
+}
+body[data-role="engineer"] .market-root:has(.detail-action-bar) {
+  padding-bottom: 112px;
+}
+body[data-role="engineer"] .detail-facts dl {
+  display: grid;
+  grid-template-columns: 80px minmax(0, 1fr);
+  gap: 16px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+body[data-role="engineer"] .detail-facts dt {
+  color: #68756b;
+}
+body[data-role="engineer"] .detail-facts dd {
+  margin: 0;
+  color: #202c28;
+  overflow-wrap: anywhere;
+}
+body[data-role="engineer"] .market-card h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+body[data-role="engineer"] .market-card p {
+  font-size: 14px;
+  line-height: 1.8;
+}
+body[data-role="engineer"] .engineer-records summary {
+  font-size: 15px;
+  cursor: pointer;
+  min-height: 32px;
+}
+body[data-role="engineer"] .engineer-records[open] summary {
+  margin-bottom: 18px;
+}
+body[data-refined][data-page="profile"] > header,
+body[data-refined][data-page="task-detail"] > header {
+  background: #ffffff !important;
+  border-bottom: 0 !important;
+}
+body[data-refined][data-page="profile"] > main,
+body[data-refined][data-page="task-detail"] > main {
+  padding-inline: 24px !important;
+}
+body[data-refined][data-page="profile"] .engineer-workspace,
+body[data-refined][data-page="task-detail"] .engineer-workspace {
+  background: none;
+  border: 0;
+  padding: 18px 0 20px;
+  margin: 0;
+  border-bottom: 1px solid #e2e6de;
+  border-radius: 0;
+}
+body[data-role="engineer"] .workspace-brand > img,
+body[data-role="engineer"] .workspace-brand > span {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+body[data-role="engineer"] .workspace-brand strong {
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+body[data-role="engineer"] .workspace-brand small {
+  font-size: 11px;
+}
+body[data-role="engineer"] .engineer-workspace > p {
+  display: none;
+}
+body[data-role="engineer"] .engineer-workspace label {
+  font-size: 12px;
+  color: #68756b;
+  margin-top: 12px;
+}
+body[data-role="engineer"] .engineer-workspace select {
+  font-size: 13px;
+  min-height: 40px;
+  border: 0;
+  background: #ebeee7;
+  border-radius: 10px;
+}
+body[data-refined][data-page="profile"] .field-profile-card {
+  padding: 24px 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  gap: 18px;
+}
+body[data-refined][data-page="profile"] .field-profile-card [data-ui-avatar] {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #e9eee4 !important;
+}
+body[data-refined][data-page="profile"] #engineerName {
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+body[data-refined][data-page="profile"] #engineerPhone {
+  font-size: 14px;
+  margin-top: 5px;
+  color: #68756b;
+}
+body[data-refined][data-page="profile"] .profile-maintenance-note {
+  font-size: 11px;
+  color: #949b94;
+  margin-top: 0;
+}
+body[data-refined][data-page="profile"] main > .bg-white {
+  padding: 22px;
+  border: 0;
+  border-radius: 18px;
+  box-shadow: none;
+}
+body[data-refined][data-page="profile"] main > .bg-white h3 {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+body[data-refined][data-page="profile"] .status-btn {
+  border-radius: 12px;
+  min-height: 48px;
+  font-size: 14px;
+}
+body[data-refined][data-page="profile"] .profile-feedback {
+  font-size: 11px;
+  color: #68756b;
+  background: transparent;
+  border: 0;
+  padding: 0 2px;
+  margin: 8px 0 20px;
+}
+body[data-refined][data-page="profile"] .profile-feedback[data-state="error"] {
+  color: #b3473d;
+}
+body[data-refined][data-page="profile"] .field-income-card {
+  cursor: pointer;
+}
+body[data-refined][data-page="profile"] .field-income-card .text-center {
+  padding: 0;
+  text-align: left;
+  background: transparent !important;
+}
+body[data-refined][data-page="profile"] .field-income-card .text-xl {
+  font-size: 25px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: #202c28 !important;
+}
+body[data-refined][data-page="profile"] .field-income-card .text-xs {
+  font-size: 12px;
+  color: #68756b;
+}
+body[data-refined][data-page="profile"] .engineer-resource-grid {
+  gap: 12px;
+  margin: 22px 0;
+}
+body[data-refined][data-page="profile"] .engineer-resource-grid > a {
+  border: 0;
+  border-radius: 14px;
+  background: #eaeee6;
+  padding-bottom: 14px;
+}
+body[data-refined][data-page="profile"] .engineer-resource-grid figure {
+  height: 90px;
+  filter: saturate(0.65);
+}
+body[data-refined][data-page="profile"] .engineer-resource-grid strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+body[data-refined][data-page="profile"] .engineer-resource-grid small {
+  font-size: 11px;
+  color: #68756b;
+}
+body[data-refined][data-page="profile"] .field-account-links {
+  padding: 0 22px;
+  background: #fff;
+  border: 0;
+  border-radius: 18px;
+}
+body[data-refined][data-page="profile"] .field-account-links h2 {
+  padding-top: 20px;
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 600;
+}
+body[data-refined][data-page="profile"] .field-account-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 56px;
+  font-size: 14px;
+  color: #202c28;
+  border-bottom: 1px solid #eef0e9;
+  text-decoration: none;
+}
+body[data-refined][data-page="profile"] .field-account-links a:last-child {
+  border: 0;
+}
+body[data-refined][data-page="profile"] .field-logout {
+  width: 100%;
+  min-height: 48px;
+  background: transparent;
+  border: 0;
+  border-radius: 12px;
+  color: #9b5c50;
+  font-size: 14px;
+  margin-top: 20px;
+}
+body[data-refined][data-page="profile"] .field-photo-settings summary {
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 36px;
+  line-height: 2.5;
+}
+body[data-refined][data-page="profile"] .field-photo-settings[open] summary {
+  margin-bottom: 20px;
+}
+body[data-refined][data-page="task-detail"] .flow-summary {
+  background: #e8eee3;
+  border: 0;
+  border-radius: 18px;
+  padding: 22px;
+  margin-top: 20px;
+}
+body[data-refined][data-page="task-detail"] #flowNext {
+  font-size: 20px;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: -0.4px;
+  margin: 8px 0 12px;
+}
+body[data-refined][data-page="task-detail"] .flow-company {
+  font-size: 12px;
+  color: #68756b;
+}
+body[data-refined][data-page="task-detail"] #workspace-next-action {
+  width: 100%;
+  margin-top: 20px;
+  min-height: 48px;
+  border-radius: 12px;
+  background: #174d3d;
+  font-size: 14px;
+}
+body[data-refined][data-page="task-detail"] #detailContent > div {
+  background: #fff;
+  border: 0;
+  border-radius: 18px;
+  padding: 22px;
+  margin-top: 18px;
+}
+body[data-refined][data-page="task-detail"] #detailContent h3 {
+  font-size: 18px;
+  line-height: 1.6;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+body[data-refined][data-page="task-detail"] #detailContent .text-sm {
+  font-size: 14px;
+  line-height: 1.8;
+}
+body[data-refined][data-page="task-detail"] #detailContent .space-y-3 > div {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f1ec;
+  gap: 12px;
+  align-items: flex-start;
+}
+body[data-refined][data-page="task-detail"]
+  #detailContent
+  .material-symbols-outlined {
+  font-size: 20px;
+  color: #8a968a !important;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+body[data-refined][data-page="task-detail"] #materialLink {
+  padding: 16px !important;
+  background: #fff !important;
+  border: 0;
+  border-radius: 14px !important;
+  color: #174d3d !important;
+  font-size: 14px !important;
+}
+body[data-refined][data-page="task-detail"] #actionButtons button {
+  min-height: 48px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+@media (max-width: 360px) {
+  body[data-role="engineer"] .market-root {
+    padding-inline: 18px;
+  }
+  body[data-refined][data-page="profile"] > main,
+  body[data-refined][data-page="task-detail"] > main {
+    padding-inline: 18px !important;
+  }
+  body[data-role="engineer"] .market-top {
+    padding-inline: 18px;
+  }
+  body[data-role="engineer"] .market-card,
+  body[data-role="engineer"] .engineer-priority-task .market-order-card {
+    padding: 18px;
+  }
+  body[data-role="engineer"] .detail-facts dl {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+  body[data-role="engineer"] .engineer-priority-task .engineer-equipment-thumb {
+    height: 128px;
+  }
+  body[data-role="engineer"] .detail-action-bar > div:last-child {
+    width: 100%;
+  }
+  body[data-role="engineer"] .detail-action-bar button {
+    width: 100%;
+  }
+  body[data-role="engineer"] .engineer-identity a {
+    font-size: 11px;
+  }
+}
+
+/* White surfaces use spacing and dividers, with green reserved for actions. */
+body[data-refined] .engineer-priority-task .market-order-card {
+  border: 1px solid #e8ece9;
+  box-shadow: 0 6px 24px #20352d07;
+}
+body[data-refined] .market-card.detail-facts,
+body[data-refined] .market-card.quote-summary {
+  border-radius: 0;
+  padding-inline: 0;
+  border-bottom: 1px solid #edf0ed;
+  padding-bottom: 24px;
+}
+body[data-refined][data-page="profile"] main > .bg-white {
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid #edf0ed !important;
+  padding: 22px 0 !important;
+}
+body[data-refined][data-page="profile"] .field-profile-card {
+  border-bottom: 0 !important;
+}
+body[data-refined][data-page="profile"] .field-account-links {
+  padding-inline: 0;
+  border-radius: 0;
+}
+body[data-refined][data-page="profile"] .gallery-section {
+  padding-inline: 0;
+  border-top: 1px solid #edf0ed;
+}
+body[data-refined][data-page="task-detail"] #detailContent > div {
+  padding-inline: 0;
+  border-radius: 0;
+  border-bottom: 1px solid #edf0ed;
+  padding-bottom: 24px;
+}
+body[data-refined][data-page="task-detail"] .flow-summary {
+  background: #f5f8f5;
+}
+body[data-refined][data-page="task-detail"] #materialLink {
+  background: #f5f8f5 !important;
+}
+
+/* List, form and tool surfaces share the same white hierarchy. */
+body.mobile-system[data-refined] > header {
+  background: #fff !important;
+  border-bottom: 1px solid #f0f2ef !important;
+}
+body.mobile-system[data-refined] > main {
+  padding-inline: 24px !important;
+}
+body.mobile-system[data-refined]:not([data-page="profile"]):not(
+    [data-page="task-detail"]
+  )
+  main
+  > .bg-white {
+  border: 0;
+  border-radius: 0;
+  padding: 24px 0;
+  border-bottom: 1px solid #edf0ed;
+  box-shadow: none;
+}
+body.mobile-system[data-refined] :is(#taskList, #orderList) > .bg-white {
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 22px 0;
+  box-shadow: none;
+}
+body.mobile-system[data-refined] main :is(h2, h3) {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+body.mobile-system[data-refined] .text-sm {
+  font-size: 14px;
+  line-height: 1.75;
+}
+body[data-refined] .field-filter-panel {
+  border: 0;
+  border-radius: 14px;
+  background: #f6f8f5;
+  padding: 16px;
+  margin-top: 22px;
+  gap: 12px;
+}
+body[data-refined] .field-filter-panel label,
+body[data-refined] .field-stock-search {
+  font-size: 12px;
+  color: #68756b;
+}
+body[data-refined] .field-filter-panel :is(input, select),
+body[data-refined] .field-stock-search input {
+  height: 46px;
+  font-size: 14px;
+  border: 1px solid #e4e9e2;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+body[data-refined] .field-result-count {
+  font-size: 12px;
+  color: #68756b;
+  margin: 14px 0 20px;
+}
+body[data-refined] .category-tabs,
+body[data-refined] .wh-tabs {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  background: #f4f6f2;
+  border: 0;
+  padding: 5px;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+body[data-refined] .category-tabs button,
+body[data-refined] .wh-tabs button {
+  flex: 1;
+  min-height: 42px;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 9px;
+  font-size: 13px;
+  background: transparent;
+  color: #68756b;
+}
+body[data-refined] .category-tabs button[aria-pressed="true"],
+body[data-refined] .wh-tabs button.active {
+  color: #174d3d;
+  background: #fff;
+  box-shadow: 0 1px 4px #253e2510;
+  border: 0;
+}
+body[data-refined] .order-filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 10px;
+}
+body[data-refined] .order-filter-row :is(input, select) {
+  height: 46px;
+  min-width: 0;
+  width: 100%;
+  font-size: 13px;
+  border-radius: 10px;
+}
+body[data-screen="orders"] #unifiedOrderList > .market-order-card {
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 24px 0;
+  margin: 0;
+  box-shadow: none;
+}
+body[data-refined] .pool-summary {
+  background: #f5f8f3;
+  border: 0;
+  border-radius: 16px;
+  padding: 20px;
+  gap: 14px;
+}
+body[data-refined] .pool-summary strong {
+  font-size: 22px;
+  font-weight: 500;
+}
+body[data-refined] .pool-summary small {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #68756b;
+}
+body[data-refined] .pool-task {
+  border-radius: 0;
+  border-bottom: 1px solid #edf0ed;
+  padding: 24px 0;
+  margin: 0;
+}
+body[data-refined] .pool-task h2 {
+  font-size: 19px;
+}
+body[data-refined] .pool-task .task-footer {
+  padding-top: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+body[data-refined] .pool-task .task-footer > span {
+  font-size: 13px;
+}
+body[data-refined] .field-qualifications {
+  background: #f5f8f3;
+  padding: 20px;
+  border-radius: 16px;
+}
+body[data-refined] .course-card {
+  border-radius: 0;
+  border-bottom: 1px solid #edf0ed;
+  padding: 24px 0;
+  margin: 0;
+}
+body[data-refined] .course-card .course-cover {
+  height: 160px;
+  width: 100%;
+  margin: 0;
+  object-fit: cover;
+  border-radius: 14px;
+}
+body[data-refined] .course-card .course-demo-label {
+  font-size: 10px;
+  margin: 5px 0 18px;
+  color: #949b94;
+}
+body[data-refined] .course-card .market-card-head h2 {
+  font-size: 18px;
+  line-height: 1.6;
+}
+body[data-refined] .course-card summary {
+  font-size: 13px;
+  min-height: 40px;
+  line-height: 2.5;
+  cursor: pointer;
+}
+body[data-refined] #engineerForm {
+  padding-inline: 0;
+  gap: 22px;
+}
+body[data-refined] #engineerForm label {
+  font-size: 14px;
+  line-height: 1.7;
+}
+body[data-refined] #engineerForm :is(input, select, textarea) {
+  border-radius: 10px;
+  font-size: 15px;
+  min-height: 48px;
+}
+body[data-page="inventory"] .wh-hero {
+  background: #fff;
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 0 0 24px;
+  box-shadow: none;
+}
+body[data-page="inventory"] .wh-hero h2 {
+  font-size: 23px;
+  font-weight: 500;
+  margin: 8px 0 24px;
+}
+body[data-page="inventory"] .wh-stats strong {
+  font-size: 29px;
+  font-weight: 500;
+  color: #202c28;
+}
+body[data-page="inventory"] .wh-stats span {
+  font-size: 12px;
+  color: #68756b;
+}
+body[data-page="inventory"] .wh-actions {
+  margin: 24px 0;
+  gap: 12px;
+}
+body[data-page="inventory"] .wh-actions button {
+  background: #f3f6f0;
+  border: 0;
+  border-radius: 14px;
+  min-height: 84px;
+  font-size: 13px;
+  color: #365143;
+}
+body[data-page="inventory"] .wh-card {
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 22px 0;
+  margin: 0;
+}
+body[data-page="inventory"] .wh-card h3 {
+  font-size: 15px;
+}
+body[data-page="inventory"] .wh-qty {
+  font-size: 27px;
+  font-weight: 500;
+  color: #202c28;
+}
+body[data-page="inventory"] .wh-primary {
+  background: #174d3d;
+  border-radius: 12px;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+body[data-page="inventory"] .wh-detail {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #68756b;
+}
+body[data-page="inventory"] .part-thumb {
+  width: 68px;
+  height: 68px;
+  border-radius: 12px;
+}
+body[data-refined] :is(.wh-empty, .market-empty) {
+  background: #fafbf9;
+  border: 0;
+  border-radius: 16px;
+  font-size: 14px;
+  color: #68756b;
+  line-height: 1.8;
+}
+body[data-page="stats"] .grid > .bg-white {
+  border: 0;
+  border-radius: 0;
+  padding: 20px 0;
+  text-align: left;
+  background: #fff;
+}
+body[data-page="stats"]
+  :is(#monthlyRevenue, #monthlyOrders, #totalRevenue, #totalOrders) {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.6px;
+  color: #202c28 !important;
+}
+body[data-page="stats"] #commissionTier {
+  background: #eff3eb !important;
+  color: #174d3d !important;
+  border-radius: 8px;
+  padding: 5px 10px;
+}
+body[data-page="quote"] :is(input, textarea, select) {
+  font-size: 15px;
+  border-radius: 10px;
+  min-height: 48px;
+}
+body[data-page="quote"] #contractBenefit {
+  background: #f3f7ef !important;
+  color: #52634d !important;
+  border: 0;
+  border-radius: 14px;
+  font-size: 13px;
+}
+body[data-page="signature"] .signature-canvas-wrapper {
+  background: #fafbf9;
+  border: 1px solid #e2e7df;
+  border-radius: 14px;
+  overflow: hidden;
+}
+body[data-page="signature"] #signatureCanvas {
+  touch-action: none;
+}
+body[data-page="ai-assistant"] .chat-bubble {
+  box-shadow: none !important;
+  border: 0 !important;
+  font-size: 14px;
+  line-height: 1.8;
+  border-radius: 16px;
+}
+body[data-page="ai-assistant"] .chat-bubble.bg-white {
+  background: #f5f7f2 !important;
+}
+body[data-page="ai-assistant"] #messageInput {
+  font-size: 14px;
+  border-radius: 12px;
+  min-height: 48px;
+}
+body[data-page="repair-assist"] main > section {
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 24px 0;
+  box-shadow: none;
+}
+body[data-page="repair-assist"] :is(input, select, textarea, button) {
+  border-radius: 12px;
+  font-size: 14px;
+  min-height: 48px;
+}
+body.auth-reference[data-role="engineer"] {
+  --auth-ground: #fff;
+  --auth-accent: #174d3d;
+  --auth-border: #e4e9e2;
+  --auth-ink: #202c28;
+  background: #fff !important;
+}
+body.auth-reference[data-role="engineer"] main > .bg-white {
+  border: 0 !important;
+  box-shadow: none !important;
+  padding-inline: 0 !important;
+}
+body.auth-reference[data-role="engineer"] main h1 {
+  font-size: 27px;
+  letter-spacing: -0.5px;
+}
+@media (max-width: 360px) {
+  body.mobile-system[data-refined] > main {
+    padding-inline: 18px !important;
+  }
+  body[data-refined] .field-filter-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  body[data-refined] .course-card .course-cover {
+    height: 140px;
+  }
+  body[data-refined] .pool-task .task-footer .market-primary {
+    width: 100%;
+    margin: 0;
+  }
+  body[data-refined] .wh-tabs button {
+    padding-inline: 6px;
+    font-size: 12px;
+  }
+}
+
+body.mobile-system[data-refined] .engineer-workspace {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #edf0ed;
+  border-radius: 0;
+  padding: 16px 0 22px;
+  margin: 0 0 22px;
+}
+body.mobile-system[data-refined] .wh-hero {
+  border: 0 !important;
+  border-bottom: 1px solid #edf0ed !important;
+  border-radius: 0 !important;
+  padding: 0 0 24px !important;
+}
+body.auth-reference[data-refined] #loginBtn {
+  box-shadow: none !important;
+}
+
+/* Profile identity, availability and earnings form one compact account overview. */
+body[data-page="profile"] #engineerProfileHeader {
+  padding: 24px 0 20px !important;
+  border: 0 !important;
+  margin: 0 !important;
+  gap: 14px;
+}
+body[data-page="profile"] #engineerProfileHeader [data-ui-avatar] {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  border-radius: 50%;
+}
+body[data-page="profile"] #engineerProfileHeader #engineerName {
+  font-size: 23px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: -0.4px;
+}
+body[data-page="profile"] #engineerProfileHeader #engineerPhone {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #68756b;
+  margin-top: 3px;
+}
+body[data-page="profile"] #engineerProfileHeader .profile-maintenance-note {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #8a958c;
+  margin: 3px 0 0;
+}
+body[data-page="profile"] #engineerAvailability {
+  padding: 8px 0 22px;
+  margin: 0;
+  border: 0;
+}
+body[data-page="profile"] .availability-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+body[data-page="profile"] .availability-heading #availabilityTitle {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: #39493e;
+  margin: 0;
+}
+body[data-page="profile"] #availabilityCurrent {
+  font-size: 11px;
+  color: #68756b;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+body[data-page="profile"] #availabilityCurrent:before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  background: #9ba49c;
+  border-radius: 50%;
+}
+body[data-page="profile"]
+  #engineerAvailability[data-status="ONLINE"]
+  #availabilityCurrent:before {
+  background: #277650;
+}
+body[data-page="profile"]
+  #engineerAvailability[data-status="WORKING"]
+  #availabilityCurrent:before {
+  background: #b88536;
+}
+body[data-page="profile"] .availability-control {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 4px;
+  gap: 4px;
+  background: #f1f4ef;
+  border: 1px solid #edf0ea;
+  border-radius: 13px;
+}
+body[data-page="profile"] #engineerAvailability .status-btn {
+  min-height: 44px;
+  border: 0;
+  border-radius: 9px;
+  padding: 8px 6px;
+  background: transparent;
+  color: #778278;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: none;
+}
+body[data-page="profile"] #engineerAvailability .status-btn.active {
+  background: #fff;
+  color: #213c2d;
+  font-weight: 600;
+  box-shadow: 0 1px 5px #243c2210;
+}
+body[data-page="profile"] #engineerAvailability .status-btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+body[data-page="profile"] #statusFeedback {
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.7;
+  min-height: 0;
+}
+body[data-page="profile"] #statusFeedback:empty {
+  display: none;
+}
+body[data-page="profile"] .availability-retry {
+  min-height: 44px;
+  padding: 8px 0;
+  color: #174d3d;
+  background: none;
+  border: 0;
+  font-size: 12px;
+}
+body[data-page="profile"] #engineerIncome {
+  border: 1px solid #edf0e9;
+  border-radius: 16px;
+  padding: 20px;
+  background: #f8faf6;
+  cursor: pointer;
+  margin: 0 0 22px;
+}
+body[data-page="profile"] .income-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+body[data-page="profile"] .income-heading h2 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #39493e;
+  margin: 0;
+  line-height: 1.6;
+}
+body[data-page="profile"] .income-heading > span {
+  font-size: 11px;
+  color: #778278;
+  white-space: nowrap;
+}
+body[data-page="profile"] .income-values {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 18px;
+}
+body[data-page="profile"] .income-values > div + div {
+  border-left: 1px solid #e5eae1;
+  padding-left: 20px;
+}
+body[data-page="profile"] .income-label {
+  display: block;
+  font-size: 11px;
+  color: #778278;
+  margin-bottom: 8px;
+}
+body[data-page="profile"] .income-values strong {
+  display: block;
+  font-size: 29px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  color: #243c2d;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 360px) {
+  body[data-page="profile"] #engineerIncome {
+    padding: 18px 16px;
+  }
+  body[data-page="profile"] .income-values {
+    gap: 12px;
+  }
+  body[data-page="profile"] .income-values strong {
+    font-size: 25px;
+  }
+  body[data-page="profile"] .income-values > div + div {
+    padding-left: 14px;
+  }
+}
+
+body[data-page="profile"] .workspace-switch {
+  margin-left: auto;
+  align-self: center;
+  min-height: 40px;
+  border: 1px solid #e8ece6;
+  border-radius: 20px;
+  background: #fff;
+  padding: 8px 13px;
+  font-size: 12px;
+  color: #52634d;
+  white-space: nowrap;
+}
+body[data-page="profile"] .workspace-brand > div {
+  min-width: 0;
+  flex: 1;
+}
+body[data-page="profile"] .workspace-brand strong {
+  overflow-wrap: anywhere;
+}
+body[data-role="engineer"] .workspace-picker {
+  box-sizing: border-box;
+  width: calc(100% - 32px);
+  max-width: 420px;
+  max-height: 80dvh;
+  overflow: auto;
+  border: 0;
+  border-radius: 20px;
+  padding: 24px;
+  color: #202c28;
+  background: #fff;
+  margin: auto;
+  box-shadow: 0 24px 80px #152b2526;
+}
+body[data-role="engineer"] .workspace-picker::backdrop {
+  background: #132a2655;
+}
+body[data-role="engineer"] .workspace-picker-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+body[data-role="engineer"] .workspace-picker h2 {
+  font-size: 19px;
+  font-weight: 600;
+  margin: 0;
+}
+body[data-role="engineer"] .workspace-picker-top button {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 0;
+  background: #f3f6f0;
+  border-radius: 50%;
+  font-size: 24px;
+  color: #68756b;
+}
+body[data-role="engineer"] .workspace-picker > p {
+  font-size: 13px;
+  color: #68756b;
+  line-height: 1.8;
+  margin: 12px 0 20px;
+}
+body[data-role="engineer"] .workspace-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  min-height: 64px;
+  padding: 16px 0;
+  text-align: left;
+  background: #fff;
+  border: 0;
+  border-top: 1px solid #edf0ea;
+  font: inherit;
+  font-size: 14px;
+  color: #243c2d;
+  cursor: pointer;
+}
+body[data-role="engineer"] .workspace-choice span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+body[data-role="engineer"] .workspace-choice small {
+  font-size: 11px;
+  white-space: nowrap;
+  color: #68756b;
+}
+body[data-page="profile"] .field-logout {
+  border-top: 1px solid #edf0ed;
+  border-radius: 0;
+  margin-top: 28px;
+  padding: 20px 0;
+  min-height: 64px;
+}
+
+body[data-page="task-detail"] #actionButtons{display:block;border:0;padding:0;margin:16px 0}
+body[data-page="task-detail"] #actionButtons>button{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin:0!important;padding:12px 16px;border:1px solid #e6ebe5!important;border-radius:12px!important;background:#fff!important;color:#52634d!important;font-size:14px;font-weight:400;line-height:1.5}
+body[data-page="task-detail"] #workspace-next-action{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:12px 16px;font-size:14px;font-weight:500;line-height:1.5}
+
+.service-responsibility dl{display:grid;grid-template-columns:92px minmax(0,1fr);gap:12px;font-size:13px;line-height:1.7}.service-responsibility dt{color:#738078}.service-responsibility dd{margin:0;overflow-wrap:anywhere}.task-origin-note{font-size:12px;color:#6c7a70;margin:10px 0}.order-filter-row:has(#orderOrigin){grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.order-filter-row:has(#orderOrigin)>input{grid-column:1/-1}

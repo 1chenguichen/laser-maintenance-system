@@ -1,3 +1,4 @@
+import { tenantKey } from '../tenancy/context.js';
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Redis } from 'ioredis';
 
@@ -28,73 +29,73 @@ export class RedisService implements OnModuleDestroy {
 
   // 基础操作
   async get(key: string): Promise<string | null> {
-    return this.client.get(key);
+    return this.client.get(tenantKey(key));
   }
 
   async set(key: string, value: string, ttlSeconds?: number): Promise<void> {
     if (ttlSeconds) {
-      await this.client.set(key, value, 'EX', ttlSeconds);
+      await this.client.set(tenantKey(key), value, 'EX', ttlSeconds);
     } else {
-      await this.client.set(key, value);
+      await this.client.set(tenantKey(key), value);
     }
   }
 
   async del(key: string): Promise<void> {
-    await this.client.del(key);
+    await this.client.del(tenantKey(key));
   }
 
   async exists(key: string): Promise<boolean> {
-    return (await this.client.exists(key)) === 1;
+    return (await this.client.exists(tenantKey(key))) === 1;
   }
 
   // 验证码存储（5分钟过期）
   async setCode(phone: string, code: string): Promise<void> {
-    await this.client.set(`sms:code:${phone}`, code, 'EX', 300);
+    await this.client.set(tenantKey(`sms:code:${phone}`), code, 'EX', 300);
   }
 
   async getCode(phone: string): Promise<string | null> {
-    return this.client.get(`sms:code:${phone}`);
+    return this.client.get(tenantKey(`sms:code:${phone}`));
   }
 
   async delCode(phone: string): Promise<void> {
-    await this.client.del(`sms:code:${phone}`);
+    await this.client.del(tenantKey(`sms:code:${phone}`));
   }
 
   // Session 存储
   async setSession(sessionId: string, data: string, ttlSeconds = 86400): Promise<void> {
-    await this.client.set(`session:${sessionId}`, data, 'EX', ttlSeconds);
+    await this.client.set(tenantKey(`session:${sessionId}`), data, 'EX', ttlSeconds);
   }
 
   async getSession(sessionId: string): Promise<string | null> {
-    return this.client.get(`session:${sessionId}`);
+    return this.client.get(tenantKey(`session:${sessionId}`));
   }
 
   async delSession(sessionId: string): Promise<void> {
-    await this.client.del(`session:${sessionId}`);
+    await this.client.del(tenantKey(`session:${sessionId}`));
   }
 
   // 工程师在线状态（位置信息）
   async setEngineerLocation(engineerId: string, lat: number, lng: number, address?: string): Promise<void> {
     const data = JSON.stringify({ lat, lng, address, updatedAt: Date.now() });
-    await this.client.set(`engineer:location:${engineerId}`, data, 'EX', 300); // 5分钟过期
+    await this.client.set(tenantKey(`engineer:location:${engineerId}`), data, 'EX', 300); // 5分钟过期
   }
 
   async getEngineerLocation(engineerId: string): Promise<{ lat: number; lng: number; address?: string } | null> {
-    const data = await this.client.get(`engineer:location:${engineerId}`);
+    const data = await this.client.get(tenantKey(`engineer:location:${engineerId}`));
     return data ? JSON.parse(data) : null;
   }
 
   // 缓存工单池（减少数据库查询）
   async cacheOrderPool(key: string, data: string, ttlSeconds = 30): Promise<void> {
-    await this.client.set(`orderpool:${key}`, data, 'EX', ttlSeconds);
+    await this.client.set(tenantKey(`orderpool:${key}`), data, 'EX', ttlSeconds);
   }
 
   async getCachedOrderPool(key: string): Promise<string | null> {
-    return this.client.get(`orderpool:${key}`);
+    return this.client.get(tenantKey(`orderpool:${key}`));
   }
 
   async invalidateOrderPool(): Promise<void> {
-    const keys = await this.client.keys('orderpool:*');
+    const keys = await this.client.keys(tenantKey('orderpool:*'));
     if (keys.length > 0) {
       await this.client.del(...keys);
     }

@@ -1,12 +1,14 @@
+import { indexPerson } from '../identity/store.js';
 import { Injectable, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Customer } from '../database/entities/customer.entity.js';
 import { Engineer } from '../database/entities/engineer.entity.js';
-import { EngineerStatus } from '../database/entities/enums.js';
 import { RedisService } from '../redis/redis.service.js';
 import { LoginDto, RegisterDto, AuthRole } from './auth.dto.js';
+import { currentTenant, tenantContext } from '../tenancy/context.js';
+import { membership, registry } from '../tenancy/registry.js';
 
 @Injectable()
 export class AuthService {
@@ -16,144 +18,51 @@ export class AuthService {
     private jwtService: JwtService,
     private redisService: RedisService,
   ) {}
-
-  // 发送验证码
-  async sendCode(phone: string): Promise<{ message: string }> {
-    // 生成6位随机验证码
+  async sendCode(phone: string) {
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    // 存入 Redis，5分钟过期
     await this.redisService.setCode(phone, code);
-
-    // TODO: 实际调用短信服务发送验证码
-    console.log(`[Mock SMS] Phone: ${phone}, Code: ${code}`);
-
-    return { message: '验证码已发送' };
+    if (currentTenant().demo_auth) console.log(`[Mock SMS] Tenant: ${currentTenant().code}, Phone: ${phone}, Code: ${code}`);
+    return { message: currentTenant().demo_auth ? '演示验证码已生成' : '当前企业尚未配置短信服务，请联系管理员' };
   }
-
-  // 手机号登录
-  async login(dto: LoginDto): Promise<{ accessToken: string; user: any }> {
+  private async verifyCode(phone: string, code: string) {
+    if (!currentTenant().demo_auth) throw new UnauthorizedException('当前企业尚未配置短信认证服务');
+    if (code === '000000') return;
+    const stored = await this.redisService.getCode(phone);
+    if (!stored || stored !== code) throw new BadRequestException('验证码已过期或无效');
+    await this.redisService.delCode(phone);
+  }
+  async login(dto: LoginDto) {
+    if(!tenantContext.getStore()?.loginVerified) await this.verifyCode(dto.phone,dto.code);
     let user: any;
-
-    // 测试模式：验证码 000000 可以直接登录（跳过验证码验证）
-    const isTestMode = dto.code === '000000';
-
-    if (!isTestMode) {
-      // 验证验证码
-      const stored = await this.redisService.getCode(dto.phone);
-      if (!stored || stored !== dto.code) {
-        throw new BadRequestException('验证码已过期或无效');
-      }
-      await this.redisService.delCode(dto.phone);
-    }
-
+    const tenant = currentTenant();
     if (dto.role === AuthRole.CUSTOMER) {
-      user = await this.customerRepo.findOne({ where: { phone: dto.phone } });
-      if (!user) {
-        // 新用户自动注册
-        user = this.customerRepo.create({ phone: dto.phone, name: '新客户' });
-        user = await this.customerRepo.save(user);
-      }
+      user = await this.customerRepo.findOne({where:{phone:dto.phone}});
+      if (!user) user = await this.customerRepo.save(this.customerRepo.create({phone:dto.phone,name:'新客户'}));
     } else if (dto.role === AuthRole.ENGINEER) {
-      user = await this.engineerRepo.findOne({ where: { phone: dto.phone } });
-      if (!user) {
-        throw new UnauthorizedException('该工程师不存在，请联系客服开通账号');
-      }
+      user = await this.engineerRepo.findOne({where:{phone:dto.phone}});
+      if (!user) throw new UnauthorizedException('该企业未开通此工程师账号');
     } else if (dto.role === AuthRole.CS_OPERATOR) {
-      // 客服账号测试模式：使用固定ID
-      user = {
-        id: 'cs-admin-001',
-        name: '客服管理员',
-        phone: dto.phone,
-        role: AuthRole.CS_OPERATOR,
-      };
-    } else {
-      throw new UnauthorizedException('不支持的角色类型');
-    }
-
-    const payload = { sub: user.id, role: dto.role, phone: user.phone };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      user: {
-        id: user.id,
-        name: user.name,
-        phone: user.phone,
-        role: dto.role,
-        avatarUrl: user.avatarUrl,
-      },
-    };
+      const { rows } = await registry.query('SELECT subject_id AS id,name,phone FROM platform.memberships WHERE tenant_id=$1 AND phone=$2 AND role=$3 AND enabled=true',[tenant.id,dto.phone,dto.role]);
+      user = rows[0];
+      if (!user) throw new UnauthorizedException('该企业未开通此管理员账号');
+    } else throw new UnauthorizedException('不支持的角色');
+    const member = await membership(tenant,dto.role,user);
+    if(dto.role==='customer'||dto.role==='engineer')await indexPerson(tenant.id,dto.role,user.id,user.phone,user.name);
+    const accessToken = this.jwtService.sign({sub:user.id,role:dto.role,phone:user.phone,purpose:'access',tenantId:tenant.id,membershipId:member.id,version:member.version});
+    return {accessToken,user:{id:user.id,name:user.name,phone:user.phone,role:dto.role,avatarUrl:user.avatarUrl,tenantId:tenant.id,tenantCode:tenant.code,tenantName:tenant.name,features:tenant.features,expiresAt:tenant.expires_at}};
   }
-
-  // 注册
-  async register(dto: RegisterDto): Promise<{ accessToken: string; user: any }> {
-    const isTestMode = dto.code === '000000';
-
-    if (!isTestMode) {
-      const stored = await this.redisService.getCode(dto.phone);
-      if (!stored || stored !== dto.code) {
-        throw new BadRequestException('验证码已过期或无效');
-      }
-      await this.redisService.delCode(dto.phone);
-    }
-
-    // 检查手机号是否已注册
-    if (dto.role === AuthRole.CUSTOMER) {
-      const existing = await this.customerRepo.findOne({ where: { phone: dto.phone } });
-      if (existing) {
-        throw new ConflictException('该手机号已注册，请直接登录');
-      }
-      const user = this.customerRepo.create({
-        phone: dto.phone,
-        name: dto.name || '新客户',
-      });
-      await this.customerRepo.save(user);
-    } else if (dto.role === AuthRole.ENGINEER) {
-      const existing = await this.engineerRepo.findOne({ where: { phone: dto.phone } });
-      if (existing) {
-        throw new ConflictException('该手机号已注册，请直接登录');
-      }
-      const user = this.engineerRepo.create({
-        phone: dto.phone,
-        name: dto.name || '新工程师',
-        status: EngineerStatus.OFFLINE,
-        joinedAt: new Date(),
-      });
-      await this.engineerRepo.save(user);
-    } else {
-      throw new UnauthorizedException('不支持的角色类型');
-    }
-
-    // 获取注册后的用户信息
-    let newUser: any;
-    if (dto.role === AuthRole.CUSTOMER) {
-      newUser = await this.customerRepo.findOne({ where: { phone: dto.phone } });
-    } else {
-      newUser = await this.engineerRepo.findOne({ where: { phone: dto.phone } });
-    }
-
-    const payload = { sub: newUser.id, role: dto.role, phone: newUser.phone };
-    const accessToken = this.jwtService.sign(payload);
-
-    return {
-      accessToken,
-      user: {
-        id: newUser.id,
-        name: newUser.name,
-        phone: newUser.phone,
-        role: dto.role,
-        avatarUrl: newUser.avatarUrl,
-      },
-    };
+  async register(dto: RegisterDto) {
+    if (dto.role !== AuthRole.CUSTOMER) throw new UnauthorizedException('员工账号须由本企业管理员开通');
+    await this.verifyCode(dto.phone,dto.code);
+    if (await this.customerRepo.findOne({where:{phone:dto.phone}})) throw new ConflictException('该手机号已注册，请直接登录');
+    await this.customerRepo.save(this.customerRepo.create({phone:dto.phone,name:dto.name || '新客户'}));
+    return this.login({...dto,code:'000000'});
   }
-
-  // 获取用户信息
   async getProfile(userId: string, role: AuthRole) {
-    if (role === AuthRole.CUSTOMER) {
-      return this.customerRepo.findOne({ where: { id: userId } });
-    } else if (role === AuthRole.ENGINEER) {
-      return this.engineerRepo.findOne({ where: { id: userId } });
-    }
-    return null;
+    let user: any;
+    if (role === AuthRole.CUSTOMER) user = await this.customerRepo.findOne({where:{id:userId}});
+    else if (role === AuthRole.ENGINEER) user = await this.engineerRepo.findOne({where:{id:userId}});
+    else user = (await registry.query('SELECT subject_id AS id,name,phone FROM platform.memberships WHERE tenant_id=$1 AND subject_id=$2 AND role=$3',[currentTenant().id,userId,role])).rows[0];
+    return {...user,tenantId:currentTenant().id,tenantCode:currentTenant().code,tenantName:currentTenant().name,features:currentTenant().features,expiresAt:currentTenant().expires_at};
   }
 }

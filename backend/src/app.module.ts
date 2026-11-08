@@ -1,3 +1,9 @@
+import {IoTModule} from './iot/iot.module.js';
+import {MarketModule} from './market/market.module.js';
+import {VisualModule} from './market/visual.module.js';
+import { IdentityModule } from './identity/identity.module.js';
+import { PlatformModule } from './platform/platform.module.js';
+import { OperationsModule } from './operations/operations.module.js';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -20,6 +26,8 @@ import { RedisModule } from './redis/redis.module.js';
 
 @Module({
   imports: [
+    IoTModule,
+    VisualModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
@@ -33,6 +41,10 @@ import { RedisModule } from './redis/redis.module.js';
     DispatchModule,
     CommissionModule,
     PartsModule,
+    OperationsModule,
+    PlatformModule,
+    IdentityModule,
+    MarketModule,
     WebsocketModule,
     AdminModule,
     AmapModule,

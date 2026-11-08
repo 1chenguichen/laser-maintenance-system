@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>工单进度与评价</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -60,34 +61,34 @@
       display: none;
     }
   </style>
-</head>
-<body class="bg-surface">
+<link rel="stylesheet" href="/flow-design.css"><link rel="stylesheet" href="/product-design.css?v=2"><script src="/service-experience.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen flow-screen bg-surface mobile-system" data-role="customer" data-page="order-progress">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" onclick="window.history.back()">
+    <button class="text-primary" aria-label="返回上一页" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
     <h1 class="font-semibold text-base" style="color: #111827;">工单进度</h1>
-    <button class="text-primary">
-      <span class="material-symbols-outlined">more_vert</span>
-    </button>
+    <span class="w-10" aria-hidden="true"></span>
   </header>
 
   <main class="pt-14 px-4 pb-6">
+    <aside class="flow-summary"><small>本次服务 · 当前进度</small><p id="flowNext">正在核实维修进度…</p><div id="flowCompany" class="flow-company"></div></aside>
+<div id="flowFeedback" class="flow-feedback" role="alert" hidden><p id="flowError"></p><button id="flowRetry" type="button" onclick="loadOrderDetail(orderId)">重新加载</button><a href="orders.html">返回工单列表</a></div>
     <!-- Order Info Card -->
     <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="font-semibold" style="color: #111827;" id="orderTitle">3000W 激光切割机维修</h2>
-        <span id="orderStatus" class="px-2 py-1 rounded-lg text-xs font-medium" style="background-color: #e6f7ff; color: #1890ff;">维修中</span>
+        <h2 class="font-semibold" style="color: #111827;" id="orderTitle">正在读取工单</h2>
+        <span id="orderStatus" class="px-2 py-1 rounded-lg text-xs font-medium" style="background-color: #e6f7ff; color: #1890ff;">加载中</span>
       </div>
-      <p class="text-sm text-on-surface-variant" id="orderNo">工单号：WX20260915001</p>
-      <p class="text-sm text-on-surface-variant mt-1" id="orderTime">创建时间：2026-09-15 14:30</p>
+      <p class="text-sm text-on-surface-variant" id="orderNo">工单号：—</p>
+      <p class="text-sm text-on-surface-variant mt-1" id="orderTime">创建时间：—</p>
     </section>
 
     <!-- Engineer Info -->
     <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4 shadow-sm flex items-center space-x-4">
       <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-        <span class="text-xl">👨‍🔧</span>
+        <span class="text-xl"><span class="material-symbols-outlined">engineering</span></span>
       </div>
       <div class="flex-1">
         <p class="font-semibold" style="color: #111827;" id="engineerName">暂无工程师</p>
@@ -145,7 +146,7 @@
         支付定金 <span id="prepaymentAmount"></span>
       </button>
       <button id="payFinalBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payFinal()">
-        支付尾款 <span id="finalPaymentAmount"></span>
+        <span id="finalPayLabel">支付尾款</span> <span id="finalPaymentAmount"></span>
       </button>
       <button id="reviewBtn" class="w-full py-3 border font-medium rounded-lg hidden" style="border-color: #1890ff; color: #1890ff;" onclick="showReview()">
         立即评价
@@ -173,9 +174,9 @@
   </main>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
-    var orderId = window.location.hash.slice(1);
+    var orderId = window.location.hash.slice(1)||new URLSearchParams(location.search).get('id');
     var orderData = null;
     var currentRating = 5;
 
@@ -186,30 +187,40 @@
     // 脚本在 body 底部，DOM 已加载完成，直接调用
     if (orderId) {
       loadOrderDetail(orderId);
+      setInterval(function () { if (!document.hidden) loadOrderDetail(orderId); }, 5000);
     } else {
-      // Demo mode with mock data
-      renderMockData();
+      document.getElementById('flowFeedback').hidden = false;
+      document.getElementById('flowError').textContent = '缺少工单编号，请从工单列表重新进入。';
+      document.getElementById('flowRetry').hidden = true;
+      document.getElementById('flowNext').textContent = '请选择需要查看的工单';
+      document.getElementById('orderStatus').textContent = '未选择工单';
+      document.getElementById('actionSection').hidden = true;
     }
 
     function loadOrderDetail(id) {
       fetch(API_BASE + '/customer/work-orders/' + id, {
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
+          document.getElementById('flowFeedback').hidden = true;
+          document.getElementById('actionSection').hidden = false;
           orderData = data;
           renderOrderData(data);
         }).catch(function(e) {
           console.error('Load error:', e);
-          renderMockData();
+          document.getElementById('orderStatus').textContent = '加载失败';
+          document.getElementById('flowFeedback').hidden = false;
+          document.getElementById('flowError').textContent = '进度暂时无法更新：' + e.message + '。请重新加载后再操作。';
+          document.getElementById('flowNext').textContent = '当前进度未确认';
+          document.getElementById('actionSection').hidden = true;
         });
     }
 
-    function renderMockData() {
-      // 使用与 renderTimeline 一致的步骤
-      renderTimeline('PENDING');
-    }
 
     function renderOrderData(data) {
+      document.getElementById('flowCompany').textContent = '服务企业：' + (data.serviceName || '当前设备服务企业');
+      document.getElementById('flowNext').textContent = ({PENDING:'报修已收到，等待服务企业安排',DISPATCHED:'已安排工程师，等待接单上门',ACCEPTED:'工程师正在处理，请等待检测与报价',PENDING_PAYMENT:data.customerConfirm?'报价已确认，请完成定金支付':'请核对维修报价并确认',REPAIRING:'维修正在进行，请关注处理进度',PENDING_FINAL_PAYMENT:'维修已完成，请核对费用并结算',COMPLETED:'服务已完成，可查看记录及评价',CANCELLED:'本次报修已取消',REFUSED:'本次服务未受理，请联系服务企业'})[data.status] || '请核对当前工单状态';
+      document.getElementById('orderTime').textContent = '创建时间：' + (data.createdAt ? new Date(data.createdAt).toLocaleString('zh-CN') : '—');
       document.getElementById('orderTitle').textContent = data.faultType || '设备维修';
       document.getElementById('orderNo').textContent = '工单号：' + (data.orderNo || data.id);
       document.getElementById('orderStatus').textContent = getStatusText(data.status);
@@ -219,13 +230,15 @@
         document.getElementById('engineerName').textContent = data.engineer.name || '未知工程师';
       }
 
-      if (data.partsFee) document.getElementById('partsFee').textContent = '¥' + Number(data.partsFee).toFixed(2);
-      if (data.laborFee) document.getElementById('laborFee').textContent = '¥' + Number(data.laborFee).toFixed(2);
-      if (data.finalAmount) {
-        document.getElementById('totalFee').textContent = '¥' + Number(data.finalAmount).toFixed(2);
-        document.getElementById('prepaymentAmount').textContent = '¥' + (Number(data.finalAmount) * 0.3).toFixed(2);
-        document.getElementById('finalPaymentAmount').textContent = '¥' + (Number(data.finalAmount) * 0.7).toFixed(2);
-      }
+      function money(value){return value!==null&&value!==undefined&&value!==''&&Number.isFinite(Number(value))?'¥'+Number(value).toFixed(2):'待核实';}
+      document.getElementById('partsFee').textContent=money(data.partsFee);
+      document.getElementById('laborFee').textContent=money(data.laborFee);
+      // Pending settlement follows backend payFinalPayment: final quote or parts + labor, minus deposit.
+      var hasTotal=data.finalAmount!=null || (data.partsFee!=null && data.laborFee!=null);
+      var total=hasTotal?(Number(data.finalAmount)||Number(data.partsFee||0)+Number(data.laborFee||0)):null;
+      document.getElementById('totalFee').textContent=money(total);
+      document.getElementById('prepaymentAmount').textContent=money(data.prepayAmount);
+      document.getElementById('finalPaymentAmount').textContent='待核实';
 
       // 渲染时间线
       renderTimeline(data.status);
@@ -252,7 +265,8 @@
         if (data.customerConfirm) {
           // 已确认报价，待支付定金，显示"支付定金"按钮
           payPrepaymentBtn.classList.remove('hidden');
-          document.getElementById('prepaymentAmount').textContent = '¥' + (Number(data.prepayAmount) || 0).toFixed(2);
+          payPrepaymentBtn.disabled=data.prepayAmount==null||!Number.isFinite(Number(data.prepayAmount));
+          document.getElementById('prepaymentAmount').textContent=money(data.prepayAmount);
         } else {
           // 待确认报价，显示"确认报价"按钮
           confirmQuoteBtn.classList.remove('hidden');
@@ -260,10 +274,10 @@
       } else if (data.status === 'PENDING_FINAL_PAYMENT') {
         // 维修完成，待支付尾款，显示"支付尾款"按钮
         payFinalBtn.classList.remove('hidden');
-        // 计算尾款：如果finalPaymentAmount未设置，则从总价计算
-        var totalAmount = Number(data.finalAmount) || (Number(data.partsFee || 0) + Number(data.laborFee || 0));
-        var finalPay = Number(data.finalPaymentAmount) || (totalAmount * 0.7);
-        document.getElementById('finalPaymentAmount').textContent = '¥' + finalPay.toFixed(2);
+        var finalPay=total!==null&&data.prepayAmount!=null?Math.round((total-Number(data.prepayAmount))*100)/100:null;
+        payFinalBtn.disabled=finalPay===null||!Number.isFinite(finalPay)||finalPay<0;
+        document.getElementById('finalPayLabel').textContent=finalPay===0?'确认完工':finalPay<0?'结算金额需客服核对':'支付尾款';
+        document.getElementById('finalPaymentAmount').textContent=finalPay===0?'':money(finalPay);
       } else if (data.status === 'COMPLETED') {
         // 只有未评价时才显示评价按钮
         if (!data.reviewed) {
@@ -276,8 +290,8 @@
       // 根据状态确定时间线步骤
       var steps = [
         { icon: 'check_circle', text: '已提交报修', done: true, current: false },
-        { icon: 'engineering', text: '工程师已接单', done: false, current: false },
-        { icon: 'location_on', text: '工程师已到达', done: false, current: false },
+        { icon: 'engineering', text: '已派单，等待上门', done: false, current: false },
+        { icon: 'location_on', text: '工程师已确认上门', done: false, current: false },
         { icon: 'request_quote', text: '等待报价确认', done: false, current: false },
         { icon: 'build', text: '维修中', done: false, current: false },
         { icon: 'payment', text: '待付尾款', done: false, current: false },
@@ -328,7 +342,7 @@
         }
         var textClass = step.current ? 'font-bold' : (step.done ? '' : 'text-on-surface-variant');
         timelineHTML += '<div class="timeline-item relative pl-10 pb-6">' +
-          '<span class="material-symbols-outlined fill absolute left-0 w-8 h-8 flex items-center justify-center" style="' + iconColor + '">' + step.icon + '</span>' +
+          '<span class="material-symbols-outlined fill absolute left-0 w-8 h-8 flex items-center justify-center" style="' + iconColor + '">' + (step.icon === 'payment' ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18M7 15h4"></path></svg>' : step.icon) + '</span>' +
           '<p class="text-sm font-medium ' + textClass + '" style="color: #191c1e;">' + step.text + '</p></div>';
       });
       document.getElementById('timeline').innerHTML = timelineHTML;
@@ -338,7 +352,7 @@
       var map = {
         'PENDING': '待派单',
         'DISPATCHED': '已派单',
-        'ACCEPTED': '已接单',
+        'ACCEPTED': '已上门',
         'PENDING_PAYMENT': '待支付定金',
         'REPAIRING': '维修中',
         'PENDING_FINAL_PAYMENT': '待付尾款',
@@ -365,7 +379,7 @@
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
         body: JSON.stringify({ confirm: true })
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
           alert('报价已确认！');
           loadOrderDetail(orderId);
@@ -382,7 +396,7 @@
       fetch(API_BASE + '/customer/work-orders/' + orderId + '/pay-prepayment', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
           alert('定金支付成功！');
           loadOrderDetail(orderId);
@@ -393,13 +407,13 @@
 
     function payFinal() {
       if (!orderId) {
-        alert('演示模式：支付尾款功能');
+        alert('缺少工单编号，请从工单列表进入');
         return;
       }
       fetch(API_BASE + '/customer/work-orders/' + orderId + '/pay-final', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
           alert('尾款支付成功！');
           // 刷新页面状态
@@ -417,7 +431,7 @@
 
     function submitReview() {
       if (!orderId) {
-        alert('演示模式：评价提交成功！');
+        alert('缺少工单编号，请从工单列表进入');
         return;
       }
       fetch(API_BASE + '/customer/reviews', {
@@ -428,7 +442,7 @@
           rating: currentRating,
           content: document.getElementById('reviewContent').value || '服务很好！'
         })
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
           alert('评价成功，感谢您的反馈！');
           document.getElementById('reviewSection').classList.add('hidden');

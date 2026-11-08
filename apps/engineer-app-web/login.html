@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>工程师登录 - 激光设备维保</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -47,73 +48,36 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="flex flex-col justify-center px-6">
-  <main class="flex-1 flex flex-col justify-center">
-    <!-- Logo Section -->
-    <div class="text-center mb-8">
-      <div class="w-20 h-20 mx-auto rounded-2xl bg-white flex items-center justify-center shadow-lg mb-4 overflow-hidden">
-        <img src="logo.png" alt="logo" class="w-full h-full object-contain">
-      </div>
-      <h1 class="text-2xl font-bold text-white">激光设备维保</h1>
-      <p class="text-sm text-white/80 mt-2">工程师端</p>
-    </div>
-
-    <!-- Login Form -->
-    <div class="bg-white rounded-2xl p-6 shadow-xl">
-      <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="space-y-4">
-          <!-- Phone Input -->
-          <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">手机号</label>
-            <input type="tel" id="phone" placeholder="请输入手机号"
-              class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-              value="13900000002">
-          </div>
-
-          <!-- SMS Code Input -->
-          <div>
-            <label class="block text-sm font-medium mb-1.5" style="color: #43474f;">验证码</label>
-            <div class="flex gap-2">
-              <input type="text" id="code" placeholder="请输入验证码" maxlength="6"
-                class="flex-1 px-4 py-3 border border-outline-variant rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-                value="000000">
-              <button type="button" id="sendCodeBtn" class="px-4 py-3 border border-outline-variant rounded-lg text-sm" style="color: #006d33;" onclick="sendCode()">
-                获取验证码
-              </button>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <button type="submit" id="loginBtn"
-            class="w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
-            style="background-color: #006d33; box-shadow: 0 4px 12px rgba(0,109,51,0.35);">
-            登录
-          </button>
-        </div>
-      </form>
-
-      <!-- Demo Hint -->
-      <div class="mt-4 p-3 rounded-lg" style="background-color: #f7f9fb;">
-        <p class="text-xs text-center" style="color: #43474f;">
-          测试模式：验证码 <span class="font-mono font-bold">000000</span> 可直接登录
-        </p>
-      </div>
-
-      <!-- Register Link -->
-      <div class="mt-4 text-center">
-        <p class="text-sm" style="color: #737780;">
-          还没有账号？<span onclick="alert('请联系管理员注册账号')" class="font-medium" style="color: #006d33; cursor: pointer;">立即注册</span>
-        </p>
-      </div>
-    </div>
+<link rel="stylesheet" href="/auth-reference.css"><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/login-screen.css"></head>
+<body class="flex flex-col justify-center px-6 auth-reference login-screen" data-role="engineer" data-refined="true">
+  <main class="login-main">
+    <header class="login-brand"><img src="/brand/laser-service-mark.svg" width="40" height="40" alt="激光设备服务"><div><strong>激光设备服务</strong><span>工程师工作台</span></div></header>
+    <section class="login-intro"><p class="login-eyebrow">现场服务 · 专业履约</p><h1>欢迎回来，<br>开始今天的服务</h1><p class="login-description">使用工作手机号，登录你的服务工作台。</p></section>
+    <form id="loginForm" class="login-form" onsubmit="handleLogin(event)">
+      <div id="organizationContext"></div>
+      <label class="login-field" for="phone"><span>手机号</span><input type="tel" inputmode="tel" autocomplete="tel" id="phone" placeholder="请输入手机号" maxlength="11" value="13900000002"></label>
+      <label class="login-field" for="code"><span>验证码</span><div class="login-code-row"><input type="text" inputmode="numeric" autocomplete="one-time-code" id="code" placeholder="请输入验证码" maxlength="6" value="000000"><button type="button" id="sendCodeBtn" onclick="sendCode()">获取验证码</button></div></label>
+      <button type="submit" id="loginBtn">登录</button>
+      <p class="login-demo">演示体验 · 已预填账号，验证码 000000</p>
+    </form>
+    <p class="login-bottom">首次使用？<button type="button" onclick="alert('请联系企业管理员开通工程师账号')">联系企业管理员开通</button></p>
+    <p class="login-legal">工作身份与服务权限由所属企业及平台管理。</p>
   </main>
 
+  <script src="/organization-login.js"></script>
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
+    var organizationLogin = window.createOrganizationLogin('engineer');
 
-    function sendCode() {
+    async function sendCode() {
       var btn = document.getElementById('sendCodeBtn');
+      if (btn.disabled) return;
+      var phone = document.getElementById('phone').value;
+      if (!/^1[3-9]\d{9}$/.test(phone)) { alert('请输入正确的手机号'); return; }
+      btn.disabled = true;
+      try {
+        await organizationLogin.sendCode(phone);
+      } catch (err) { btn.disabled = false; alert(err.message); return; }
       btn.textContent = '60s';
       btn.disabled = true;
       var countdown = 60;
@@ -127,37 +91,9 @@
       }, 1000);
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
-      var phone = document.getElementById('phone').value;
-      var code = document.getElementById('code').value;
-      var btn = document.getElementById('loginBtn');
-
-      btn.textContent = '登录中...';
-      btn.disabled = true;
-
-      fetch(API_BASE + '/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phone, code: code, role: 'engineer' })
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if (data.accessToken) {
-          localStorage.setItem('engineer_token', data.accessToken);
-          localStorage.setItem('engineer_user', JSON.stringify(data.user));
-          window.location.href = 'grab.html';
-        } else {
-          alert(data.message || data.error || '登录失败');
-          btn.textContent = '登录';
-          btn.disabled = false;
-        }
-      })
-      .catch(function(err) {
-        alert('登录失败: ' + err.message);
-        btn.textContent = '登录';
-        btn.disabled = false;
-      });
+      await organizationLogin.login(document.getElementById('phone').value,document.getElementById('code').value);
     }
   </script>
 </body>

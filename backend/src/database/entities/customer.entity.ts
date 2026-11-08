@@ -27,6 +27,9 @@ export class Customer {
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
 
+  @Column({ type: 'jsonb', default: () => "'{}'::jsonb" })
+  profile: Record<string, any>;
+
   // Relations as strings
   @OneToMany('Address', 'customer')
   addresses: any[];

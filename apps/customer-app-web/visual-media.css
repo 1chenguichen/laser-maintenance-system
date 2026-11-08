@@ -1,0 +1,208 @@
+.home-intro.home-visual {
+  isolation: isolate;
+  background: #14283e;
+  min-height: 300px;
+  padding: 28px 24px;
+  border: 0;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.home-visual > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 65% center;
+  z-index: -2;
+}
+.home-visual:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, #102035dd, #10203550),
+    linear-gradient(0deg, #102035c9, transparent 80%);
+  z-index: -1;
+}
+.home-intro.home-visual > div:first-of-type {
+  position: relative;
+  z-index: 1;
+  max-width: 280px;
+}
+.home-intro.home-visual h2 {
+  color: white;
+  font-size: 27px;
+  margin: 9px 0 10px;
+  letter-spacing: -0.6px;
+  text-wrap: balance;
+}
+.home-intro.home-visual p {
+  color: #e3ebf5;
+  max-width: 260px;
+  font-size: 12px;
+  margin-bottom: 19px;
+}
+.home-intro.home-visual .eyebrow {
+  color: #d9e6f8;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+.home-intro.home-visual .market-primary {
+  background: white;
+  color: #1a416e;
+  border-color: white;
+  box-shadow: 0 3px 12px #0000000f;
+}
+.hero-image-label {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  border: 1px solid #ffffff38;
+  background: #12243765;
+  color: #edf4fc;
+  font-size: 9px;
+  line-height: 1.5;
+  border-radius: 6px;
+  padding: 3px 6px;
+  z-index: 2;
+}
+.visual-media {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: #e9edf2;
+  border-radius: 14px;
+  isolation: isolate;
+}
+.visual-media > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+.visual-media figcaption {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  border-radius: 5px;
+  padding: 3px 6px;
+  background: #ffffffde;
+  color: #4b5e73;
+  font-size: 9px;
+  line-height: 1.4;
+  z-index: 1;
+  pointer-events: none;
+}
+.visual-fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: -1;
+  color: #64758a;
+  font-size: 12px;
+  background: #e9edf2;
+}
+.visual-media.media-unavailable .visual-fallback {
+  display: flex;
+  z-index: 0;
+}
+.device-cover {
+  aspect-ratio: 16/9;
+  margin-bottom: 18px;
+  border: 1px solid #e7ecf2;
+}
+.device-cover > img {
+  object-fit: cover;
+  object-position: center 54%;
+}
+.device-thumbnail {
+  width: 88px;
+  height: 76px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  border: 1px solid #e5ebf2;
+}
+.device-thumbnail figcaption {
+  right: 3px;
+  bottom: 3px;
+  font-size: 8px;
+  padding: 1px 4px;
+}
+.device-row:has(.device-thumbnail) {
+  align-items: center;
+  gap: 12px;
+}
+.service-offer:has(.service-cover) {
+  overflow: hidden;
+}
+.service-cover {
+  aspect-ratio: 16/8.4;
+  margin: -22px -22px 20px;
+  width: calc(100% + 44px);
+  border-radius: 20px 20px 0 0;
+}
+.service-cover > img {
+  object-position: center 45%;
+}
+.service-offer:has(.service-cover) .service-offer-top {
+  gap: 11px;
+}
+.service-offer:has(.service-cover) .service-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+}
+.service-offer:has(.service-cover) .service-icon .material-symbols-outlined {
+  font-size: 20px;
+}
+.service-offer:has(.service-cover) h2 {
+  font-size: 16px;
+}
+.visual-source-note {
+  font-size: 10px !important;
+  color: #718095 !important;
+  line-height: 1.7 !important;
+  margin: -5px 0 17px !important;
+  letter-spacing: 0;
+}
+.mobile-system .device-cover {
+  margin: -20px -20px 18px;
+  width: calc(100% + 40px);
+  border-radius: 20px 20px 0 0;
+  border: 0;
+}
+.mobile-system .visual-source-note {
+  margin: 0 0 18px !important;
+}
+@media (max-width: 360px) {
+  .home-intro.home-visual {
+    min-height: 290px;
+    padding: 24px 20px;
+  }
+  .home-intro.home-visual h2 {
+    font-size: 25px;
+  }
+  .service-cover {
+    margin: -16px -16px 18px;
+    width: calc(100% + 32px);
+  }
+  .device-thumbnail {
+    width: 72px;
+    height: 68px;
+  }
+  .device-row:has(.device-thumbnail) {
+    gap: 9px;
+  }
+  .device-thumbnail figcaption {
+    font-size: 7px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visual-media > img {
+    transition: none;
+  }
+}

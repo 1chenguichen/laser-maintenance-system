@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>注册 - 工程师端</title>
   <script src="/tailwind.js"></script>
-  <link href="https://fonts.googleapis.cn/css2?family=Material-Symbols-Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+  <link href="/fonts/material-symbols.css" rel="stylesheet">
   <link href="/fonts/main.css" rel="stylesheet">
   <link rel="stylesheet" href="styles/shared.css">
   <script>
@@ -35,8 +36,8 @@
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
   </style>
-</head>
-<body class="flex flex-col min-h-screen">
+<link rel="stylesheet" href="/auth-reference.css"><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="flex flex-col min-h-screen auth-reference" data-role="engineer" data-refined="true">
   <!-- Top Bar -->
   <header class="flex items-center px-4 h-14">
     <button onclick="window.history.back()" class="text-white">
@@ -123,7 +124,7 @@
   </main>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var countdown = 0;
 
     function sendCode() {
@@ -138,7 +139,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: phone })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('验证码已发送');
         startCountdown();
@@ -199,7 +200,7 @@
           role: 'engineer'
         })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         if (data.accessToken) {
           localStorage.setItem('engineer_token', data.accessToken);

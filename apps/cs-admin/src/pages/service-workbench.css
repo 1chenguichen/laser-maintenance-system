@@ -1,0 +1,21 @@
+
+.service-workbench{--desk-panel:#fff;color:var(--skin-ink);font-size:14px;line-height:1.6;height:100dvh!important}
+:root[data-admin-theme=black] .service-workbench{--desk-panel:#1e2227}
+.service-workbench>aside:first-child{background:var(--skin-sidebar);border-right:1px solid var(--skin-border);box-shadow:none}
+.service-workbench>header{border-bottom:1px solid var(--skin-border);box-shadow:none}
+.service-workbench .desk-columns{height:100dvh;box-sizing:border-box;min-width:0;min-height:0}
+.service-workbench .desk-columns>div{min-width:0}
+.service-workbench :is(.desk-queue,.desk-customer){width:300px;box-shadow:none;border-right:1px solid var(--skin-border);min-height:0}
+.service-workbench .desk-customer{border-right:0;border-left:1px solid var(--skin-border)}
+.service-workbench button,.service-workbench a{transition:background-color .15s,color .15s}
+.service-workbench button:disabled{opacity:.5;cursor:not-allowed}
+.service-workbench :is(button,a,input,textarea):focus-visible{outline:2px solid var(--skin-focus);outline-offset:2px}
+.service-workbench .desk-details-toggle{display:none;border:1px solid var(--skin-border);border-radius:8px;padding:6px 10px;background:var(--desk-panel);color:var(--skin-ink);white-space:nowrap}
+.service-workbench textarea{min-height:76px;font-size:14px;line-height:1.7}
+.service-workbench input{font-size:13px}
+.service-workbench ::selection{background:var(--skin-active);color:var(--skin-ink)}
+:root[data-admin-theme=black] .service-workbench .text-white{color:#13243f}
+:root[data-admin-theme=black] .service-workbench [class*="border-"]{border-color:var(--skin-border)}
+@media(max-width:1200px){.service-workbench .desk-customer{display:none}.service-workbench .desk-details-toggle{display:inline-flex}.service-workbench.details-open .desk-customer{display:flex;position:fixed;right:0;top:56px;bottom:0;width:min(340px,calc(100vw - 70px));z-index:45;box-shadow:-12px 0 32px #0002}.service-workbench .desk-queue{width:260px}.service-workbench>header input{width:170px}}
+@media(max-width:800px){.service-workbench .desk-queue{width:210px}.service-workbench>header .relative:has(input){display:none}.service-workbench>header{padding-left:12px;padding-right:12px;gap:8px}.service-workbench>header>div{gap:8px}.service-workbench .admin-theme-control{font-size:12px}.service-workbench .admin-theme-control select{max-width:88px}.service-workbench .desk-details-toggle{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.service-workbench *{transition:none!important}}

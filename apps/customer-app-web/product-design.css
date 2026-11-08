@@ -1,0 +1,57 @@
+:root{--ui-accent:#1479df;--ui-border:#dfe7f0;--ui-surface:#f4f7fb;--ui-focus:#90bdf2}
+/* Shared task-oriented visual language; layout and business states remain page-owned. */
+body.product-screen{--product-accent:var(--ui-accent);background:var(--ui-surface);color:#24364b;font-family:"Noto Sans",system-ui,sans-serif;line-height:1.6;font-variant-numeric:tabular-nums}
+body.product-screen header{background:#fff;border-bottom-color:var(--ui-border)}
+body.product-screen main{overflow-wrap:anywhere}
+body.product-screen main>.bg-white,body.product-screen main>section.bg-white,body.product-screen #taskList>.bg-white,body.product-screen .wh-card{box-shadow:none;border:1px solid var(--ui-border);border-radius:12px}
+body.product-screen main>.bg-white,body.product-screen main>section.bg-white{padding:20px}
+body.product-screen h1,body.product-screen h2,body.product-screen h3{font-weight:600;letter-spacing:0}
+body.product-screen .text-xs{font-size:12px}
+body.product-screen button,body.product-screen a,body.product-screen input,body.product-screen select,body.product-screen textarea{transition:background-color .16s,border-color .16s,box-shadow .16s}
+body.product-screen input:not([type=checkbox]):not([type=radio]),body.product-screen select,body.product-screen textarea{border-color:#ccd9e8;border-radius:8px;font:inherit}
+body.product-screen button:focus-visible,body.product-screen a:focus-visible,body.product-screen input:focus-visible,body.product-screen select:focus-visible,body.product-screen textarea:focus-visible{outline:3px solid var(--ui-focus);outline-offset:3px}
+body.product-screen button:disabled{cursor:not-allowed;opacity:.55}
+body.product-screen button:active:not(:disabled){filter:brightness(.96)}
+body.product-screen nav .nav-icon{font-size:24px}
+body.product-screen nav img{width:40px!important;height:40px!important;object-fit:contain}
+body.product-screen nav a[style]{margin-top:0!important}
+body.product-screen .wh-hero{background:#eaf3ff;color:#174b80;box-shadow:none;border:1px solid #d7e6f8;border-radius:12px}
+body.product-screen .wh-stats span{font-size:12px;opacity:1;color:#56718c}
+body.product-screen .wh-hero small{opacity:1;color:#56718c}
+body.product-screen .wh-qty{font-weight:600}
+body.product-screen #materialDialog .wh-form-header{background:#f5f8fc}
+@media(prefers-reduced-motion:reduce){body.product-screen *{transition:none!important}}
+
+body.product-screen #deviceList>div+div{margin-top:12px}
+
+body.product-screen button,body.product-screen nav a,body.flow-screen button,body.flow-screen #materialLink{min-height:44px}body.product-screen header button,body.flow-screen header button{min-width:44px}body.product-screen input:not([type=checkbox]):not([type=radio]),body.product-screen select,body.product-screen textarea{font-size:16px}body.product-screen main .flex>*,body.flow-screen main .flex>*{min-width:0}body.product-screen nav a{display:flex}body.product-screen [aria-invalid=true],body.flow-screen [aria-invalid=true]{border-color:#b43224}body.product-screen ::selection{background:#d6e9ff;color:#164a7a}
+
+/* Canonical mobile surfaces, including contract/invoice and standalone flows. */
+body.product-screen{max-width:414px;width:100%;margin:0 auto;min-height:100dvh;box-sizing:border-box}
+body.product-screen :is(.business-card,.wh-card){border:1px solid var(--ui-border);border-radius:12px;box-shadow:none;background:#fff;padding:18px;margin-bottom:12px}
+body.product-screen :is(.business-intro,.wh-hero){background:#eaf3ff;color:#174b80;border:1px solid #d7e6f8;border-radius:12px;box-shadow:none}
+body.product-screen .business-intro p{color:#56718c}
+body.product-screen :is(.business-button,.tabs button.active){background:var(--ui-accent);color:#fff}
+body.product-screen :is(.tabs,.wh-tabs){gap:8px}
+body.product-screen :is(.business-row,.wh-row){gap:12px;flex-wrap:wrap}
+body.product-screen dialog{box-sizing:border-box;max-height:88dvh;overflow-y:auto;border-radius:12px}
+body.product-screen :is(.field,.wh-field){font-size:14px}
+body.product-screen :is(.field input,.field select,.field textarea){font:inherit;font-size:16px;border:1px solid #ccd9e8;border-radius:8px}
+
+body.product-screen .contract-tabs{position:static;display:flex;gap:8px;border-bottom:1px solid var(--ui-border);margin-bottom:18px}body.product-screen .contract-tabs button{padding:10px 14px;color:#56718c;border-bottom:2px solid transparent}body.product-screen .contract-tabs button.active{background:#e7f2ff;color:var(--ui-accent);border-bottom-color:var(--ui-accent)}
+
+body .mobile-navigation{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:414px;box-sizing:border-box;display:flex;justify-content:space-around;z-index:60;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--ui-border,#dfe7f0)}
+body .mobile-navigation a{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:48px;text-decoration:none;font-size:12px;line-height:1.4;color:#60758b;border-radius:8px}
+body .mobile-navigation a .material-symbols-outlined{font-size:24px;line-height:1}
+body .mobile-navigation a[aria-current=page]{background:#e7f2ff;color:#1479df;font-weight:600}
+body .mobile-navigation a:focus-visible{outline:3px solid #91baa5;outline-offset:-3px}
+.profile-feedback{padding:12px 14px;background:#fff8ed;color:#805026;border:1px solid #ead8b8;border-radius:8px;margin:12px 0;font-size:14px}.profile-feedback[hidden]{display:none!important}
+
+.profile-maintenance-note{font-size:13px;line-height:1.6;color:#60758b;padding:0 4px}#userPhone,#engineerPhone{white-space:nowrap}.profile-feedback[data-state=synced]{background:#edf5ff;color:#275a87;border-color:#d8e7f7}body.product-screen button[onclick="loadStatus()"],body.product-screen button[onclick="loadStats()"]{padding:8px 12px;border:1px solid #ccd9e8;border-radius:8px;background:#fff;color:#176bb4}
+
+/* Customer portal: approachable blue service interface. */
+body.product-screen main>.bg-white,body.product-screen main>section.bg-white,body.product-screen .business-card,body.flow-screen main section:not(#actionSection),body.flow-screen .flow-summary{border-radius:16px}
+body.product-screen .mobile-navigation a{position:relative;background:transparent;color:#60758b}
+body.product-screen .mobile-navigation a[aria-current=page]{background:#edf5ff;color:#1479df}
+body.product-screen .mobile-navigation a[aria-current=page]::before{content:'';position:absolute;top:0;width:24px;height:3px;border-radius:2px;background:#1479df}
+body.product-screen .mobile-navigation a:focus-visible{outline-color:#90bdf2}

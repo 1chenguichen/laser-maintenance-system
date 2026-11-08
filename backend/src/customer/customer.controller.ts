@@ -1,4 +1,8 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, NotFoundException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { attachmentBytes } from '../tenancy/storage.js';
+import { unlink } from 'node:fs/promises';
+import { currentTenant } from '../tenancy/context.js';
+import { Roles } from '../auth/roles.decorator.js';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, BadRequestException, NotFoundException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { CustomerService } from './customer.service.js';
 import { CreateAddressDto, UpdateAddressDto, CreateDeviceDto, CreateWorkOrderDto, CreateReviewDto, CreateComplaintDto } from './customer.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -9,10 +13,11 @@ import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 
-const UPLOAD_DIR = join(process.cwd(), 'uploads', 'fault-photos');
+const uploadDir = () => join(process.cwd(), 'uploads', currentTenant().id, 'fault-photos');
 
 @Controller('customer')
 @UseGuards(JwtAuthGuard)
+@Roles('customer')
 export class CustomerController {
   constructor(private customerService: CustomerService) {}
 
@@ -75,19 +80,25 @@ export class CustomerController {
   @UseInterceptors(FileInterceptor('photo', {
     storage: diskStorage({
       destination: (req: any, file: any, cb: Function) => {
-        if (!existsSync(UPLOAD_DIR)) mkdirSync(UPLOAD_DIR, { recursive: true });
-        cb(null, UPLOAD_DIR);
+        if (!existsSync(uploadDir())) mkdirSync(uploadDir(), { recursive: true });
+        cb(null, uploadDir());
       },
       filename: (req: any, file: any, cb: Function) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
         cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
       },
     }),
+    fileFilter: (_req, file, cb) => {
+      const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+      if (!allowed.includes(file.mimetype) || !/\.(jpe?g|png|webp)$/i.test(file.originalname)) return cb(new BadRequestException('仅支持 JPG、PNG、WebP 图片'), false);
+      cb(null, true);
+    },
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
   }))
   async uploadFaultPhoto(@Request() req: AuthenticatedRequest, @UploadedFile() file: any) {
     if (!file) throw new NotFoundException('没有上传文件');
-    const photoUrl = `/uploads/fault-photos/${file.filename}`;
+    if(await attachmentBytes(currentTenant().id)>currentTenant().storage_limit_mb*1048576){ await unlink(file.path); throw new BadRequestException('企业附件存储额度已用完，请联系管理员扩容'); }
+    const photoUrl = `/uploads/${currentTenant().id}/fault-photos/${file.filename}`;
     return { url: photoUrl };
   }
 

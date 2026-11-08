@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>工单大厅 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -23,8 +27,8 @@
       }
     }
   </script>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="engineer" data-refined="true" data-page="grab">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <div class="w-10"></div>
@@ -74,7 +78,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
     var currentFilter = 'all';
     var orders = [];
@@ -117,7 +121,7 @@
       fetch(API_BASE + '/engineer/grab-pool', {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         orders = Array.isArray(data) ? data : [];
         renderOrders();
@@ -189,7 +193,7 @@
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ workOrderId: orderId })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         if (data.id || data.status === 'DISPATCHED') {
           alert('抢单成功！');

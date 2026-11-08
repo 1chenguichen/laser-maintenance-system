@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { isUUID } from 'class-validator';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ServiceChat } from '../database/entities/service-chat.entity.js';
@@ -40,6 +41,11 @@ export class AiService {
     private csPollingService: CsPollingService,
   ) {}
 
+  async assertCustomer(customerId: string, workOrderId?: string) {
+    if (!isUUID(customerId) || !await this.customerRepo.findOneBy({id:customerId})) throw new NotFoundException('客户不存在');
+    if (workOrderId && (!isUUID(workOrderId) || !await this.workOrderRepo.findOneBy({id:workOrderId,customerId}))) throw new NotFoundException('工单不存在');
+  }
+
   /**
    * 处理客户消息，调用AI进行回复
    */
@@ -48,6 +54,7 @@ export class AiService {
     message: string,
     workOrderId?: string,
   ): Promise<{ reply: string; needHuman: boolean }> {
+    await this.assertCustomer(customerId,workOrderId);
     console.log('[AI] ====== processCustomerMessage 被调用 ======');
     console.log('[AI] customerId:', customerId);
     console.log('[AI] message:', message);
@@ -177,6 +184,7 @@ export class AiService {
     content: string,
     direction: ChatDirection,
   ): Promise<ServiceChat> {
+    await this.assertCustomer(customerId,workOrderId);
     const chat = this.serviceChatRepo.create({
       customerId,
       workOrderId,
@@ -190,6 +198,7 @@ export class AiService {
    * 获取客户的聊天记录
    */
   async getCustomerChats(customerId: string, workOrderId?: string): Promise<ServiceChat[]> {
+    await this.assertCustomer(customerId,workOrderId);
     const where: any = { customerId };
     if (workOrderId) {
       where.workOrderId = workOrderId;
@@ -209,6 +218,7 @@ export class AiService {
     message: string,
     workOrderId?: string,
   ): Promise<ServiceChat> {
+    await this.assertCustomer(customerId,workOrderId);
     const chat = this.serviceChatRepo.create({
       customerId,
       csOperatorId,
@@ -219,6 +229,7 @@ export class AiService {
     const saved = await this.serviceChatRepo.save(chat);
     // 通过 WebSocket 实时推送给客户
     sendToCustomer(customerId, 'cs_message', {
+      chatId:saved.id,
       message,
       from: 'cs',
       timestamp: Date.now(),

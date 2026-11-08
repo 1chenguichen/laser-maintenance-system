@@ -1,0 +1,7 @@
+(function(){
+ function update(){
+  document.querySelectorAll('.material-symbols-outlined').forEach(span=>{if(span.dataset.brandIcon||span.textContent.trim()!=='precision_manufacturing')return;span.dataset.brandIcon='true';span.classList.add('device-symbol');span.setAttribute('aria-hidden','true');const type=span.closest('[data-device-kind]')?.dataset.deviceKind;const symbol=type==='welding'?'welding':type==='marking'?'marking':'device';const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),use=document.createElementNS('http://www.w3.org/2000/svg','use');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');use.setAttribute('href','/brand/equipment-symbols.svg#'+symbol);svg.append(use);span.replaceChildren(svg);});
+  if(/\/(profile|workbench|market-profile)\.html$/.test(location.pathname)){const avatar=document.querySelector('[data-ui-avatar],.engineer-avatar');if(avatar&&!avatar.querySelector('img')){const img=document.createElement('img');img.src='/brand/default-avatar.webp';img.alt='默认插画头像';img.className='app-brand-avatar';avatar.replaceChildren(img);}}
+ }
+ document.addEventListener('DOMContentLoaded',()=>{update();const root=document.querySelector('main')||document.body;let scheduled=false;new MutationObserver(()=>{if(!scheduled){scheduled=true;requestAnimationFrame(()=>{scheduled=false;update();});}}).observe(root,{childList:true,subtree:true});});
+})();

@@ -24,6 +24,9 @@ export class Part {
   @Column({ length: 10 })
   unit: string;
 
+  @Column({ name: 'cost_price', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  costPrice: number;
+
   @Column({ name: 'guide_price', type: 'decimal', precision: 10, scale: 2 })
   guidePrice: number;
 

@@ -1,0 +1,117 @@
+/* Motion communicates navigation and feedback; no delay is added to navigation. */
+@media (prefers-reduced-motion: no-preference) {
+  body.field-interaction > main {
+    animation: field-arrive 180ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  body.field-interaction[data-field-arrival="back"] > main {
+    animation-name: field-return;
+  }
+  body.field-interaction[data-field-arrival="tab"] > main {
+    animation-name: field-fade;
+  }
+  body.field-interaction main > .market-card,
+  body.field-interaction main > .market-heading {
+    animation: none;
+  }
+  body[data-role="engineer"] dialog[open] {
+    animation: field-dialog-in 180ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  body[data-role="engineer"] dialog[open]::backdrop {
+    animation: field-fade 160ms ease-out both;
+  }
+  body[data-role="engineer"] dialog.field-dialog-closing[open] {
+    animation: field-dialog-out 120ms ease-in both;
+    pointer-events: none;
+  }
+  body[data-role="engineer"]
+    :is(
+      .market-primary,
+      .market-secondary,
+      .wh-primary,
+      .wh-actions button,
+      .status-btn,
+      .workspace-primary
+    ) {
+    transition:
+      background-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 100ms ease;
+  }
+  body[data-role="engineer"]
+    :is(
+      .market-primary,
+      .market-secondary,
+      .wh-primary,
+      .wh-actions button,
+      .status-btn,
+      .workspace-primary
+    ):active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+body[data-role="engineer"] :is(button, [role="button"])[aria-busy="true"] {
+  cursor: progress;
+}
+body[data-role="engineer"]
+  :is(button, [role="button"])[aria-busy="true"]:after {
+  content: "处理中…";
+  font-size: 11px;
+  margin-left: 6px;
+}
+@keyframes field-arrive {
+  from {
+    opacity: 0.4;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes field-return {
+  from {
+    opacity: 0.5;
+    transform: translateX(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes field-fade {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes field-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes field-dialog-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-role="engineer"] *,
+  body[data-role="engineer"] *::before,
+  body[data-role="engineer"] *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

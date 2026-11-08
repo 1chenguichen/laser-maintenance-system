@@ -1,0 +1,11 @@
+(function(){
+const token=localStorage.getItem('engineer_token'),$=id=>document.getElementById(id);let orders=[];
+if(!token){location.replace('login.html');return;}
+function selected(){return orders.find(o=>o.id===$('orders').value);}
+function facts(o){return ['来源：当前账号可访问的工单接口','服务企业：'+(o.serviceName||'未提供'),'工单编号：'+(o.orderNo||'未提供'),'状态：'+(o.status||'未提供'),'设备：'+(o.device?.model||o.device?.serialNumber||'未提供'),'报修描述（客户填写，未经现场验证）：'+(o.faultDescription||'未提供')].join('\n');}
+function invalidate(){ $('draft').textContent='尚未生成。此阶段使用结构化模板整理，不自动诊断故障。';$('copy').disabled=true;$('feedback').textContent='';}
+async function load(){ $('error').textContent='';$('retry').hidden=true;$('generate').disabled=true;try{const r=await fetch(APP_API_BASE+'/engineer/orders',{headers:{Authorization:'Bearer '+token}});const data=await readApiResponse(r);if(!Array.isArray(data))throw Error('工单数据格式异常');orders=data;$('orders').replaceChildren();for(const o of orders){const option=document.createElement('option');option.value=o.id;option.textContent=(o.serviceName||'服务企业')+' · '+(o.orderNo||o.id);$('orders').append(option);}if(!orders.length){const option=document.createElement('option');option.textContent='暂无可访问的工单';$('orders').append(option);}$('facts').textContent=selected()?facts(selected()):'暂无工单，不会生成模拟业务数据。';$('generate').disabled=!orders.length;}catch(e){$('error').textContent='读取失败：'+e.message;$('retry').hidden=false;}}
+$('retry').onclick=load;$('orders').onchange=()=>{$('facts').textContent=facts(selected());for(const id of ['observed','action','verified'])$(id).value='';invalidate();};for(const id of ['observed','action','verified'])$(id).oninput=invalidate;
+$('generate').onclick=()=>{const o=selected();if(!o)return;$('draft').textContent='维修报告草稿（待人工核对）\n'+facts(o)+'\n\n现场检查：'+($('observed').value.trim()||'待补充，不能据此认定故障原因')+'\n实际处理与用料：'+($('action').value.trim()||'待补充')+'\n复测结果：'+($('verified').value.trim()||'待验证，不代表维修完成')+'\n\n本草稿不构成维修完成确认，未自动登记用料或提交业务。';$('copy').disabled=false;};
+$('copy').onclick=async()=>{try{await navigator.clipboard.writeText($('draft').textContent);$('feedback').textContent='已复制，请核对后使用';}catch{$('feedback').textContent='复制不可用，请手动选择草稿复制';}};load();
+})();

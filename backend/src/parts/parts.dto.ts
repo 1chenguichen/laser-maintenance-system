@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, IsInt, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePartDto {
@@ -22,6 +22,11 @@ export class CreatePartDto {
   @IsOptional()
   @IsNumber()
   guidePrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  costPrice?: number;
 
   @ApiPropertyOptional({ description: '描述' })
   @IsOptional()
@@ -54,7 +59,8 @@ export class StockInDto {
   warehouseId: string;
 
   @ApiProperty({ description: '入库数量' })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   quantity: number;
 
   @ApiPropertyOptional({ description: '预计下次补货日期' })
@@ -73,7 +79,8 @@ export class StockOutDto {
   warehouseId: string;
 
   @ApiProperty({ description: '出库数量' })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   quantity: number;
 
   @ApiProperty({ description: '关联工单ID' })
@@ -95,6 +102,7 @@ export class TransferDto {
   toWarehouseId: string;
 
   @ApiProperty({ description: '转移数量' })
-  @IsNumber()
+  @IsInt()
+  @Min(1)
   quantity: number;
 }

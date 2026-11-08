@@ -1,3 +1,4 @@
+import { OrganizationLoginController, OrganizationLoginService } from './organization.controller.js';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -14,14 +15,14 @@ import { RedisModule } from '../redis/redis.module.js';
   imports: [
     PassportModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'laser-maintenance-secret-key',
+      secret: (() => { const secret = process.env.JWT_SECRET; if (!secret || secret.length < 32 || secret === 'laser-maintenance-secret-key' || secret.startsWith('your-')) throw new Error('Set JWT_SECRET to a random secret of at least 32 characters'); return secret; })(),
       signOptions: { expiresIn: '7d' },
     }),
     TypeOrmModule.forFeature([Customer, Engineer]),
     RedisModule,
   ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  controllers: [AuthController,OrganizationLoginController],
+  providers: [OrganizationLoginService,AuthService, JwtStrategy, JwtAuthGuard],
   exports: [AuthService, JwtAuthGuard, JwtModule],
 })
 export class AuthModule {}

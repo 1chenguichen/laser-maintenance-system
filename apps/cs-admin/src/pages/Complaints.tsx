@@ -1,3 +1,4 @@
+import PageHeading from '../components/PageHeading';
 import React, { useState, useEffect } from 'react';
 import { getComplaints, getComplaintDetail, handleComplaint, Complaint } from '../api';
 
@@ -95,7 +96,8 @@ export default function Complaints() {
   }
 
   return (
-    <div>
+    <div className="workspace-page">
+      <PageHeading title="投诉管理" description="查看客户反馈、核对关联工单，并跟进处理结果。" />
       <div className="card">
         <div className="filter-bar">
           <select
@@ -144,7 +146,7 @@ export default function Complaints() {
                   <td>{new Date(c.createdAt).toLocaleDateString('zh-CN')}</td>
                   <td>
                     <button
-                      className="btn btn-default btn-small"
+                      className="btn btn-link btn-small"
                       onClick={() => showDetail(c.id)}
                     >
                       处理
@@ -168,7 +170,7 @@ export default function Complaints() {
             <div className="modal-body">
               <div className="form-group">
                 <div className="form-label">工单信息</div>
-                <div style={{ padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
+                <div style={{ padding: 8, background: 'var(--skin-soft)', borderRadius: 4 }}>
                   <div>工单号: {selectedComplaint.workOrder?.orderNo}</div>
                   <div>故障类型: {selectedComplaint.workOrder?.faultType}</div>
                   <div>订单金额: ¥{selectedComplaint.workOrder?.finalAmount || 0}</div>
@@ -184,7 +186,7 @@ export default function Complaints() {
               </div>
               <div className="form-group">
                 <div className="form-label">投诉内容</div>
-                <div style={{ padding: 8, background: '#f5f5f5', borderRadius: 4 }}>{selectedComplaint.content}</div>
+                <div style={{ padding: 8, background: 'var(--skin-soft)', borderRadius: 4 }}>{selectedComplaint.content}</div>
               </div>
               {selectedComplaint.engineer && (
                 <div className="form-group">

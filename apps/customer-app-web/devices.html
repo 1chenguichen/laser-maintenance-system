@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script><script src="/visual-media.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>我的设备</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -69,8 +70,8 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
     }
   </style>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><script src="/service-experience.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-media.css"><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="customer" data-page="devices">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -83,12 +84,14 @@
   </header>
 
   <main class="pt-14 px-4 space-y-4">
+    <a href="device-scan.html" style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#fff;border:1px solid #dfe8f4;border-radius:16px;color:#176bce;text-decoration:none;margin-top:20px"><span><strong style="display:block;font-size:15px">扫码绑定设备</strong><small style="display:block;margin-top:4px;color:#7b8ca3">识别设备与所属企业，快速获取售后服务</small></span><span aria-hidden="true">↗</span></a>
     <!-- Loading -->
     <div id="loading" class="text-center py-10 text-on-surface-variant">
       <span class="material-symbols-outlined animate-spin">progress_activity</span>
       <p class="mt-2">加载中...</p>
     </div>
 
+    <p class="visual-source-note">设备图片为 AI 生成的类型示意，不代表所绑定设备的实物照片。</p>
     <!-- Device List -->
     <section class="space-y-3 mt-4 hidden" id="deviceListSection">
       <div id="deviceList"></div>
@@ -118,7 +121,7 @@
         </button>
       </div>
       <p class="text-sm text-on-surface-variant mb-4">请输入设备序列号（SN码）</p>
-      <input type="text" id="serialInput" class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm" placeholder="输入设备序列号" />
+      <input type="text" id="serialInput" class="w-full px-4 py-3 border border-outline-variant rounded-lg text-sm" placeholder="粘贴设备绑定链接，或输入已关联设备的序列号" />
       <p id="addError" class="text-error text-sm mt-2 hidden"></p>
       <button onclick="submitAddDevice()" class="w-full mt-4 py-3 bg-primary text-white rounded-lg font-medium">确认添加</button>
     </div>
@@ -146,15 +149,16 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
 
     if (!token) {
-      window.location.href = 'login.html';
+      window.location.href = 'login.html?next='+encodeURIComponent('devices.html'+location.search);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
       loadDevices();
+      var params=new URLSearchParams(location.search);var asset=params.get('asset');if(asset){location.replace('device-scan.html?asset='+encodeURIComponent(asset));return;}if(params.get('bind'))location.replace('device-scan.html');
     });
 
     function loadDevices() {
@@ -165,7 +169,7 @@
 
       fetch(API_BASE + '/customer/devices', {
         headers: { 'Authorization': 'Bearer ' + token }
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(devices) {
           document.getElementById('loading').classList.add('hidden');
           renderDevices(devices || []);
@@ -194,19 +198,20 @@
 
       listEl.innerHTML = devices.map(function(d) {
         var warrantyStatus = getWarrantyStatus(d.warrantyExpire);
-        var bgColor = warrantyStatus === '在保' ? '#e6f7ff' : warrantyStatus === '部分过保' ? '#fff7e6' : '#fff2f0';
-        var textColor = warrantyStatus === '在保' ? '#52c41a' : warrantyStatus === '部分过保' ? '#faad14' : '#ff4d4f';
-        var borderColor = warrantyStatus === '在保' ? '#b7eb8f' : warrantyStatus === '部分过保' ? '#ffd591' : '#ffccc7';
+        if(warrantyStatus==='未知')warrantyStatus='未登记保修';
+        var bgColor = warrantyStatus === '未登记保修' ? '#f0f4f9' : warrantyStatus === '在保' ? '#e6f7ff' : warrantyStatus === '部分过保' ? '#fff7e6' : '#fff2f0';
+        var textColor = warrantyStatus === '未登记保修' ? '#70839b' : warrantyStatus === '在保' ? '#52c41a' : warrantyStatus === '部分过保' ? '#faad14' : '#ff4d4f';
+        var borderColor = warrantyStatus === '未登记保修' ? '#dbe4f0' : warrantyStatus === '在保' ? '#b7eb8f' : warrantyStatus === '部分过保' ? '#ffd591' : '#ffccc7';
 
-        return '<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">' +
+        return '<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm" data-device-kind="'+(window.VisualMedia?.deviceKey(d)||'device')+'" data-service-policy="'+window.escapeHtml(d.serviceId||'')+'">' + (window.VisualMedia?.device(d,false)||'') +
           '<div class="flex items-start justify-between">' +
             '<div class="flex items-start gap-3">' +
               '<div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: ' + bgColor + ';">' +
                 '<span class="material-symbols-outlined text-xl" style="color: ' + textColor + ';">precision_manufacturing</span>' +
               '</div>' +
               '<div>' +
-                '<h3 class="font-semibold" style="color: #111827;">' + (d.model || '未知设备') + '</h3>' +
-                '<p class="text-xs text-on-surface-variant mt-1 font-mono">SN: ' + (d.serialNumber || '无') + '</p>' +
+                '<h3 class="font-semibold" style="color: #111827;">' + window.escapeHtml(d.model || '未知设备') + '</h3>' + (d.serviceName?'<p class="text-xs mt-1" style="color:#75859a">服务商：'+window.escapeHtml(d.serviceName)+'</p>':'') +
+                '<p class="text-xs text-on-surface-variant mt-1 font-mono">SN: ' + window.escapeHtml(d.serialNumber || '无') + '</p>' +
                 '<div class="flex items-center gap-2 mt-2">' +
                   '<span class="px-2 py-0.5 rounded text-xs" style="background-color: ' + bgColor + '; color: ' + textColor + '; border: 1px solid ' + borderColor + ';">' + warrantyStatus + '</span>' +
                   (d.purchaseDate ? '<span class="text-xs text-on-surface-variant">购机：' + formatDate(d.purchaseDate) + '</span>' : '') +
@@ -215,6 +220,7 @@
             '</div>' +
           '</div>' +
           '<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-end">' +
+            '<a class="visual-company-link" style="margin-right:auto" href="device-detail.html?id='+window.escapeHtml(d.id)+'">设备详情与照片 →</a>' +
             '<button class="px-3 py-1 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="repairDevice(\'' + d.id + '\')">报修</button>' +
           '</div>' +
         '</div>';
@@ -224,6 +230,13 @@
         '<span class="material-symbols-outlined text-2xl text-on-surface-variant">add_circle</span>' +
         '<p class="text-sm text-on-surface-variant mt-1">添加新设备</p>' +
       '</div>';
+      var policyIds=[...new Set(devices.map(d=>d.serviceId).filter(Boolean))];
+      policyIds.forEach(async function(serviceId){
+        try{var response=await fetch(API_BASE+'/market/service-policy/'+encodeURIComponent(serviceId),{headers:{Authorization:'Bearer '+token}});var policy=await window.readApiResponse(response);
+          listEl.querySelectorAll('[data-service-policy]').forEach(function(card){if(card.dataset.servicePolicy!==serviceId)return;var note=document.createElement('p');note.className='device-service-policy';note.style.cssText='font-size:12px;line-height:1.8;color:#62748b;margin-top:12px';note.textContent=policy.service_mode==='SELF'?'售后安排：'+policy.name+'自有团队':policy.service_mode==='OUTSOURCE'?'售后安排：'+policy.contractor_name+'合作承接':'售后安排：维保云平台调度';card.append(note);});
+        }catch{}
+      });
+
     }
 
     function getWarrantyStatus(warrantyExpire) {
@@ -266,7 +279,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({ serialNumber: serial })
-      }).then(function(res) { return res.json(); })
+      }).then(window.readApiResponse)
         .then(function(data) {
           if (data.id) {
             hideAddModal();
@@ -277,7 +290,7 @@
             document.getElementById('addError').classList.remove('hidden');
           }
         }).catch(function(e) {
-          document.getElementById('addError').textContent = '网络错误，请重试';
+          document.getElementById('addError').textContent = e.message || '网络错误，请重试';
           document.getElementById('addError').classList.remove('hidden');
         });
     }

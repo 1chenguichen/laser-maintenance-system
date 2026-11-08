@@ -1,3 +1,5 @@
+import {useWorkspaceFeedback} from '../components/WorkspaceFeedback';
+import './order-flow.css';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { WorkOrderStatus, DispatchType } from '../types';
@@ -7,6 +9,9 @@ const STATUS_TEXT: Record<string, string> = {
   PENDING: '待分类',
   DISPATCHED: '已派单',
   CONFIRMED: '已确认',
+  ACCEPTED: '已上门',
+  PENDING_PAYMENT: '待确认报价/定金',
+  PENDING_FINAL_PAYMENT: '待付尾款',
   REPAIRING: '维修中',
   COMPLETED: '已完成',
   REFUSED: '已拒绝',
@@ -14,6 +19,7 @@ const STATUS_TEXT: Record<string, string> = {
 };
 
 export default function OrderDetail() {
+  const notify=useWorkspaceFeedback();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [order, setOrder] = useState<any>(null);
@@ -63,11 +69,11 @@ export default function OrderDetail() {
 
   async function handleClassify() {
     if (!faultType) {
-      alert('请选择故障类型');
+      notify('请选择故障类型');
       return;
     }
     if (estimatedAmount <= 0) {
-      alert('请输入预估费用');
+      notify('请输入预估费用');
       return;
     }
 
@@ -80,10 +86,10 @@ export default function OrderDetail() {
         dispatchType: dispatchType as any,
         designatedEngineerId: dispatchType === 'DESIGNATED' ? designatedEngineerId : undefined,
       });
-      alert('分类成功！工单已放入派单池');
+      notify('分类成功！工单已放入派单池');
       navigate('/orders');
     } catch (err: any) {
-      alert(err.message || '分类失败');
+      notify(err.message || '分类失败');
     } finally {
       setSaving(false);
     }
@@ -100,7 +106,7 @@ export default function OrderDetail() {
   const isPending = order.status === WorkOrderStatus.PENDING;
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24 }}>
+    <div className="order-flow order-flow-detail">
       <div>
         {/* 工单详情卡片 */}
         <div className="card">
@@ -157,7 +163,7 @@ export default function OrderDetail() {
         {/* 分类表单 - 仅待分类工单显示 */}
         {isPending && (
           <div className="card">
-            <div className="card-title">📋 工单分类</div>
+            <div className="card-title">分类与派单</div>
 
             <div className="form-group">
               <div className="form-label">故障类型 *</div>
@@ -168,6 +174,8 @@ export default function OrderDetail() {
                 required
               >
                 <option value="">请选择故障类型</option>
+                {faultType && !['激光器故障', '光路故障', '水路故障', '气路故障', '电路故障', '控制系统故障', '机械传动故障', '冷却系统故障', '激光器不发光', '功率不稳定', '冷水机故障', '激光校准偏差', '设备异响', '其他故障'].includes(faultType) && <option value={faultType}>{faultType}</option>}
+                {['激光器故障', '光路故障', '水路故障', '气路故障', '电路故障', '控制系统故障', '机械传动故障', '冷却系统故障'].map(type => <option key={type} value={type}>{type}</option>)}
                 <option value="激光器不发光">激光器不发光</option>
                 <option value="功率不稳定">功率不稳定</option>
                 <option value="冷水机故障">冷水机故障</option>
@@ -184,7 +192,8 @@ export default function OrderDetail() {
                   <button
                     key={level}
                     type="button"
-                    className={`btn ${emergencyLevel === level ? 'btn-primary' : 'btn-default'} btn-small`}
+                    className="btn btn-filter btn-small"
+                    aria-pressed={emergencyLevel===level}
                     onClick={() => setEmergencyLevel(level)}
                   >
                     {level === 1 ? '普通' : level === 3 ? '较急' : level === 5 ? '紧急' : level}级
@@ -250,7 +259,7 @@ export default function OrderDetail() {
       <div>
         {/* 客户信息 */}
         <div className="card">
-          <div className="card-title">👤 客户信息</div>
+          <div className="card-title">客户与联系方式</div>
           <div style={{ fontSize: 14 }}>
             <p>姓名: {order.customer?.name || '-'}</p>
             <p style={{ marginTop: 8 }}>电话: {order.customer?.phone || '-'}</p>
@@ -269,7 +278,7 @@ export default function OrderDetail() {
         {/* 工程师信息 */}
         {order.engineer && (
           <div className="card">
-            <div className="card-title">👷 派单信息</div>
+            <div className="card-title">工程师安排</div>
             <div style={{ fontSize: 14 }}>
               <p>工程师: {order.engineer.name}</p>
               <p style={{ marginTop: 8 }}>
@@ -286,7 +295,7 @@ export default function OrderDetail() {
 
         {/* 时间线 */}
         <div className="card">
-          <div className="card-title">📍 工单时间线</div>
+          <div className="card-title">处理记录</div>
           <div className="timeline">
             <div className="timeline-item">
               <div className="timeline-time">

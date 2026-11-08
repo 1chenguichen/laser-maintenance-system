@@ -1,6 +1,7 @@
 // API service for cs-admin
 // 本地开发与云端部署自适应：优先读取 REACT_APP_API_BASE，否则按当前页面主机名推导
-const API_BASE: string =
+export const API_BASE: string =
+  (window as Window & { LASER_API_BASE?: string }).LASER_API_BASE ||
   process.env.REACT_APP_API_BASE ||
   `${window.location.protocol}//${window.location.hostname}:8080`;
 
@@ -11,20 +12,26 @@ interface ApiResponse<T> {
 }
 
 const TOKEN_KEY = 'cs_admin_token';
+// Authentication belongs to this tab. Old shared credentials require a fresh login.
+localStorage.removeItem(TOKEN_KEY);
+localStorage.removeItem('cs_admin_user');
 
 export function getToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  if (token) { try { if (JSON.parse(atob(token.split('.')[1])).purpose === 'access') return token; } catch {} sessionStorage.removeItem(TOKEN_KEY); }
+  return null;
 }
 
 export function setToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+  sessionStorage.setItem(TOKEN_KEY, token);
 }
 
 export function clearToken() {
-  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem('cs_admin_user');
 }
 
-async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -49,14 +56,16 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
 }
 
 // Auth
-export async function login(phone: string, code: string): Promise<{ accessToken: string; user: any }> {
+export async function login(phone: string, code: string, tenantCode: string = 'demo'): Promise<{ accessToken: string; user: any }> {
   const response = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ phone, code, role: 'cs_operator' }),
+    body: JSON.stringify({ phone, code, tenantCode, role: 'cs_operator' }),
   });
   const data = await response.json();
   if (data.accessToken) {
+    localStorage.setItem('laser_tenant_code',tenantCode);
+    sessionStorage.setItem('cs_admin_user',JSON.stringify(data.user));
     setToken(data.accessToken);
     return { accessToken: data.accessToken, user: data.user };
   }
@@ -176,6 +185,10 @@ export interface Customer {
   name: string;
   phone: string;
   createdAt: string;
+}
+
+export async function createCustomer(data: { name: string; phone: string }): Promise<Customer> {
+  return fetchApi<Customer>('/admin/customers', { method: 'POST', body: JSON.stringify(data) });
 }
 
 export async function getCustomers(): Promise<Customer[]> {
@@ -358,4 +371,9 @@ export async function handleComplaint(
     method: 'PUT',
     body: JSON.stringify(data),
   });
+}
+
+export function tenantStorageKey(key: string) {
+  try { const user = JSON.parse(atob(getToken()!.split('.')[1])); return `${key}:${user.tenantId}:${user.sub}`; }
+  catch { return `${key}:anonymous`; }
 }

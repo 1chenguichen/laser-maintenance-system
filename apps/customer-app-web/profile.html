@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>个人中心</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -47,20 +48,18 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="customer" data-page="profile">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
       <span class="material-symbols-outlined">arrow_back</span>
     </button>
     <h1 class="font-semibold text-base" style="color: #111827;">个人中心</h1>
-    <button class="text-primary" onclick="showSettings()">
-      <span class="material-symbols-outlined">settings</span>
-    </button>
+    <span class="w-10" aria-hidden="true"></span>
   </header>
 
-  <main class="pt-14 px-4 space-y-4">
+  <main class="pt-14 px-4 space-y-4"><div id="profileFeedback" class="profile-feedback" role="status" hidden></div>
     <!-- User Profile Card -->
     <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm mt-4">
       <div class="flex items-center space-x-4">
@@ -68,16 +67,15 @@
           <span class="text-3xl">👤</span>
         </div>
         <div class="flex-1">
-          <h2 class="font-semibold text-lg" style="color: #111827;" id="userName">张三</h2>
-          <p class="text-sm text-on-surface-variant" id="userPhone">138****8888</p>
-          <p class="text-xs text-on-surface-variant mt-1" id="userCompany">深圳市某某激光设备有限公司</p>
+          <h2 class="font-semibold text-lg" style="color: #111827;" id="userName">正在读取</h2>
+          <p class="text-sm text-on-surface-variant" id="userPhone">—</p>
+          <p class="text-xs text-on-surface-variant mt-1" id="userCompany">个人账号</p>
         </div>
-        <button class="px-3 py-1.5 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="editProfile()">
-          编辑
-        </button>
+
       </div>
     </section>
 
+    <p class="profile-maintenance-note">个人资料暂不支持在线修改</p>
     <!-- Quick Stats -->
     <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
       <div class="grid grid-cols-3 gap-4 text-center">
@@ -110,6 +108,7 @@
         </div>
       </button>
 
+      <button class="w-full flex items-center justify-between p-4 border-b border-outline-variant" onclick="location.href='business.html'"><div class="flex items-center gap-3"><span class="material-symbols-outlined" style="color:#1890ff">description</span><span class="text-sm font-medium">我的服务合同</span></div><span class="material-symbols-outlined">chevron_right</span></button>
       <!-- Warranty -->
       <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="navigateTo('warranty')">
         <div class="flex items-center gap-3">
@@ -165,7 +164,7 @@
           <span class="text-sm font-medium" style="color: #111827;">联系客服</span>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-on-surface-variant">400-888-8888</span>
+          <span class="text-xs text-on-surface-variant">在线咨询</span>
           <span class="material-symbols-outlined text-on-surface-variant text-lg">chevron_right</span>
         </div>
       </button>
@@ -177,6 +176,7 @@
         退出登录
       </button>
     </section>
+    <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4"><h2 class="font-semibold mb-3">平台服务</h2><div style="display:grid;gap:14px;font-size:14px;color:#1878df"><a href="services.html">寻找售后服务</a><a href="market-orders.html">全部服务订单</a><a href="chat.html">联系已有服务商</a><a href="training.html">培训地点与课程</a><a href="market-profile.html">申请成为合作工程师</a></div></section>
   </main>
 
   <!-- Bottom Nav Bar -->
@@ -201,7 +201,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
 
     if (!token) {
@@ -216,14 +216,16 @@
       Promise.all([
         fetch(API_BASE + '/auth/profile', {
           headers: { 'Authorization': 'Bearer ' + token }
-        }).then(function(res) { return res.json(); }),
+        }).then(window.readApiResponse),
         fetch(API_BASE + '/customer/devices', {
           headers: { 'Authorization': 'Bearer ' + token }
-        }).then(function(res) { return res.json(); }),
+        }).then(window.readApiResponse),
         fetch(API_BASE + '/customer/work-orders', {
           headers: { 'Authorization': 'Bearer ' + token }
-        }).then(function(res) { return res.json(); })
+        }).then(window.readApiResponse),
+        fetch(API_BASE + '/market/requests', {headers:{Authorization:'Bearer '+token}}).then(window.readApiResponse)
       ]).then(function(results) {
+        document.getElementById('profileFeedback').hidden=true;
         var profile = results[0];
         var devices = results[1] || [];
         var workOrders = results[2] || [];
@@ -233,11 +235,11 @@
         if (profile.company) document.getElementById('userCompany').textContent = profile.company;
 
         // Update counts from real data
-        document.getElementById('orderCount').textContent = workOrders.length;
+        document.getElementById('orderCount').textContent = workOrders.length + (results[3]||[]).length;
         document.getElementById('deviceCount').textContent = devices.length;
         document.getElementById('deviceMenuCount').textContent = devices.length + '台设备';
         document.getElementById('reviewCount').textContent = workOrders.filter(function(o) { return o.reviewed; }).length;
-      }).catch(function(e) { console.error(e); });
+      }).catch(function(e) { var feedback=document.getElementById('profileFeedback');feedback.hidden=false;feedback.textContent='个人信息暂时无法更新：'+e.message+'。';var retry=document.createElement('button');retry.textContent='重新加载';retry.onclick=loadUserProfile;feedback.append(retry);['orderCount','deviceCount','reviewCount','deviceMenuCount'].forEach(function(id){document.getElementById(id).textContent='待核实';}); });
     }
 
     function navigateTo(page) {
@@ -255,16 +257,12 @@
       }
     }
 
-    function editProfile() {
-      alert('编辑个人资料功能');
-    }
 
-    function showSettings() {
-      alert('设置页面');
-    }
+
+
 
     function showInvoices() {
-      alert('发票记录');
+      location.href = 'business.html#invoices';
     }
 
     function showHelp() {
@@ -272,7 +270,7 @@
     }
 
     function contactService() {
-      alert('客服热线：400-888-8888');
+      location.href='chat.html';
     }
 
     function logout() {
@@ -282,5 +280,5 @@
       }
     }
   </script>
-</body>
+<script src="/iot/entry.js" defer></script></body>
 </html>

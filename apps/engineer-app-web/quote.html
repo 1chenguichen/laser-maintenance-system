@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>提交报价 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -23,8 +27,8 @@
       }
     }
   </script>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-24 mobile-system" data-role="engineer" data-refined="true" data-page="quote">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
@@ -55,6 +59,7 @@
       </div>
     </div>
 
+    <div id="contractBenefit" class="hidden rounded-xl p-4 text-sm" style="background:#e9f7ee;color:#26734c"></div>
     <!-- 费用明细 -->
     <div class="bg-white rounded-xl p-4 border border-outline-variant">
       <h3 class="font-semibold mb-4" style="color: #111827;">费用明细</h3>
@@ -106,7 +111,7 @@
   </div>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
     var orderId = null;
     var orderData = null;
@@ -129,9 +134,14 @@
       fetch(API_BASE + '/engineer/orders/' + orderId, {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         orderData = data;
+        if (data.contractTerms) {
+          var benefit = document.getElementById('contractBenefit'); benefit.classList.remove('hidden');
+          benefit.textContent = '合同 ' + data.contractTerms.number + '：' + (data.contractTerms.laborIncluded ? '人工费已包含' : '人工费另计') + '，配件按原价 ' + Number(data.contractTerms.partsDiscount) + '% 结算。下方输入原价，合计自动应用权益。';
+        }
+        calculateTotal();
         document.getElementById('orderNo').textContent = data.orderNo || data.id;
         document.getElementById('faultType').textContent = data.faultType || '-';
         document.getElementById('customerName').textContent = data.customer ? data.customer.name : '-';
@@ -149,11 +159,13 @@
     function calculateTotal() {
       var partsFee = parseFloat(document.getElementById('partsFee').value) || 0;
       var laborFee = parseFloat(document.getElementById('laborFee').value) || 0;
-      var total = partsFee + laborFee;
+      var appliedParts = partsFee * Number(orderData?.contractTerms?.partsDiscount ?? 100) / 100;
+      var appliedLabor = orderData?.contractTerms?.laborIncluded ? 0 : laborFee;
+      var total = Math.round((appliedParts + appliedLabor) * 100) / 100;
       var deposit = total * 0.3;
 
-      document.getElementById('partsFeeDisplay').textContent = '¥' + partsFee.toFixed(2);
-      document.getElementById('laborFeeDisplay').textContent = '¥' + laborFee.toFixed(2);
+      document.getElementById('partsFeeDisplay').textContent = '¥' + appliedParts.toFixed(2);
+      document.getElementById('laborFeeDisplay').textContent = '¥' + appliedLabor.toFixed(2);
       document.getElementById('totalAmount').textContent = '¥' + total.toFixed(2);
       document.getElementById('depositAmount').textContent = deposit.toFixed(2);
     }
@@ -163,7 +175,7 @@
       var laborFee = parseFloat(document.getElementById('laborFee').value) || 0;
       var total = partsFee + laborFee;
 
-      if (total <= 0) {
+      if (total <= 0 && !orderData?.contractTerms) {
         alert('请输入有效的费用');
         return;
       }
@@ -183,7 +195,7 @@
           laborFee: laborFee
         })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('报价已提交，等待客户确认');
         window.location.href = 'tasks.html';

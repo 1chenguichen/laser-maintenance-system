@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>我的 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -23,68 +28,53 @@
       }
     }
   </script>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="engineer" data-refined="true" data-page="profile">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <div class="w-10"></div>
     <h1 class="font-semibold text-base" style="color: #111827;">我的</h1>
-    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
-      <span class="material-symbols-outlined" style="color: #006d33;">settings</span>
-    </button>
+    <span class="w-10" aria-hidden="true"></span>
   </header>
 
   <!-- Main Content -->
   <main class="pt-14 px-4 space-y-4">
+    <section data-engineer-companies aria-live="polite" aria-label="所属企业" style="background:#f0f8f3;border:1px solid #d5e8dc;border-radius:12px;padding:14px 16px;margin-top:16px"><p style="margin:0;font-size:14px;color:#52665a">正在核实所属企业…</p></section>
     <!-- Profile Header -->
-    <div class="bg-white rounded-xl p-5 border border-outline-variant flex items-center gap-4 mt-4">
+    <div id="engineerProfileHeader" class="field-profile-card bg-white rounded-xl p-5 border border-outline-variant flex items-center gap-4 mt-4">
       <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
         <span class="material-symbols-outlined fill text-3xl" style="color: #006d33;">person</span>
       </div>
       <div class="flex-1">
         <div class="font-semibold text-lg" id="engineerName" style="color: #111827;">工程师</div>
         <div class="text-sm text-on-surface-variant" id="engineerPhone">-</div>
+        <p class="profile-maintenance-note">企业管理的工作账号</p>
       </div>
-      <button class="px-3 py-1.5 rounded-lg text-xs" style="background-color: #e6f7ff; color: #006d33;">编辑</button>
+
     </div>
 
-    <!-- Status Toggle -->
-    <div class="bg-white rounded-xl p-4 border border-outline-variant">
-      <h3 class="font-semibold mb-3" style="color: #111827;">在线状态</h3>
-      <div class="flex gap-2">
-        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border active" data-status="ONLINE" onclick="updateStatus('ONLINE')">接单</button>
-        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border" data-status="WORKING" onclick="updateStatus('WORKING')">工作中</button>
-        <button class="status-btn flex-1 py-3 rounded-lg text-sm font-medium border" data-status="OFFLINE" onclick="updateStatus('OFFLINE')">下线</button>
+    <section id="engineerAvailability" class="profile-availability" aria-labelledby="availabilityTitle">
+      <div class="availability-heading"><h2 id="availabilityTitle">工作状态</h2><span id="availabilityCurrent" aria-live="polite">读取中</span></div>
+      <div class="availability-control" role="group" aria-label="选择工作状态">
+        <button type="button" class="status-btn" data-status="ONLINE" aria-pressed="false" onclick="updateStatus('ONLINE')">可接单</button>
+        <button type="button" class="status-btn" data-status="WORKING" aria-pressed="false" onclick="updateStatus('WORKING')">服务中</button>
+        <button type="button" class="status-btn" data-status="OFFLINE" aria-pressed="false" onclick="updateStatus('OFFLINE')">休息中</button>
       </div>
-    </div>
+      <div id="statusFeedback" class="profile-feedback" role="status">正在读取工作状态…</div>
+      <button type="button" class="availability-retry" onclick="loadStatus()" hidden>重新读取</button>
+    </section>
 
-    <!-- Stats Summary -->
-    <div class="bg-white rounded-xl p-4 border border-outline-variant cursor-pointer" onclick="window.location.href='stats.html'">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="font-semibold" style="color: #111827;">收益中心</h3>
-        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+    <div id="statsFeedback" class="profile-feedback" role="status" hidden>收益暂时无法读取。<button type="button" onclick="loadStats()">重新加载收益</button></div>
+    <section id="engineerIncome" class="field-income-card cursor-pointer" role="link" tabindex="0" aria-label="查看收益明细" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click()}" onclick="window.location.href='stats.html'">
+      <div class="income-heading"><h2>本月服务</h2><span>收益明细 <span aria-hidden="true">↗</span></span></div>
+      <div class="income-values">
+        <div><span class="income-label">本月收益 · 元</span><strong id="monthlyRevenue">—</strong></div>
+        <div><span class="income-label">本月订单 · 单</span><strong id="monthlyOrders">—</strong></div>
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="text-center p-3 rounded-lg" style="background-color: #f7f9fb;">
-          <div class="text-xl font-bold" style="color: #006d33;" id="monthlyRevenue">¥0</div>
-          <div class="text-xs text-on-surface-variant mt-1">本月收益</div>
-        </div>
-        <div class="text-center p-3 rounded-lg" style="background-color: #f7f9fb;">
-          <div class="text-xl font-bold" id="monthlyOrders">0</div>
-          <div class="text-xs text-on-surface-variant mt-1">本月订单</div>
-        </div>
-      </div>
-    </div>
+    </section>
 
     <!-- Menu List -->
     <div class="bg-white rounded-xl border border-outline-variant overflow-hidden">
-      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='stats.html'">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined" style="color: #006d33;">account_balance_wallet</span>
-          <span class="text-sm font-medium" style="color: #111827;">收益中心</span>
-        </div>
-        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-      </button>
       <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='history.html'">
         <div class="flex items-center gap-3">
           <span class="material-symbols-outlined" style="color: #006d33;">history</span>
@@ -92,20 +82,11 @@
         </div>
         <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
       </button>
-      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-outline-variant" onclick="window.location.href='inventory.html'">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined" style="color: #006d33;">inventory_2</span>
-          <span class="text-sm font-medium" style="color: #111827;">配件库存</span>
-        </div>
-        <span class="material-symbols-outlined text-on-surface-variant">chevron_right</span>
-      </button>
-      <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors" onclick="logout()">
-        <div class="flex items-center gap-3">
-          <span class="material-symbols-outlined text-error">logout</span>
-          <span class="text-sm font-medium text-error">退出登录</span>
-        </div>
-      </button>
+
+
     </div>
+    <section class="field-account-links"><h2>服务与资质</h2><a href="market-profile.html">接单资料与审核</a><a href="ai-assistant.html">维修 AI 助手</a></section>
+    <button type="button" class="field-logout" onclick="logout()">退出登录</button>
   </main>
 
   <!-- Bottom Navigation -->
@@ -132,7 +113,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
     var user = null;
 
@@ -140,20 +121,32 @@
       window.location.href = 'login.html';
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
       loadProfile();
+      try {
+        const workspace = await window.EngineerWorkspace.ready();
+        if (workspace?.platform) {
+          document.querySelector('.profile-maintenance-note').textContent = '平台合作工程师：接单资料与技能资质由平台审核。';
+          document.getElementById('engineerAvailability').hidden = true;
+          document.getElementById('statusFeedback').hidden = true;
+          document.querySelector('button[onclick="loadStatus()"]').hidden = true;
+          document.getElementById('monthlyRevenue').closest('.cursor-pointer').hidden = true;
+          document.querySelectorAll('[onclick*="stats.html"],[onclick*="history.html"],[onclick*="inventory.html"],a[href="inventory.html"],a[href="ai-assistant.html"]').forEach(el => el.hidden = true);
+          return;
+        }
+      } catch { return; }
       loadStats();
-      initStatusButtons();
+      loadStatus();
     });
 
-    function initStatusButtons() {
-      document.querySelectorAll('.status-btn').forEach(function(btn) {
-        btn.style.backgroundColor = '#ffffff';
-        btn.style.color = '#191c1e';
-        btn.style.borderColor = '#c3c6d1';
-      });
+    var statusBusy=false;
+    function paintStatus(status){
+      var labels={ONLINE:'可接单',WORKING:'服务中',OFFLINE:'休息中'};
+      document.getElementById('availabilityCurrent').textContent=labels[status]||'状态待确认';
+      document.getElementById('engineerAvailability').dataset.status=status||'UNKNOWN';
+      document.querySelectorAll('.status-btn').forEach(function(btn){var active=btn.dataset.status===status;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));});
     }
-
+    async function loadStatus(){try{var response=await fetch(API_BASE+'/engineer/status',{headers:{Authorization:'Bearer '+token}});var data=await readApiResponse(response);paintStatus(data.status);document.querySelector('button[onclick="loadStatus()"]').hidden=true;document.getElementById('statusFeedback').dataset.state='synced';document.getElementById('statusFeedback').textContent='';}catch(e){paintStatus(null);document.querySelector('button[onclick="loadStatus()"]').hidden=false;document.getElementById('statusFeedback').dataset.state='error';document.getElementById('statusFeedback').textContent='当前接单状态未能读取，请重试：'+e.message;}}
     function loadProfile() {
       try {
         user = JSON.parse(localStorage.getItem('engineer_user'));
@@ -168,37 +161,24 @@
       fetch(API_BASE + '/engineer/stats', {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
-        document.getElementById('monthlyRevenue').textContent = '¥' + ((data.monthlyRevenue || 0).toFixed(0));
+        document.getElementById('statsFeedback').hidden=true;
+        document.getElementById('monthlyRevenue').textContent = Number(data.monthlyRevenue || 0).toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2});
         document.getElementById('monthlyOrders').textContent = (data.monthlyOrders || 0);
       })
       .catch(function(err) {
-        console.log('加载收益统计失败:', err);
+        document.getElementById('monthlyRevenue').textContent='待核实';document.getElementById('monthlyOrders').textContent='待核实';document.getElementById('statsFeedback').hidden=false;
       });
     }
 
-    function updateStatus(status) {
-      document.querySelectorAll('.status-btn').forEach(function(btn) {
-        btn.classList.remove('active');
-        btn.style.backgroundColor = '#ffffff';
-        btn.style.color = '#191c1e';
-        btn.style.borderColor = '#c3c6d1';
-      });
-      var activeBtn = document.querySelector('.status-btn[data-status="' + status + '"]');
-      activeBtn.classList.add('active');
-      activeBtn.style.backgroundColor = '#006d33';
-      activeBtn.style.color = '#ffffff';
-      activeBtn.style.borderColor = '#006d33';
-
-      fetch(API_BASE + '/engineer/status', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body: JSON.stringify({ status: status })
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {})
-      .catch(function(err) {});
+    async function updateStatus(status){
+      if(statusBusy || document.querySelector('.status-btn[data-status="'+status+'"]')?.getAttribute('aria-pressed')==='true')return;statusBusy=true;
+      document.querySelectorAll('.status-btn').forEach(function(btn){btn.disabled=true;});
+      document.getElementById('statusFeedback').dataset.state='pending';document.getElementById('statusFeedback').textContent='正在保存接单状态…';
+      try{var response=await fetch(API_BASE+'/engineer/status',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({status:status})});await readApiResponse(response);await loadStatus();}
+      catch(e){paintStatus(null);document.querySelector('button[onclick="loadStatus()"]').hidden=false;document.getElementById('statusFeedback').dataset.state='error';document.getElementById('statusFeedback').textContent='未能确认保存结果，请重新读取当前状态后再操作：'+e.message;}
+      finally{statusBusy=false;document.querySelectorAll('.status-btn').forEach(function(btn){btn.disabled=false;});}
     }
 
     function logout() {
@@ -208,5 +188,5 @@
       window.location.href = 'login.html';
     }
   </script>
-</body>
+<script src="/iot/entry.js" defer></script></body>
 </html>

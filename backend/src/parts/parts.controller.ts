@@ -1,15 +1,18 @@
-import { Controller, Get, Post, Put, Body, Param, Query, UseGuards } from '@nestjs/common';
+import { Roles } from '../auth/roles.decorator.js';
+import { Controller, Get, Post, Put, Body, Param, Query, Request, UseGuards } from '@nestjs/common';
 import { PartsService } from './parts.service.js';
 import { CreatePartDto, CreateWarehouseDto, StockInDto, StockOutDto, TransferDto } from './parts.dto.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 
 @Controller('parts')
 @UseGuards(JwtAuthGuard)
+@Roles('cs_operator')
 export class PartsController {
   constructor(private partsService: PartsService) {}
 
   // ==================== 配件 ====================
   @Get()
+  @Roles('cs_operator', 'engineer')
   async getParts(@Query('category') category?: string) {
     return this.partsService.getParts(category);
   }
@@ -26,6 +29,7 @@ export class PartsController {
 
   // ==================== 仓库 ====================
   @Get('warehouses')
+  @Roles('cs_operator', 'engineer')
   async getWarehouses() {
     return this.partsService.getWarehouses();
   }
@@ -37,18 +41,20 @@ export class PartsController {
 
   // ==================== 库存 ====================
   @Get('inventory')
+  @Roles('cs_operator', 'engineer')
   async getInventory(@Query('warehouseId') warehouseId?: string, @Query('partId') partId?: string) {
     return this.partsService.getInventory(warehouseId, partId);
   }
 
   @Get('inventory/low-stock')
+  @Roles('cs_operator', 'engineer')
   async getLowStockAlerts() {
     return this.partsService.getLowStockAlerts();
   }
 
   @Post('stock-in')
-  async stockIn(@Body() dto: StockInDto) {
-    return this.partsService.stockIn(dto);
+  async stockIn(@Body() dto: StockInDto, @Request() req: any) {
+    return this.partsService.stockIn(dto, req.user.sub);
   }
 
   @Post('stock-out')

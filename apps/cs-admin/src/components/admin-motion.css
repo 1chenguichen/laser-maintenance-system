@@ -1,0 +1,18 @@
+
+/* Route changes animate once; polling and same-page filter updates do not replay. */
+.admin-page-transition,.service-workbench{animation:admin-page-enter 200ms cubic-bezier(.2,.7,.2,1)}
+.admin-page-transition :is(.page-heading,.biz-head,.flow-heading){animation:admin-heading-enter 220ms cubic-bezier(.2,.7,.2,1)}
+.layout .nav-item{transition:background-color 160ms ease,color 160ms ease,box-shadow 160ms ease}
+.layout .content :is(.btn,.biz-tabs button,.biz-link),.service-workbench button{transition:background-color 150ms ease,color 150ms ease,border-color 150ms ease,box-shadow 150ms ease}
+.layout .content :is(.table,.biz-table) tbody tr,.layout .content :is(.table,.biz-table) tbody td{transition:background-color 140ms ease}
+.layout .content :is(input,select,textarea),.admin-theme-control select{transition:border-color 150ms ease,box-shadow 150ms ease,background-color 180ms ease,color 150ms ease}
+.layout .content .btn:active:not(:disabled){filter:brightness(.96)}
+.biz-overlay,.modal-overlay{animation:admin-overlay-enter 140ms ease-out}
+.biz-modal,.modal-overlay>.modal-content,.modal-overlay>.modal{animation:admin-dialog-enter 180ms cubic-bezier(.2,.7,.2,1)}
+@keyframes admin-page-enter{from{opacity:.55}to{opacity:1}}
+@keyframes admin-heading-enter{from{transform:translateY(5px)}to{transform:none}}
+@keyframes admin-overlay-enter{from{opacity:0}to{opacity:1}}
+@keyframes admin-dialog-enter{from{opacity:.7;transform:translateY(8px) scale(.99)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.admin-page-transition,.admin-page-transition :is(.page-heading,.biz-head,.flow-heading),.service-workbench,.biz-overlay,.modal-overlay,.biz-modal,.modal-overlay>.modal-content,.modal-overlay>.modal{animation:none!important}.layout *,.service-workbench *{transition:none!important}}
+
+.workspace-feedback{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:1600;max-width:min(560px,calc(100vw - 32px));box-sizing:border-box;display:flex;align-items:center;gap:20px;padding:14px 18px;background:var(--skin-sidebar);color:var(--skin-ink);border:1px solid var(--skin-border);border-radius:12px;box-shadow:0 8px 28px #0002;font-size:14px;line-height:1.6;animation:admin-overlay-enter 140ms ease-out}.workspace-feedback button{border:0;background:none;color:var(--skin-muted);min-width:32px;min-height:32px;font-size:20px;cursor:pointer}.workspace-feedback button:focus-visible{outline:2px solid var(--skin-focus)}@media(prefers-reduced-motion:reduce){.workspace-feedback{animation:none}}

@@ -1,4 +1,4 @@
-import { IsString, IsEnum, IsOptional, Matches } from 'class-validator';
+import { IsString, IsEnum, IsOptional, Matches, IsUUID, MaxLength } from 'class-validator';
 
 export enum AuthRole {
   CUSTOMER = 'customer',
@@ -10,6 +10,13 @@ export class LoginDto {
   @IsString()
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入正确的手机号' })
   phone: string;
+
+  @IsOptional()
+  @Matches(/^[a-z0-9-]{2,40}$/)
+  tenantCode?: string;
+
+  @IsOptional() @IsUUID() organizationId?: string;
+  @IsOptional() @IsString() @MaxLength(8192) selectionToken?: string;
 
   @IsString()
   @Matches(/^\d{6}$/, { message: '验证码为6位数字' })
@@ -23,12 +30,26 @@ export class SendCodeDto {
   @IsString()
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入正确的手机号' })
   phone: string;
+
+  @IsOptional()
+  @Matches(/^[a-z0-9-]{2,40}$/)
+  tenantCode?: string;
+
+  @IsOptional() @IsUUID() organizationId?: string;
+  @IsOptional() @IsString() @MaxLength(8192) selectionToken?: string;
 }
 
 export class RegisterDto {
   @IsString()
   @Matches(/^1[3-9]\d{9}$/, { message: '请输入正确的手机号' })
   phone: string;
+
+  @IsOptional()
+  @Matches(/^[a-z0-9-]{2,40}$/)
+  tenantCode?: string;
+
+  @IsOptional() @IsUUID() organizationId?: string;
+  @IsOptional() @IsString() @MaxLength(8192) selectionToken?: string;
 
   @IsString()
   @Matches(/^\d{6}$/, { message: '验证码为6位数字' })

@@ -1,3 +1,5 @@
+import {CompanyOverview} from '../components/CompanyBrand';
+import PageHeading from '../components/PageHeading';
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import * as echarts from 'echarts';
@@ -5,6 +7,7 @@ import { getStats, getWorkOrders, getEngineers, getTrendStats, getPerformanceSta
 import { WorkOrderStatus } from '../types';
 
 export default function Dashboard() {
+  const [distribution,setDistribution]=useState({completed:0,pending:0,active:0,cancelled:0});
   const [stats, setStats] = useState<StatsType | null>(null);
   const [trend, setTrend] = useState<TrendStats | null>(null);
   const [performance, setPerformance] = useState<PerformanceStats | null>(null);
@@ -33,7 +36,7 @@ export default function Dashboard() {
     if (!loading && revenueChartRef.current) {
       renderRevenueChart();
     }
-  }, [loading, trend, ranking]);
+  }, [loading, trend, ranking, distribution]);
 
   async function loadData() {
     try {
@@ -46,6 +49,8 @@ export default function Dashboard() {
         getEngineerRanking(),
         getComplaintRate(),
       ]);
+      const rows=ordersData||[];
+      setDistribution({completed:rows.filter(o=>o.status===WorkOrderStatus.COMPLETED).length,pending:rows.filter(o=>o.status===WorkOrderStatus.PENDING).length,cancelled:rows.filter(o=>o.status===WorkOrderStatus.CANCELLED).length,active:rows.filter(o=>![WorkOrderStatus.COMPLETED,WorkOrderStatus.PENDING,WorkOrderStatus.CANCELLED].includes(o.status as WorkOrderStatus)).length});
       setStats(statsData);
       setTrend(trendData);
       setPerformance(perfData);
@@ -95,25 +100,27 @@ export default function Dashboard() {
   function renderStatusChart() {
     if (!statusChartRef.current) return;
     const chart = echarts.init(statusChartRef.current);
-    const total = stats?.totalOrders || 1;
-    const completed = stats?.completedOrders || 0;
-    const pending = stats?.pendingOrders || 0;
-    const other = total - completed - pending;
+    const total = Object.values(distribution).reduce((sum,n)=>sum+n,0);
+    const completed = distribution.completed;
+    const pending = distribution.pending;
+    const other = distribution.active;
 
     const option = {
-      title: { text: '工单状态分布', textStyle: { fontSize: 14, fontWeight: 'normal' } },
+      title: { text: '工单状态分布', subtext:total?'':'暂无工单', textStyle: { fontSize: 14, fontWeight: 'normal' } },
       tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-      legend: { bottom: 0 },
+      legend: { bottom: 0, show:total>0 },
       series: [{
+        showEmptyCircle:false,
         type: 'pie',
         radius: ['40%', '70%'],
         avoidLabelOverlap: false,
         label: { show: false },
-        data: [
+        data: total? [
           { value: completed, name: '已完成', itemStyle: { color: '#52c41a' } },
           { value: pending, name: '待处理', itemStyle: { color: '#ff4d4f' } },
-          { value: other > 0 ? other : 0, name: '进行中', itemStyle: { color: '#1677ff' } }
-        ]
+          { value: other > 0 ? other : 0, name: '进行中', itemStyle: { color: '#1677ff' } },
+          { value: distribution.cancelled, name:'已取消', itemStyle:{color:'#9aa5b3'} }
+        ]:[]
       }]
     };
     chart.setOption(option);
@@ -156,7 +163,9 @@ export default function Dashboard() {
   const workingEngineers = (engineers || []).filter(e => e.status === 'WORKING');
 
   return (
-    <div>
+    <div className="workspace-page">
+      <CompanyOverview />
+      <PageHeading title="业务总览" description="查看当前待办、工单进度与企业业务概况。" />
       {/* 核心指标卡片 */}
       <div className="stats-grid">
         <div className="stat-card">
@@ -178,7 +187,7 @@ export default function Dashboard() {
       </div>
 
       {/* 图表区域 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
+      <div className="workspace-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
         <div className="card">
           <div ref={trendChartRef} style={{ width: '100%', height: 280 }}></div>
         </div>
@@ -187,14 +196,14 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
+      <div className="workspace-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
         <div className="card">
           <div ref={revenueChartRef} style={{ width: '100%', height: 280 }}></div>
         </div>
 
         {/* 运营指标 */}
         <div className="card">
-          <div className="card-title">⚡ 运营指标</div>
+          <div className="card-title">运营指标</div>
           <div style={{ marginTop: 16 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
               <span className="text-secondary">工单完成率</span>
@@ -223,10 +232,10 @@ export default function Dashboard() {
       </div>
 
       {/* 待处理工单和工程师 */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
+      <div className="workspace-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginTop: 24 }}>
         {/* 待处理工单 */}
         <div className="card">
-          <div className="card-title">📋 待处理工单</div>
+          <div className="card-title">待处理工单</div>
           {pendingOrders.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 20, color: '#666' }}>暂无待处理工单</div>
           ) : (
@@ -260,7 +269,7 @@ export default function Dashboard() {
 
         {/* 在线工程师 */}
         <div className="card">
-          <div className="card-title">👷 工程师状态</div>
+          <div className="card-title">工程师状态</div>
           {engineers.length === 0 ? (
             <div style={{ textAlign: 'center', padding: 20, color: '#666' }}>暂无工程师</div>
           ) : (
@@ -295,7 +304,7 @@ export default function Dashboard() {
 
       {/* 提成规则说明 */}
       <div className="card" style={{ marginTop: 24 }}>
-        <div className="card-title">📖 提成规则</div>
+        <div className="card-title">提成规则</div>
         <div style={{ fontSize: 14, color: '#666', lineHeight: 1.8 }}>
           <p>• <strong>1-10单</strong>：提成比例 20%</p>
           <p>• <strong>11-30单</strong>：提成比例 25%</p>

@@ -1,5 +1,8 @@
+import {CompanyBrand} from '../components/CompanyBrand';
+import './service-workbench.css';
+import {ThemeSwitcher} from '../components/AdminAppearance';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { getToken } from '../api';
+import { API_BASE, getToken, tenantStorageKey } from '../api';
 
 interface WaitingCustomer {
   customerId: string;
@@ -18,6 +21,19 @@ interface ChatMessage {
   contentType?: 'text' | 'image' | 'card';
   status?: 'sending' | 'sent' | 'delivered' | 'read' | 'error';
   quotedContent?: string;
+}
+
+interface CustomerWorkOrder {
+  id: string;
+  orderNo: string;
+  status: string;
+  faultType: string;
+  createdAt: string;
+  finalAmount?: string | number;
+  estimatedAmount?: string | number;
+  prepayAmount?: string | number;
+  finalPaymentAmount?: string | number;
+  device?: { model: string };
 }
 
 interface ActiveChat {
@@ -41,6 +57,7 @@ interface ActiveChat {
   phone?: string;
   email?: string;
   totalSpend?: string;
+  workOrders?: CustomerWorkOrder[];
 }
 
 // Material Symbols component
@@ -48,11 +65,11 @@ const Icon = ({ name, className = '' }: { name: string; className?: string }) =>
   <span className={`material-symbols-outlined ${className}`}>{name}</span>
 );
 
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:8080`;
+
 
 // Helper function for GET requests
 async function getApi(endpoint: string) {
-  const token = localStorage.getItem('cs_admin_token');
+  const token = getToken();
   const response = await fetch(`${API_BASE}${endpoint}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
@@ -62,7 +79,7 @@ async function getApi(endpoint: string) {
 
 // Helper function for POST requests
 async function postApi(endpoint: string, data: any) {
-  const token = localStorage.getItem('cs_admin_token');
+  const token = getToken();
   const response = await fetch(`${API_BASE}${endpoint}`, {
     method: 'POST',
     headers: {
@@ -76,11 +93,12 @@ async function postApi(endpoint: string, data: any) {
 }
 
 export default function ServiceDesk() {
+  const [detailsOpen,setDetailsOpen]=useState(false);
   const [waitingList, setWaitingList] = useState<WaitingCustomer[]>([]);
   const [activeChats, setActiveChats] = useState<ActiveChat[]>(() => {
     try {
-      const saved = localStorage.getItem('cs_active_chats');
-      return saved ? JSON.parse(saved) : [];
+      const saved = localStorage.getItem(tenantStorageKey('cs_active_chats'));
+      return saved ? JSON.parse(saved).map((chat: ActiveChat) => ({ customerId: chat.customerId, customerName: chat.customerName, messages: chat.messages || [], unreadCount: chat.unreadCount || 0 })) : [];
     } catch { return []; }
   });
   const [currentChat, setCurrentChat] = useState<ActiveChat | null>(null);
@@ -94,6 +112,7 @@ export default function ServiceDesk() {
   const [rightTab, setRightTab] = useState<'orders' | 'tickets' | 'track'>('orders');
   const [searchQuery, setSearchQuery] = useState('');
   const [leftPanel, setLeftPanel] = useState(true);
+  const [customerError, setCustomerError] = useState('');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -120,12 +139,7 @@ export default function ServiceDesk() {
       const messages = await getApi(`/ai/cs/chats/${currentChat.customerId}`);
       if (Array.isArray(messages)) {
         const messagesWithStatus = messages.map((m: ChatMessage, index: number) => {
-          let status: ChatMessage['status'] = 'read';
-          if (m.direction === 'OUTBOUND') {
-            if (index === messages.length - 1 || messages[index + 1]?.direction === 'INBOUND') {
-              status = 'delivered';
-            }
-          }
+          const status: ChatMessage['status'] = m.direction === 'OUTBOUND' ? 'sent' : undefined;
           return { ...m, status };
         });
 
@@ -133,7 +147,7 @@ export default function ServiceDesk() {
         const newMessages = messagesWithStatus.filter((m: ChatMessage) => !localMsgIds.has(m.id));
 
         if (newMessages.length > 0 || messagesWithStatus.length !== currentChat.messages.length) {
-          setCurrentChat(prev => prev ? { ...prev, messages: messagesWithStatus } : null);
+          setCurrentChat(prev => prev?.customerId === currentChat.customerId ? { ...prev, messages: messagesWithStatus } : prev);
           setActiveChats(prev => prev.map(c =>
             c.customerId === currentChat.customerId ? { ...c, messages: messagesWithStatus } : c
           ));
@@ -164,7 +178,7 @@ export default function ServiceDesk() {
   // 持久化活跃聊天到 localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('cs_active_chats', JSON.stringify(activeChats));
+      localStorage.setItem(tenantStorageKey('cs_active_chats'), JSON.stringify(activeChats));
     } catch {}
   }, [activeChats]);
 
@@ -189,6 +203,29 @@ export default function ServiceDesk() {
       if (chatPollingRef.current) clearInterval(chatPollingRef.current);
     };
   }, [currentChat, pollChatMessages]);
+
+  useEffect(() => {
+    if (!currentChat?.customerId) return;
+    let cancelled = false;
+    const id = currentChat.customerId;
+    setCustomerError('');
+    getApi(`/admin/customers/${id}`).then(data => {
+      if (cancelled) return;
+      const orders: CustomerWorkOrder[] = data.workOrders || [];
+      const paid = orders.filter(o => ['REPAIRING', 'PENDING_FINAL_PAYMENT', 'COMPLETED'].includes(o.status)).reduce((sum, o) => sum + Number(o.prepayAmount || 0) + Number(o.finalPaymentAmount || 0), 0);
+      const address = data.addresses?.find((a: { isDefault: boolean }) => a.isDefault) || data.addresses?.[0];
+      const actual = {
+        customerName: data.name, phone: data.phone, customerCode: data.id,
+        customerSince: data.createdAt ? data.createdAt.slice(0, 10) : undefined,
+        totalOrders: orders.length, totalSpend: '¥' + paid.toFixed(2), workOrders: orders,
+        location: address ? [address.province, address.city, address.district].filter(Boolean).join(' · ') : undefined,
+        device: data.devices?.[0]?.model, isVip: false, company: undefined, email: undefined, tags: [], note: undefined,
+      };
+      setCurrentChat(prev => prev?.customerId === id ? { ...prev, ...actual } : prev);
+      setActiveChats(prev => prev.map(chat => chat.customerId === id ? { ...chat, ...actual } : chat));
+    }).catch(() => { if (!cancelled) setCustomerError('客户资料加载失败，请重新选择会话重试'); });
+    return () => { cancelled = true; };
+  }, [currentChat?.customerId]);
 
   // 自动滚动
   useEffect(() => {
@@ -265,19 +302,7 @@ export default function ServiceDesk() {
           customerName: customer.customerName,
           messages: [],
           unreadCount: 0,
-          isVip: customer.customerName.includes('VIP') || Math.random() > 0.7,
-          location: '上海市 · 徐汇区',
-          device: 'iOS 17.4 / App v4.8.2',
-          sessionDuration: 0,
-          customerSince: '2022-06-18',
-          totalOrders: 12,
-          company: '上海聚思创享信息科技有限公司',
-          customerCode: 'CN-CORP-99201',
-          phone: '138****5821',
-          email: 'cx***@company.com',
-          totalSpend: '¥148,920.00',
-          tags: ['高净值客户', '企业月结', '偏好顺丰特快'],
-          note: '客户对时效极其敏锐，公司采购频次高，遇延迟需第一时间跟进，优先走顺丰特快。',
+          isVip: false, sessionDuration: 0, totalOrders: 0, workOrders: [], tags: [],
         };
         setActiveChats(prev => [...prev, newChat]);
         setCurrentChat(newChat);
@@ -285,6 +310,8 @@ export default function ServiceDesk() {
         setShowRating(false);
       }
 
+      setSessionEnded(false);
+      setShowRating(false);
       setWaitingList(prev => prev.filter(c => c.customerId !== customer.customerId));
     } catch (error) {
       console.error('Accept customer error:', error);
@@ -292,6 +319,8 @@ export default function ServiceDesk() {
   };
 
   const selectChat = (chat: ActiveChat) => {
+    setSessionEnded(false);
+    setShowRating(false);
     setCurrentChat(chat);
     setActiveChats(prev => prev.map(c =>
       c.customerId === chat.customerId ? { ...c, unreadCount: 0 } : c
@@ -316,10 +345,10 @@ export default function ServiceDesk() {
         content: message,
         direction: 'OUTBOUND',
         createdAt: new Date().toISOString(),
-        status: 'sending',
+        status: 'sent',
       };
 
-      setCurrentChat(prev => prev ? { ...prev, messages: [...prev.messages, newMessage] } : null);
+      setCurrentChat(prev => prev?.customerId === newMessage.customerId ? { ...prev, messages: [...prev.messages, newMessage] } : prev);
       setActiveChats(prev => prev.map(c => {
         if (c.customerId === currentChat.customerId) {
           return { ...c, messages: [...c.messages, newMessage] };
@@ -327,22 +356,11 @@ export default function ServiceDesk() {
         return c;
       }));
 
-      setTimeout(() => {
-        setCurrentChat(prev => prev ? {
-          ...prev,
-          messages: prev.messages.map(m => m.id === newMessage.id ? { ...m, status: 'sent' as const } : m)
-        } : null);
-      }, 500);
-
-      setTimeout(() => {
-        setCurrentChat(prev => prev ? {
-          ...prev,
-          messages: prev.messages.map(m => m.id === newMessage.id ? { ...m, status: 'delivered' as const } : m)
-        } : null);
-      }, 1000);
 
     } catch (error) {
       console.error('Send message error:', error);
+      setMessageInput(prev => prev || message);
+      alert('消息未发送成功，请重试');
     }
   };
 
@@ -350,11 +368,12 @@ export default function ServiceDesk() {
     if (!currentChat) return;
     try {
       await postApi('/ai/cs/end', { customerId: currentChat.customerId });
+      setSessionEnded(true);
+      setShowRating(true);
     } catch (error) {
       console.error('End session error:', error);
+      alert('结束服务失败，请重试');
     }
-    setSessionEnded(true);
-    setShowRating(true);
   };
 
   const submitRating = async () => {
@@ -383,41 +402,36 @@ export default function ServiceDesk() {
   };
 
   const quickReplies = [
-    { label: '顺丰发货通知', text: '[顺丰物流] 您好，您的订单已进入发运阶段，顺丰单号为 SF1409228190019，请注意查收。' },
+    { label: '维修进度说明', text: '您好，我们正在核对您的维修工单，确认后将为您同步最新进度。' },
     { label: '标准问候', text: '[问候] 您好，很高兴为您服务，请问有什么可以帮您？' },
     { label: '订单号查询', text: '[核对信息] 请提供您的下单手机号或订单后6位方便快速查询。' },
   ];
 
-  // Mock data for demo
-  const mockOrders = [
-    { id: 'OD202405180092', status: '顺丰配载中', product: 'Master 3S 机械定制旗舰套装', specs: '钛灰银轴 / 镭雕标 x 2', price: '¥2,599.00', date: '05-18 10:14', tracking: 'SF1409228190019', icon: 'keyboard' },
-    { id: 'OD202404120018', status: '已完结', product: '4K 144Hz Type-C 12合1拓展坞', specs: '深空灰 / 100W PD x 1', price: '¥699.00', date: '04-12', icon: 'hub', signedDate: '04-14 09:30' },
-    { id: 'OD202401039912', status: '已完结', product: '人体工学无线垂直鼠标 Pro', specs: '静音双模 x 5', price: '¥1,495.00', date: '01-03', icon: 'mouse' },
-  ];
+
 
   return (
-    <div className="flex h-screen bg-[#faf8ff] overflow-hidden">
+    <div className={`service-workbench ${detailsOpen?'details-open':''} flex h-screen bg-[var(--skin-ground)] overflow-hidden`}>
       {/* 左侧导航栏 */}
-      <aside className="w-14 bg-white flex flex-col items-center py-3 shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex-shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-[#3525cd] flex items-center justify-center mb-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+      <aside className="w-14 bg-[var(--desk-panel)] flex flex-col items-center py-3 shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex-shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-[var(--skin-accent)] flex items-center justify-center mb-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
           <Icon name="support_agent" className="text-white text-xl" />
         </div>
         <nav className="flex-1 flex flex-col items-center gap-2 w-full px-1">
           {[
-            { icon: 'forum', label: '实时工作台', active: true },
-            { icon: 'confirmation_number', label: '工单队列' },
-            { icon: 'badge', label: '客户中心' },
-            { icon: 'menu_book', label: '知识库话术' },
-            { icon: 'analytics', label: '客服质检分析' },
+            { icon: 'forum', label: '实时工作台', path:'/service-desk', active: true },
+            { icon: 'confirmation_number', label: '工单队列',path:'/orders' },
+            { icon: 'badge', label: '客户中心',path:'/customers' },
           ].map((item, idx) => (
             <a
               key={item.label}
-              href="#"
+              href={item.path}
+              aria-label={item.label}
+              aria-current={item.active?'page':undefined}
               title={item.label}
               className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
                 item.active
-                  ? 'bg-[#4f46e5] text-white'
-                  : 'text-[#464555] hover:bg-[#e2e7ff] hover:text-[#131b2e]'
+                  ? 'bg-[var(--skin-accent)] text-white'
+                  : 'text-[var(--skin-muted)] hover:bg-[var(--skin-hover)] hover:text-[var(--skin-ink)]'
               }`}
             >
               <Icon name={item.icon} className="text-xl" />
@@ -425,32 +439,33 @@ export default function ServiceDesk() {
           ))}
         </nav>
         <div className="mt-auto">
-          <a href="#" title="工作台设置" className="w-10 h-10 flex items-center justify-center rounded-lg text-[#464555] hover:bg-[#e2e7ff] hover:text-[#131b2e] transition-colors">
-            <Icon name="settings" className="text-xl" />
+          <a href="/" aria-label="返回企业后台" title="返回企业后台" className="w-10 h-10 flex items-center justify-center rounded-lg text-[var(--skin-muted)] hover:bg-[var(--skin-hover)] hover:text-[var(--skin-ink)] transition-colors">
+            <Icon name="home" className="text-xl" />
           </a>
         </div>
       </aside>
 
       {/* 顶部Header */}
-      <header className="fixed top-0 left-14 right-0 h-14 bg-white z-40 px-4 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+      <header className="fixed top-0 left-14 right-0 h-14 bg-[var(--desk-panel)] z-40 px-4 flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
         <div className="flex items-center gap-4">
+          <CompanyBrand compact />
           <div className="flex items-center gap-1">
-            <span className="text-[15px] font-semibold text-[#131b2e] tracking-tight">AgentDesk</span>
-            <span className="text-[11px] px-1 py-0.5 rounded-lg bg-[#e2dfff] text-[#0f0069] font-semibold">PRO</span>
+            <span className="text-[15px] font-semibold text-[var(--skin-ink)] tracking-tight">客服工作台</span>
+            <span className="text-[11px] px-1 py-0.5 rounded-lg bg-[var(--skin-active)] text-[var(--skin-accent)] font-semibold">企业服务</span>
           </div>
-          <div className="flex items-center gap-1 bg-[#f2f3ff] px-2 py-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-[var(--skin-soft)] px-2 py-1 rounded-lg">
             <span className="w-2 h-2 rounded-full bg-[#4edea3]"></span>
-            <span className="text-[11px] text-[#131b2e] font-medium">在线</span>
-            <Icon name="expand_more" className="text-[16px] text-[#777587]" />
+            <span className="text-[11px] text-[var(--skin-ink)] font-medium">在线</span>
+            <Icon name="expand_more" className="text-[16px] text-[var(--skin-muted)]" />
           </div>
           <div className="hidden xl:flex items-center gap-4 pl-4">
-            <div className="flex items-center gap-1 text-[#464555] text-[11px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#3525cd]"></span>
+            <div className="flex items-center gap-1 text-[var(--skin-muted)] text-[11px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--skin-accent)]"></span>
               <span>接待中</span>
-              <span className="font-bold text-[#131b2e] ml-0.5">{activeChats.length}</span>
+              <span className="font-bold text-[var(--skin-ink)] ml-0.5">{activeChats.length}</span>
             </div>
-            <div className="w-px h-3 bg-[#c7c4d8]"></div>
-            <div className="flex items-center gap-1 text-[#464555] text-[11px]">
+            <div className="w-px h-3 bg-[var(--skin-border)]"></div>
+            <div className="flex items-center gap-1 text-[var(--skin-muted)] text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ba1a1a]"></span>
               <span>待接入</span>
               <span className="font-bold text-[#ba1a1a] ml-0.5">{waitingList.length}</span>
@@ -458,53 +473,55 @@ export default function ServiceDesk() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeSwitcher />
+          <button className="desk-details-toggle" aria-expanded={detailsOpen} onClick={()=>setDetailsOpen(!detailsOpen)}>{detailsOpen?'关闭资料':'客户资料'}</button>
           <div className="relative flex items-center">
-            <Icon name="search" className="absolute left-2.5 text-[16px] text-[#777587]" />
+            <Icon name="search" className="absolute left-2.5 text-[16px] text-[var(--skin-muted)]" />
             <input
-              className="w-56 lg:w-64 h-8 pl-8 pr-3 rounded-lg bg-[#f2f3ff] text-[12px] text-[#131b2e] placeholder:text-[#777587] focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#3525cd]"
-              placeholder="搜索会话/客户..."
+              className="w-56 lg:w-64 h-8 pl-8 pr-3 rounded-lg bg-[var(--skin-soft)] text-[12px] text-[var(--skin-ink)] placeholder:text-[var(--skin-muted)] focus:outline-none focus:bg-[var(--desk-panel)] focus:ring-1 focus:ring-[var(--skin-accent)]"
+              aria-label="搜索会话或客户" placeholder="搜索会话/客户..."
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="flex items-center gap-2 pl-2">
-            <div className="w-8 h-8 rounded-full bg-[#3525cd] flex items-center justify-center shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-[var(--skin-accent)] flex items-center justify-center shadow-sm">
               <Icon name="person" className="text-white text-[18px]" />
             </div>
             <div className="flex flex-col text-left">
-              <span className="text-[12px] text-[#131b2e] font-semibold leading-tight">李婷</span>
-              <span className="text-[11px] text-[#777587] leading-tight">在线</span>
+              <span className="text-[12px] text-[var(--skin-ink)] font-semibold leading-tight">客服管理员</span>
+              <span className="text-[11px] text-[var(--skin-muted)] leading-tight">在线</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="flex w-full pt-14 h-[calc(100vh-3.5rem)]">
+      <div className="desk-columns flex w-full pt-14">
       {/* 左侧会话队列 */}
-      <section className="w-80 bg-white flex flex-col shadow-sm z-10 flex-shrink-0">
+      <section className="desk-queue w-80 bg-[var(--desk-panel)] flex flex-col shadow-sm z-10 flex-shrink-0">
         {/* Panel Header */}
-        <div className="p-3 pb-2 bg-white">
+        <div className="p-3 pb-2 bg-[var(--desk-panel)]">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1">
-              <span className="text-[15px] font-semibold text-[#131b2e]">会话队列</span>
-              <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[#e2e7ff] text-[#3525cd] font-medium">{activeChats.length} 在线</span>
+              <span className="text-[15px] font-semibold text-[var(--skin-ink)]">会话队列</span>
+              <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[var(--skin-hover)] text-[var(--skin-accent)] font-medium">{activeChats.length} 在线</span>
             </div>
           </div>
 
           {/* Tab切换 */}
-          <div className="grid grid-cols-3 gap-0.5 p-0.5 bg-[#e2e7ff] rounded-lg text-center">
+          <div className="grid grid-cols-3 gap-0.5 p-0.5 bg-[var(--skin-hover)] rounded-lg text-center">
             <button
               onClick={() => setLeftTab('current')}
               className={`py-1 px-2 rounded-md text-[11px] font-semibold transition-all flex items-center justify-center gap-1 ${
                 leftTab === 'current'
-                  ? 'bg-white text-[#3525cd] shadow-sm'
-                  : 'text-[#464555]'
+                  ? 'bg-[var(--desk-panel)] text-[var(--skin-accent)] shadow-sm'
+                  : 'text-[var(--skin-muted)]'
               }`}
             >
               <span>当前接待</span>
               <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
-                leftTab === 'current' ? 'bg-[#4f46e5] text-white' : 'bg-[#e2e7ff] text-[#464555]'
+                leftTab === 'current' ? 'bg-[var(--skin-accent)] text-white' : 'bg-[var(--skin-hover)] text-[var(--skin-muted)]'
               }`}>
                 {activeChats.length}
               </span>
@@ -513,13 +530,13 @@ export default function ServiceDesk() {
               onClick={() => setLeftTab('waiting')}
               className={`py-1 px-2 rounded-md text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
                 leftTab === 'waiting'
-                  ? 'bg-white text-[#3525cd] shadow-sm'
-                  : 'text-[#464555]'
+                  ? 'bg-[var(--desk-panel)] text-[var(--skin-accent)] shadow-sm'
+                  : 'text-[var(--skin-muted)]'
               }`}
             >
               <span>待接入</span>
               <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${
-                waitingList.length > 0 ? 'bg-[#ba1a1a] text-white' : 'bg-[#e2e7ff] text-[#464555]'
+                waitingList.length > 0 ? 'bg-[#ba1a1a] text-white' : 'bg-[var(--skin-hover)] text-[var(--skin-muted)]'
               }`}>
                 {waitingList.length}
               </span>
@@ -528,8 +545,8 @@ export default function ServiceDesk() {
               onClick={() => setLeftTab('ended')}
               className={`py-1 px-2 rounded-md text-[11px] font-medium transition-all ${
                 leftTab === 'ended'
-                  ? 'bg-white text-[#3525cd] shadow-sm'
-                  : 'text-[#464555]'
+                  ? 'bg-[var(--desk-panel)] text-[var(--skin-accent)] shadow-sm'
+                  : 'text-[var(--skin-muted)]'
               }`}
             >
               已完结
@@ -538,13 +555,13 @@ export default function ServiceDesk() {
 
           {/* 搜索框 */}
           <div className="relative flex items-center mt-1">
-            <Icon name="search" className="absolute left-2.5 text-[15px] text-[#777587]" />
+            <Icon name="search" className="absolute left-2.5 text-[15px] text-[var(--skin-muted)]" />
             <input
               type="text"
               placeholder="筛选客户、手机尾号、未读..."
-              className="w-full h-7 pl-7 pr-7 rounded bg-[#f2f3ff] text-[12px] text-[#131b2e] placeholder:text-[#777587] focus:outline-none focus:bg-white"
+              className="w-full h-7 pl-7 pr-7 rounded bg-[var(--skin-soft)] text-[12px] text-[var(--skin-ink)] placeholder:text-[var(--skin-muted)] focus:outline-none focus:bg-[var(--desk-panel)]"
             />
-            <button className="absolute right-2 text-[#777587] hover:text-[#131b2e]">
+            <button className="absolute right-2 text-[var(--skin-muted)] hover:text-[var(--skin-ink)]">
               <Icon name="tune" className="text-[15px]" />
             </button>
           </div>
@@ -554,8 +571,8 @@ export default function ServiceDesk() {
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {leftTab === 'current' && (
             activeChats.length === 0 ? (
-              <div className="text-center text-[#777587] py-8">
-                <div className="text-3xl mb-2">💬</div>
+              <div className="text-center text-[var(--skin-muted)] py-8">
+                <div className="text-3xl mb-2"><Icon name="forum" /></div>
                 <p className="text-xs">暂无活跃会话</p>
               </div>
             ) : (
@@ -565,12 +582,12 @@ export default function ServiceDesk() {
                   onClick={() => selectChat(chat)}
                   className={`relative p-2 rounded-lg cursor-pointer transition-all ${
                     currentChat?.customerId === chat.customerId
-                      ? 'bg-[#e2e7ff] shadow-sm'
-                      : 'hover:bg-[#f2f3ff]'
+                      ? 'bg-[var(--skin-hover)] shadow-sm'
+                      : 'hover:bg-[var(--skin-soft)]'
                   }`}
                 >
                   {idx === 0 && (
-                    <div className="absolute left-0 top-2 bottom-2 w-1 bg-[#3525cd] rounded-r" />
+                    <div className="absolute left-0 top-2 bottom-2 w-1 bg-[var(--skin-accent)] rounded-r" />
                   )}
                   <div className="flex items-start gap-2 pl-1.5">
                     <div className="relative flex-shrink-0">
@@ -581,21 +598,21 @@ export default function ServiceDesk() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-[12px] font-semibold text-[#131b2e] truncate">{chat.customerName}</span>
+                        <span className="text-[12px] font-semibold text-[var(--skin-ink)] truncate">{chat.customerName}</span>
                         {chat.messages.length > 0 && (
-                          <span className="text-[11px] text-[#777587]">
+                          <span className="text-[11px] text-[var(--skin-muted)]">
                             {formatTime(chat.messages[chat.messages.length - 1].createdAt)}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-[12px] text-[#464555] truncate">
+                        <p className="text-[12px] text-[var(--skin-muted)] truncate">
                           {chat.messages.length > 0
                             ? chat.messages[chat.messages.length - 1].content
                             : '开始对话'}
                         </p>
                         {chat.unreadCount > 0 && (
-                          <span className="w-4 h-4 rounded-full bg-[#3525cd] text-white text-[10px] font-bold flex items-center justify-center">
+                          <span className="w-4 h-4 rounded-full bg-[var(--skin-accent)] text-white text-[10px] font-bold flex items-center justify-center">
                             {chat.unreadCount}
                           </span>
                         )}
@@ -609,12 +626,12 @@ export default function ServiceDesk() {
 
           {leftTab === 'waiting' && (
             <>
-              <div className="px-2 py-1 flex items-center justify-between text-[11px] text-[#777587]">
-                <span className="font-semibold text-[#464555]">待接入排队队列</span>
+              <div className="px-2 py-1 flex items-center justify-between text-[11px] text-[var(--skin-muted)]">
+                <span className="font-semibold text-[var(--skin-muted)]">待接入排队队列</span>
                 <span className="text-[#ba1a1a] font-medium">{waitingList.length} 人等候</span>
               </div>
               {waitingList.length === 0 ? (
-                <div className="text-center text-[#777587] py-4">
+                <div className="text-center text-[var(--skin-muted)] py-4">
                   <p className="text-xs">暂无等待客户</p>
                 </div>
               ) : (
@@ -622,11 +639,11 @@ export default function ServiceDesk() {
                   <div
                     key={customer.customerId}
                     onClick={() => acceptCustomer(customer)}
-                    className="relative p-2 rounded-lg bg-[#f2f3ff]/70 hover:bg-[#f2f3ff] cursor-pointer transition-all opacity-90"
+                    className="relative p-2 rounded-lg bg-[var(--skin-soft)]/70 hover:bg-[var(--skin-soft)] cursor-pointer transition-all opacity-90"
                   >
                     <div className="flex items-start gap-2">
                       <div className="relative flex-shrink-0">
-                        <div className="w-9 h-9 rounded-full bg-[#d2d9f4] text-[#131b2e] flex items-center justify-center font-semibold text-[13px]">
+                        <div className="w-9 h-9 rounded-full bg-[#d2d9f4] text-[var(--skin-ink)] flex items-center justify-center font-semibold text-[13px]">
                           {customer.customerName.charAt(0)}
                         </div>
                         <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-[#2170e4] ring-2 ring-white animate-pulse" />
@@ -634,7 +651,7 @@ export default function ServiceDesk() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-0.5">
                           <div className="flex items-center gap-1 min-w-0">
-                            <span className="text-[12px] font-semibold text-[#131b2e] truncate">
+                            <span className="text-[12px] font-semibold text-[var(--skin-ink)] truncate">
                               {customer.customerName}
                             </span>
                             <span className="px-1.5 py-0.2 rounded bg-[#ffdad6] text-[#ba1a1a] text-[10px] font-medium">
@@ -646,12 +663,12 @@ export default function ServiceDesk() {
                               e.stopPropagation();
                               acceptCustomer(customer);
                             }}
-                            className="px-2 py-0.5 rounded bg-[#3525cd] text-white text-[10px] hover:bg-[#4f46e5] transition-colors shadow-sm"
+                            className="btn btn-primary btn-small"
                           >
                             接入
                           </button>
                         </div>
-                        <p className="text-[12px] text-[#777587] truncate">
+                        <p className="text-[12px] text-[var(--skin-muted)] truncate">
                           "{customer.lastMessage || '发起求助'}"
                         </p>
                       </div>
@@ -663,14 +680,14 @@ export default function ServiceDesk() {
           )}
 
           {leftTab === 'ended' && (
-            <div className="text-center text-[#777587] py-8">
+            <div className="text-center text-[var(--skin-muted)] py-8">
               <p className="text-xs">已完成会话记录</p>
             </div>
           )}
         </div>
 
         {/* 底部状态 */}
-        <div className="p-2 bg-[#f2f3ff] flex items-center justify-between text-[11px] text-[#464555]">
+        <div className="p-2 bg-[var(--skin-soft)] flex items-center justify-between text-[11px] text-[var(--skin-muted)]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#4edea3]" />
             <span>自动分流已开启 ({activeChats.length}/6)</span>
@@ -679,11 +696,11 @@ export default function ServiceDesk() {
       </section>
 
       {/* 中间聊天区域 */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#eaedff] shadow-[0_0_12px_rgba(0,0,0,0.02)]">
+      <main className="flex-1 flex flex-col min-w-0 bg-[var(--skin-ground)] shadow-[0_0_12px_rgba(0,0,0,0.02)]">
         {currentChat ? (
           <>
             {/* 聊天头部 */}
-            <header className="h-14 px-4 bg-white flex items-center justify-between flex-shrink-0 shadow-sm z-10">
+            <header className="h-14 px-4 bg-[var(--desk-panel)] flex items-center justify-between flex-shrink-0 shadow-sm z-10">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative flex-shrink-0">
                   <div className="w-9 h-9 rounded-full bg-[#0058be] text-white flex items-center justify-center font-bold text-[18px]">
@@ -693,18 +710,18 @@ export default function ServiceDesk() {
                 </div>
                 <div className="flex flex-col min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[15px] text-[#131b2e] truncate">{currentChat.customerName}</span>
+                    <span className="font-semibold text-[15px] text-[var(--skin-ink)] truncate">{currentChat.customerName}</span>
                     {currentChat.isVip && (
                       <span className="px-1.5 py-0.5 rounded bg-[#d8e2ff] text-[#004395] text-[11px] font-bold flex items-center gap-0.5">
                         <Icon name="workspace_premium" className="text-[13px] text-[#0058be]" />
                         企业专享VIP
                       </span>
                     )}
-                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-[#e2e7ff] text-[#777587]">
+                    <span className="text-[11px] px-1.5 py-0.5 rounded bg-[var(--skin-hover)] text-[var(--skin-muted)]">
                       ID: {currentChat.customerId.slice(0, 7)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-[12px] text-[#777587] truncate">
+                  <div className="flex items-center gap-2 text-[12px] text-[var(--skin-muted)] truncate">
                     {currentChat.device && (
                       <span className="flex items-center gap-1">
                         <Icon name="phone_iphone" className="text-[14px]" />
@@ -730,19 +747,19 @@ export default function ServiceDesk() {
                 </div>
               </div>
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                <button className="h-8 px-2.5 rounded bg-[#e2e7ff] hover:bg-[#dae2fd] text-[#131b2e] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="转交其他客服或组">
+                <button className="h-8 px-2.5 rounded bg-[var(--skin-hover)] hover:bg-[var(--skin-hover)] text-[var(--skin-ink)] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="转交其他客服或组">
                   <Icon name="forward" className="text-[16px]" />
                   <span>转接工单</span>
                 </button>
-                <button className="h-8 px-2.5 rounded bg-[#e2e7ff] hover:bg-[#dae2fd] text-[#131b2e] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="邀请质检员/二线协助">
+                <button className="h-8 px-2.5 rounded bg-[var(--skin-hover)] hover:bg-[var(--skin-hover)] text-[var(--skin-ink)] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="邀请质检员/二线协助">
                   <Icon name="person_add" className="text-[16px]" />
                   <span>协作邀请</span>
                 </button>
-                <button className="h-8 px-2.5 rounded bg-[#e2e7ff] hover:bg-[#dae2fd] text-[#131b2e] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="查看历史往来咨询记录">
+                <button className="h-8 px-2.5 rounded bg-[var(--skin-hover)] hover:bg-[var(--skin-hover)] text-[var(--skin-ink)] text-[12px] font-medium inline-flex items-center gap-1 transition-colors" title="查看历史往来咨询记录">
                   <Icon name="history" className="text-[16px]" />
                   <span>历史记录</span>
                 </button>
-                <div className="w-px h-5 bg-[#c7c4d8] mx-1" />
+                <div className="w-px h-5 bg-[var(--skin-border)] mx-1" />
                 <button
                   onClick={endSession}
                   className="h-8 px-3 rounded bg-[#ba1a1a] text-white hover:bg-[#93000a] text-[12px] font-semibold inline-flex items-center gap-1 transition-all shadow-sm"
@@ -761,19 +778,19 @@ export default function ServiceDesk() {
               <div className="max-w-3xl mx-auto">
                 {/* 时间分割线 */}
                 <div className="flex items-center justify-center my-2">
-                  <div className="px-3 py-1 rounded-full bg-[#e2e7ff] text-[#464555] text-[11px] flex items-center gap-1 shadow-sm">
-                    <Icon name="schedule" className="text-[13px] text-[#777587]" />
-                    <span>今天 {new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })} · 系统自动分配客服【李婷】接待</span>
+                  <div className="px-3 py-1 rounded-full bg-[var(--skin-hover)] text-[var(--skin-muted)] text-[11px] flex items-center gap-1 shadow-sm">
+                    <Icon name="schedule" className="text-[13px] text-[var(--skin-muted)]" />
+                    <span>今天 {new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })} · 系统自动分配客服【客服管理员】接待</span>
                   </div>
                 </div>
 
                 {currentChat.messages.length === 0 ? (
-                  <div className="text-center text-[#777587] py-12">
-                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-[#e2e7ff] flex items-center justify-center">
-                      <Icon name="chat" className="text-3xl text-[#3525cd]" />
+                  <div className="text-center text-[var(--skin-muted)] py-12">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-[var(--skin-hover)] flex items-center justify-center">
+                      <Icon name="chat" className="text-3xl text-[var(--skin-accent)]" />
                     </div>
-                    <p className="font-medium text-[#464555]">开始对话</p>
-                    <p className="text-xs text-[#777587] mt-1">发送消息或使用快捷回复</p>
+                    <p className="font-medium text-[var(--skin-muted)]">开始对话</p>
+                    <p className="text-xs text-[var(--skin-muted)] mt-1">发送消息或使用快捷回复</p>
                   </div>
                 ) : (
                   currentChat.messages.map((msg, index) => {
@@ -799,29 +816,29 @@ export default function ServiceDesk() {
                             {/* 用户名和时间 */}
                             {!isOutbound && showAvatar && (
                               <div className="flex items-center gap-2 mb-1 pl-0.5">
-                                <span className="text-[11px] text-[#464555] font-semibold">{currentChat.customerName}</span>
-                                <span className="text-[11px] text-[#777587]">{formatMessageTime(msg.createdAt)}</span>
+                                <span className="text-[11px] text-[var(--skin-muted)] font-semibold">{currentChat.customerName}</span>
+                                <span className="text-[11px] text-[var(--skin-muted)]">{formatMessageTime(msg.createdAt)}</span>
                               </div>
                             )}
                             {isOutbound && showAvatar && (
                               <div className="flex items-center gap-2 mb-1 pr-0.5">
-                                <span className="text-[11px] text-[#777587]">{formatMessageTime(msg.createdAt)}</span>
-                                <span className="text-[11px] text-[#3525cd] font-semibold">李婷 (您)</span>
+                                <span className="text-[11px] text-[var(--skin-muted)]">{formatMessageTime(msg.createdAt)}</span>
+                                <span className="text-[11px] text-[var(--skin-accent)] font-semibold">客服管理员 (您)</span>
                               </div>
                             )}
 
                             {/* 消息气泡 */}
                             <div className={`relative px-3.5 py-2.5 rounded-xl shadow-sm group ${
                               isOutbound
-                                ? 'bg-[#4f46e5] text-white rounded-tr-sm'
+                                ? 'bg-[var(--skin-accent)] text-white rounded-tr-sm'
                                 : grouped
-                                  ? 'bg-white text-[#131b2e] rounded-bl-sm rounded-br-sm border border-[#c7c4d8]'
-                                  : 'bg-white text-[#131b2e] rounded-bl-sm rounded-tr-lg border border-[#c7c4d8]'
+                                  ? 'bg-[var(--desk-panel)] text-[var(--skin-ink)] rounded-bl-sm rounded-br-sm border border-[var(--skin-border)]'
+                                  : 'bg-[var(--desk-panel)] text-[var(--skin-ink)] rounded-bl-sm rounded-tr-lg border border-[var(--skin-border)]'
                             }`}>
                               {/* 引用内容 */}
                               {msg.quotedContent && (
                                 <div className={`p-2 rounded mb-2 ${
-                                  isOutbound ? 'bg-[#3525cd] text-white/80' : 'bg-[#f2f3ff] text-[#464555]'
+                                  isOutbound ? 'bg-[var(--skin-accent)] text-white/80' : 'bg-[var(--skin-soft)] text-[var(--skin-muted)]'
                                 }`}>
                                   <div className="flex items-center gap-1 text-[11px] font-semibold">
                                     <Icon name="format_quote" className="text-[13px]" />
@@ -835,14 +852,14 @@ export default function ServiceDesk() {
 
                               {/* 悬停操作菜单 */}
                               {!isOutbound && (
-                                <div className="absolute -bottom-3 right-2 hidden group-hover:flex items-center gap-0.5 px-1 py-0.5 rounded bg-white shadow-md text-[#777587]">
-                                  <button className="p-1 hover:text-[#3525cd] hover:bg-[#e2e7ff] rounded" title="引用回复">
+                                <div className="absolute -bottom-3 right-2 hidden group-hover:flex items-center gap-0.5 px-1 py-0.5 rounded bg-[var(--desk-panel)] shadow-md text-[var(--skin-muted)]">
+                                  <button className="p-1 hover:text-[var(--skin-accent)] hover:bg-[var(--skin-hover)] rounded" title="引用回复">
                                     <Icon name="format_quote" className="text-[14px]" />
                                   </button>
-                                  <button className="p-1 hover:text-[#3525cd] hover:bg-[#e2e7ff] rounded" title="复制文本">
+                                  <button className="p-1 hover:text-[var(--skin-accent)] hover:bg-[var(--skin-hover)] rounded" title="复制文本">
                                     <Icon name="content_copy" className="text-[14px]" />
                                   </button>
-                                  <button className="p-1 hover:text-[#3525cd] hover:bg-[#e2e7ff] rounded" title="转建工单">
+                                  <button className="p-1 hover:text-[var(--skin-accent)] hover:bg-[var(--skin-hover)] rounded" title="转建工单">
                                     <Icon name="add_task" className="text-[14px]" />
                                   </button>
                                 </div>
@@ -863,7 +880,7 @@ export default function ServiceDesk() {
                           {/* 右侧头像 */}
                           {isOutbound ? (
                             showAvatar ? (
-                              <div className="w-8 h-8 rounded-full bg-[#3525cd] text-white flex items-center justify-center text-[13px] font-semibold shadow-sm flex-shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-[var(--skin-accent)] text-white flex items-center justify-center text-[13px] font-semibold shadow-sm flex-shrink-0">
                                 婷
                               </div>
                             ) : (
@@ -882,11 +899,11 @@ export default function ServiceDesk() {
                     <div className="w-8 h-8 rounded-full bg-[#0058be] text-white flex items-center justify-center text-[13px] font-semibold shadow-sm opacity-80">
                       {currentChat.customerName.charAt(0)}
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-white shadow-sm text-[12px] text-[#464555]">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--desk-panel)] shadow-sm text-[12px] text-[var(--skin-muted)]">
                       <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3525cd] animate-bounce" style={{ animationDelay: '0ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3525cd] animate-bounce" style={{ animationDelay: '150ms' }} />
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3525cd] animate-bounce" style={{ animationDelay: '300ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--skin-accent)] animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--skin-accent)] animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--skin-accent)] animate-bounce" style={{ animationDelay: '300ms' }} />
                       </span>
                       <span className="italic">{currentChat.customerName} 正在输入...</span>
                     </div>
@@ -898,7 +915,7 @@ export default function ServiceDesk() {
             </div>
 
             {/* 快捷回复 */}
-            <div className="px-4 pt-2 bg-white">
+            <div className="px-4 pt-2 bg-[var(--desk-panel)]">
               <div className="flex items-center justify-between pb-1">
                 <div className="flex items-center gap-1.5 overflow-x-auto py-0.5">
                   {quickReplies.map((reply, index) => (
@@ -906,13 +923,13 @@ export default function ServiceDesk() {
                       key={index}
                       onClick={() => !sessionEnded && insertTemplate(reply.text)}
                       disabled={sessionEnded}
-                      className="px-2.5 py-0.5 rounded-full bg-[#e2e7ff] hover:bg-[#dae2fd] text-[#464555] hover:text-[#3525cd] transition-all text-[11px] whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-2.5 py-0.5 rounded-full bg-[var(--skin-hover)] hover:bg-[var(--skin-hover)] text-[var(--skin-muted)] hover:text-[var(--skin-accent)] transition-all text-[11px] whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {reply.label}
                     </button>
                   ))}
                 </div>
-                <button className="text-[#777587] hover:text-[#3525cd] text-[11px] font-medium flex items-center flex-shrink-0 ml-2">
+                <button className="text-[var(--skin-muted)] hover:text-[var(--skin-accent)] text-[11px] font-medium flex items-center flex-shrink-0 ml-2">
                   <span>话术库</span>
                   <Icon name="chevron_right" className="text-[13px]" />
                 </button>
@@ -920,17 +937,17 @@ export default function ServiceDesk() {
             </div>
 
             {/* 消息输入 */}
-            <div className="p-4 pt-1 bg-white flex flex-col gap-1.5">
+            <div className="p-4 pt-1 bg-[var(--desk-panel)] flex flex-col gap-1.5">
               {/* 输入框工具栏 */}
-              <div className="flex items-center justify-between text-[#777587] py-1">
+              <div className="flex items-center justify-between text-[var(--skin-muted)] py-1">
                 <div className="flex items-center gap-1">
-                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[#e2e7ff] hover:text-[#131b2e] transition-colors" title="发送图片">
+                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--skin-hover)] hover:text-[var(--skin-ink)] transition-colors" title="发送图片">
                     <Icon name="image" className="text-[18px]" />
                   </button>
-                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[#e2e7ff] hover:text-[#131b2e] transition-colors" title="上传附件">
+                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--skin-hover)] hover:text-[var(--skin-ink)] transition-colors" title="上传附件">
                     <Icon name="attach_file" className="text-[18px]" />
                   </button>
-                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[#e2e7ff] hover:text-[#131b2e] transition-colors" title="转内部便签">
+                  <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--skin-hover)] hover:text-[var(--skin-ink)] transition-colors" title="转内部便签">
                     <Icon name="sticky_note_2" className="text-[18px]" />
                   </button>
                 </div>
@@ -940,10 +957,11 @@ export default function ServiceDesk() {
               </div>
 
               {/* 文本输入框 */}
-              <div className="relative rounded-lg bg-[#f2f3ff] p-2 focus-within:bg-white focus-within:shadow-sm transition-all">
+              <div className="relative rounded-lg bg-[var(--skin-soft)] p-2 focus-within:bg-[var(--desk-panel)] focus-within:shadow-sm transition-all">
                 <textarea
+                  aria-label="回复客户消息"
                   ref={textareaRef}
-                  className="w-full bg-transparent resize-none text-[13px] text-[#131b2e] placeholder:text-[#777587] focus:outline-none"
+                  className="w-full bg-transparent resize-none text-[13px] text-[var(--skin-ink)] placeholder:text-[var(--skin-muted)] focus:outline-none"
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyDown={(e) => {
@@ -957,18 +975,18 @@ export default function ServiceDesk() {
                   rows={3}
                 />
                 <div className="flex items-center justify-between pt-1">
-                  <div className="flex items-center gap-2 text-[11px] text-[#777587]">
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--skin-muted)]">
                     <span>{messageInput.length}/500</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="hidden sm:flex items-center gap-1 text-[11px] text-[#777587]">
-                      <kbd className="px-1.5 py-0.5 rounded bg-[#dae2fd] text-[#464555]">Enter</kbd>
+                    <div className="hidden sm:flex items-center gap-1 text-[11px] text-[var(--skin-muted)]">
+                      <kbd className="px-1.5 py-0.5 rounded bg-[var(--skin-hover)] text-[var(--skin-muted)]">Enter</kbd>
                       <span>发送</span>
                     </div>
                     <button
                       onClick={sendMessage}
                       disabled={!messageInput.trim() || sessionEnded}
-                      className="h-7 px-4 rounded bg-[#3525cd] text-white hover:bg-[#4f46e5] disabled:bg-[#c7c4d8] disabled:cursor-not-allowed text-[12px] font-medium flex items-center gap-1 transition-all shadow-sm"
+                      className="btn btn-primary btn-small"
                     >
                       <span>发送</span>
                       <Icon name="send" className="text-[15px]" />
@@ -979,13 +997,13 @@ export default function ServiceDesk() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-[#eaedff]">
+          <div className="flex-1 flex items-center justify-center bg-[var(--skin-ground)]">
             <div className="text-center">
-              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-[#dae2fd] flex items-center justify-center">
-                <Icon name="forum" className="text-5xl text-[#3525cd]" />
+              <div className="w-24 h-24 mx-auto mb-4 rounded-full bg-[var(--skin-hover)] flex items-center justify-center">
+                <Icon name="forum" className="text-5xl text-[var(--skin-accent)]" />
               </div>
-              <h3 className="text-lg font-semibold text-[#464555] mb-2">选择会话开始对话</h3>
-              <p className="text-sm text-[#777587]">从左侧列表选择客户或等待新请求</p>
+              <h3 className="text-lg font-semibold text-[var(--skin-muted)] mb-2">选择会话开始对话</h3>
+              <p className="text-sm text-[var(--skin-muted)]">从左侧列表选择客户或等待新请求</p>
               {newMessageCount > 0 && (
                 <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-500 rounded-full">
                   <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
@@ -998,11 +1016,11 @@ export default function ServiceDesk() {
       </main>
 
       {/* 右侧客户信息 */}
-      <aside className="w-80 bg-white flex flex-col shadow-sm overflow-hidden z-10 flex-shrink-0">
+      <aside className="desk-customer w-80 bg-[var(--desk-panel)] flex flex-col shadow-sm overflow-hidden z-10 flex-shrink-0">
         {currentChat ? (
           <>
             {/* 客户档案 */}
-            <div className="p-3 bg-white">
+            <div className="p-3 bg-[var(--desk-panel)]">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-xl bg-[#0058be] text-white flex items-center justify-center font-bold text-[18px] shadow-sm">
@@ -1010,29 +1028,29 @@ export default function ServiceDesk() {
                   </div>
                   <div className="flex flex-col min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-semibold text-[15px] text-[#131b2e] truncate">{currentChat.customerName}</span>
+                      <span className="font-semibold text-[15px] text-[var(--skin-ink)] truncate">{currentChat.customerName}</span>
                       {currentChat.isVip && (
                         <span className="px-1.5 py-0.2 rounded bg-[#d8e2ff] text-[#004395] text-[10px] font-bold">VIP 5</span>
                       )}
                     </div>
-                    <span className="text-[11px] text-[#464555] truncate">{currentChat.company || '上海聚思创享信息科技有限公司'}</span>
-                    <span className="text-[11px] text-[#777587]">编号: {currentChat.customerCode || 'CN-CORP-99201'}</span>
+                    <span className="text-[11px] text-[var(--skin-muted)] truncate">{currentChat.company || '未登记公司信息'}</span>
+                    <span className="text-[11px] text-[var(--skin-muted)]">编号: {currentChat.customerCode || currentChat.customerId}</span>
                   </div>
                 </div>
-                <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[#e2e7ff] text-[#777587] hover:text-[#131b2e] transition-colors flex-shrink-0">
+                <button className="w-7 h-7 flex items-center justify-center rounded hover:bg-[var(--skin-hover)] text-[var(--skin-muted)] hover:text-[var(--skin-ink)] transition-colors flex-shrink-0">
                   <Icon name="edit" className="text-[16px]" />
                 </button>
               </div>
 
               {/* 标签 */}
               <div className="flex flex-wrap gap-1 mt-2">
-                {(currentChat.tags || ['高净值客户', '企业月结', '偏好顺丰特快']).map((tag, i) => (
+                {(currentChat.tags || []).map((tag, i) => (
                   <span
                     key={i}
                     className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                       i < 3
-                        ? 'bg-[#e2e7ff] text-[#3525cd]'
-                        : 'bg-[#dae2fd] text-[#464555]'
+                        ? 'bg-[var(--skin-hover)] text-[var(--skin-accent)]'
+                        : 'bg-[var(--skin-hover)] text-[var(--skin-muted)]'
                     }`}
                   >
                     {tag}
@@ -1041,74 +1059,74 @@ export default function ServiceDesk() {
               </div>
 
               {/* 联系信息 */}
-              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 bg-[#f2f3ff] p-2 rounded-lg text-[12px]">
+              <div className="grid grid-cols-2 gap-2 mt-2 pt-2 bg-[var(--skin-soft)] p-2 rounded-lg text-[12px]">
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-[#777587]">联系电话</span>
-                  <span className="text-[#131b2e] font-semibold">{currentChat.phone || '138****5821'}</span>
+                  <span className="text-[11px] text-[var(--skin-muted)]">联系电话</span>
+                  <span className="text-[var(--skin-ink)] font-semibold">{currentChat.phone || '未登记'}</span>
                 </div>
                 <div className="flex flex-col min-w-0">
-                  <span className="text-[11px] text-[#777587]">企业邮箱</span>
-                  <span className="text-[#131b2e] font-semibold truncate">{currentChat.email || 'cx***@company.com'}</span>
+                  <span className="text-[11px] text-[var(--skin-muted)]">企业邮箱</span>
+                  <span className="text-[var(--skin-ink)] font-semibold truncate">{currentChat.email || '未登记'}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-[#777587]">注册时间</span>
-                  <span className="text-[#131b2e]">{currentChat.customerSince || '2022-06-18'}</span>
+                  <span className="text-[11px] text-[var(--skin-muted)]">注册时间</span>
+                  <span className="text-[var(--skin-ink)]">{currentChat.customerSince || '—'}</span>
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[11px] text-[#777587]">累计消费</span>
-                  <span className="text-[#3525cd] font-bold">{currentChat.totalSpend || '¥148,920.00'}</span>
+                  <span className="text-[11px] text-[var(--skin-muted)]">累计付款</span>
+                  <span className="text-[var(--skin-accent)] font-bold">{currentChat.totalSpend || '¥0.00'}</span>
                 </div>
               </div>
 
               {/* 客服便签 */}
               {currentChat.note && (
-                <div className="mt-2 p-2 rounded-lg bg-[#e2e7ff] text-[12px]">
-                  <div className="flex items-center justify-between text-[#131b2e] font-semibold mb-1">
+                <div className="mt-2 p-2 rounded-lg bg-[var(--skin-hover)] text-[12px]">
+                  <div className="flex items-center justify-between text-[var(--skin-ink)] font-semibold mb-1">
                     <div className="flex items-center gap-1">
                       <Icon name="edit_note" className="text-[14px] text-[#005338]" />
                       <span className="text-[11px]">客服专员便签</span>
                     </div>
-                    <span className="text-[10px] text-[#777587]">05-12</span>
+                    <span className="text-[10px] text-[var(--skin-muted)]">05-12</span>
                   </div>
-                  <p className="text-[#464555] leading-tight text-[12px]">"{currentChat.note}"</p>
+                  <p className="text-[var(--skin-muted)] leading-tight text-[12px]">"{currentChat.note}"</p>
                 </div>
               )}
             </div>
 
             {/* Tab切换 */}
-            <div className="flex items-center bg-[#f2f3ff] px-3">
+            <div className="flex items-center bg-[var(--skin-soft)] px-3">
               <button
                 onClick={() => setRightTab('orders')}
                 className={`py-2 px-3 text-[12px] font-semibold flex items-center gap-1 transition-colors ${
                   rightTab === 'orders'
-                    ? 'text-[#3525cd] shadow-sm bg-white rounded-t-md'
-                    : 'text-[#464555]'
+                    ? 'text-[var(--skin-accent)] shadow-sm bg-[var(--desk-panel)] rounded-t-md'
+                    : 'text-[var(--skin-muted)]'
                 }`}
               >
                 <span>历史订单</span>
                 <span className={`px-1 rounded-full text-[10px] ${
-                  rightTab === 'orders' ? 'bg-[#dae2fd] text-[#3525cd]' : 'bg-[#e2e7ff] text-[#777587]'
+                  rightTab === 'orders' ? 'bg-[var(--skin-hover)] text-[var(--skin-accent)]' : 'bg-[var(--skin-hover)] text-[var(--skin-muted)]'
                 }`}>
-                  {currentChat.totalOrders || 12}
+                  {currentChat.totalOrders ?? 0}
                 </span>
               </button>
               <button
                 onClick={() => setRightTab('tickets')}
                 className={`py-2 px-3 text-[12px] font-medium flex items-center gap-1 transition-colors ${
                   rightTab === 'tickets'
-                    ? 'text-[#3525cd] shadow-sm bg-white rounded-t-md'
-                    : 'text-[#464555]'
+                    ? 'text-[var(--skin-accent)] shadow-sm bg-[var(--desk-panel)] rounded-t-md'
+                    : 'text-[var(--skin-muted)]'
                 }`}
               >
                 <span>服务工单</span>
-                <span className="px-1 rounded-full bg-[#e2e7ff] text-[#777587] text-[10px]">3</span>
+                <span className="px-1 rounded-full bg-[var(--skin-hover)] text-[var(--skin-muted)] text-[10px]">{(currentChat.workOrders || []).filter(o => !['COMPLETED', 'CANCELLED', 'REFUSED'].includes(o.status)).length}</span>
               </button>
               <button
                 onClick={() => setRightTab('track')}
                 className={`py-2 px-3 text-[12px] font-medium transition-colors ${
                   rightTab === 'track'
-                    ? 'text-[#3525cd] shadow-sm bg-white rounded-t-md'
-                    : 'text-[#464555]'
+                    ? 'text-[var(--skin-accent)] shadow-sm bg-[var(--desk-panel)] rounded-t-md'
+                    : 'text-[var(--skin-muted)]'
                 }`}
               >
                 轨迹足迹
@@ -1116,93 +1134,41 @@ export default function ServiceDesk() {
             </div>
 
             {/* 订单列表 */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-white">
-              {rightTab === 'orders' && mockOrders.map((order) => (
-                <div key={order.id} className="p-2.5 rounded-lg bg-[#f2f3ff] shadow-sm flex flex-col gap-1.5 transition-all">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 min-w-0">
-                      <Icon name={order.id.includes('202405') ? 'local_shipping' : order.id.includes('202404') ? 'check_circle' : 'inventory_2'} className={`text-[15px] ${
-                        order.id.includes('202405') ? 'text-[#0058be]' : order.id.includes('202404') ? 'text-[#005338]' : 'text-[#777587]'
-                      }`} />
-                      <span className={`font-semibold truncate ${
-                        order.id.includes('202405') ? 'text-[#131b2e]' : 'text-[#464555]'
-                      }`}>{order.id}</span>
-                    </div>
-                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold flex-shrink-0 ${
-                      order.status === '顺丰配载中'
-                        ? 'bg-[#dae2fd] text-[#0058be]'
-                        : 'bg-[#dae2fd] text-[#005338]'
-                    }`}>
-                      {order.status}
-                    </span>
-                  </div>
-                  <div className="flex gap-2 items-center">
-                    <div className={`w-10 h-10 rounded flex items-center justify-center flex-shrink-0 ${
-                      order.id.includes('202405') ? 'bg-[#e2e7ff] text-[#3525cd]' : 'bg-[#e2e7ff] text-[#777587]'
-                    }`}>
-                      <Icon name={order.icon} className="text-[20px]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-[12px] font-semibold text-[#131b2e] truncate">{order.product}</h4>
-                      <p className="text-[11px] text-[#777587]">{order.specs}</p>
-                      <div className="flex items-center justify-between mt-0.5">
-                        <span className="text-[13px] text-[#131b2e] font-bold">{order.price}</span>
-                        <span className="text-[10px] text-[#777587]">{order.date}</span>
-                      </div>
-                    </div>
-                  </div>
-                  {order.tracking && (
-                    <div className="flex items-center justify-between pt-1.5 bg-white p-1.5 rounded text-[11px]">
-                      <span className="text-[#464555] truncate">{order.tracking}</span>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          className="px-2 py-0.5 rounded bg-[#f2f3ff] hover:bg-[#e2e7ff] text-[#131b2e] text-[10px] font-medium transition-colors"
-                          onClick={() => navigator.clipboard && navigator.clipboard.writeText(order.tracking)}
-                        >
-                          复制
-                        </button>
-                        <button className="px-2 py-0.5 rounded bg-[#3525cd] text-white hover:bg-[#4f46e5] text-[10px] font-semibold transition-colors">
-                          轨迹
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  {order.signedDate && (
-                    <div className="flex items-center justify-between pt-1 text-[11px] text-[#777587]">
-                      <span className="text-[10px]">签收: {order.signedDate}</span>
-                      <button className="text-[#3525cd] hover:underline text-[10px] font-medium">详情</button>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {rightTab === 'tickets' && (
-                <div className="text-center text-[#777587] py-8">
-                  <p className="text-xs">暂无服务工单</p>
-                </div>
-              )}
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[var(--desk-panel)]">
+              {customerError && <p className="text-xs text-red-600">{customerError}</p>}
+              {['orders', 'tickets'].includes(rightTab) && (() => {
+                const rows = (currentChat.workOrders || []).filter(o => rightTab === 'orders' || !['COMPLETED', 'CANCELLED', 'REFUSED'].includes(o.status));
+                const statusText: Record<string, string> = { PENDING: '待派单', DISPATCHED: '已派单', ACCEPTED: '已上门', PENDING_PAYMENT: '待确认报价/定金', REPAIRING: '维修中', PENDING_FINAL_PAYMENT: '待尾款', COMPLETED: '已完成', CANCELLED: '已取消', REFUSED: '已拒绝' };
+                if (!rows.length) return <p className="text-center text-xs text-[var(--skin-muted)] py-8">暂无{rightTab === 'orders' ? '历史工单' : '进行中的服务工单'}</p>;
+                return rows.map(order => <a data-testid="customer-order" key={order.id} href={`/orders/${order.id}`} className="block p-3 rounded-lg bg-[var(--skin-soft)] text-[var(--skin-ink)]">
+                  <div className="flex justify-between text-xs gap-2"><strong>{order.orderNo}</strong><span>{statusText[order.status] || order.status}</span></div>
+                  <p className="text-sm mt-2">{order.faultType}</p>
+                  <p className="text-xs text-[var(--skin-muted)] mt-1">{order.device?.model || '设备未登记'}</p>
+                  <div className="flex justify-between text-xs mt-2"><span>¥{(Number(order.finalAmount) || Number(order.estimatedAmount) || 0).toFixed(2)}</span><span>{order.createdAt?.slice(0, 10)}</span></div>
+                </a>);
+              })()}
 
               {rightTab === 'track' && (
-                <div className="text-center text-[#777587] py-8">
+                <div className="text-center text-[var(--skin-muted)] py-8">
                   <p className="text-xs">暂无轨迹足迹</p>
                 </div>
               )}
             </div>
 
             {/* AI助手 */}
-            <div className="p-2 bg-[#f2f3ff] flex items-center justify-between">
-              <div className="flex items-center gap-1.5 text-[12px] text-[#464555]">
-                <Icon name="auto_awesome" className="text-[16px] text-[#3525cd]" />
+            <div className="p-2 bg-[var(--skin-soft)] flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-[12px] text-[var(--skin-muted)]">
+                <Icon name="auto_awesome" className="text-[16px] text-[var(--skin-accent)]" />
                 <span>AI 质检与知识助手</span>
               </div>
-              <button className="px-2 py-1 rounded bg-white hover:bg-[#e2e7ff] text-[#3525cd] text-[11px] font-semibold shadow-sm transition-colors">
-                查看推荐话术
+              <button disabled title="推荐话术功能尚未开通" className="px-2 py-1 rounded bg-[var(--desk-panel)] text-[var(--skin-muted)] text-[11px]">
+                推荐话术 · 待开通
               </button>
             </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-[#777587]">
+            <div className="text-center text-[var(--skin-muted)]">
               <Icon name="person" className="text-5xl mb-2" />
               <p className="text-sm">选择客户查看详情</p>
             </div>
@@ -1214,26 +1180,26 @@ export default function ServiceDesk() {
       {/* 满意度评价弹窗 */}
       {showRating && (
         <div className="fixed inset-0 z-50 bg-[#283044]/40 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="w-full max-w-md bg-[var(--desk-panel)] rounded-2xl shadow-xl overflow-hidden">
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#c3c0ff] text-[#3525cd] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-[var(--skin-active)] text-[var(--skin-accent)] flex items-center justify-center">
                   <Icon name="thumb_up" className="text-xl" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-[15px] text-[#131b2e]">结束服务并发送满意度评价</h3>
-                  <p className="text-[12px] text-[#777587]">邀请客户【{currentChat?.customerName}】对本次接待进行评分</p>
+                  <h3 className="font-semibold text-[15px] text-[var(--skin-ink)]">结束服务并发送满意度评价</h3>
+                  <p className="text-[12px] text-[var(--skin-muted)]">邀请客户【{currentChat?.customerName}】对本次接待进行评分</p>
                 </div>
               </div>
-              <button onClick={() => setShowRating(false)} className="w-8 h-8 rounded-full hover:bg-[#e2e7ff] text-[#777587] hover:text-[#131b2e] flex items-center justify-center">
+              <button onClick={() => setShowRating(false)} className="w-8 h-8 rounded-full hover:bg-[var(--skin-hover)] text-[var(--skin-muted)] hover:text-[var(--skin-ink)] flex items-center justify-center">
                 <Icon name="close" className="text-xl" />
               </button>
             </div>
 
             <div className="p-4 space-y-3">
-              <div className="text-center py-3 bg-[#f2f3ff] rounded-xl">
-                <p className="text-[12px] text-[#464555] mb-2 font-medium">请预选服务满意度档位</p>
-                <div className="flex items-center justify-center gap-2 text-[#4d44e3]">
+              <div className="text-center py-3 bg-[var(--skin-soft)] rounded-xl">
+                <p className="text-[12px] text-[var(--skin-muted)] mb-2 font-medium">请预选服务满意度档位</p>
+                <div className="flex items-center justify-center gap-2 text-[var(--skin-accent)]">
                   {[1,2,3,4,5].map(star => (
                     <button
                       key={star}
@@ -1245,13 +1211,13 @@ export default function ServiceDesk() {
                     </button>
                   ))}
                 </div>
-                <span className="font-semibold text-[15px] text-[#3525cd] mt-1 block">
+                <span className="font-semibold text-[15px] text-[var(--skin-accent)] mt-1 block">
                   {rating}星 · {rating === 5 ? '非常满意' : rating === 4 ? '满意' : rating === 3 ? '一般' : '不满意'}
                 </span>
               </div>
 
               <div>
-                <label className="block text-[12px] font-semibold text-[#131b2e] mb-1.5">预选服务标签 (多选)</label>
+                <label className="block text-[12px] font-semibold text-[var(--skin-ink)] mb-1.5">预选服务标签 (多选)</label>
                 <div className="flex flex-wrap gap-1.5">
                   {['响应迅速', '解决彻底', '服务周到热情', '业务熟练', '主动关怀'].map(tag => (
                     <span
@@ -1259,8 +1225,8 @@ export default function ServiceDesk() {
                       onClick={() => setRatingTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])}
                       className={`px-2.5 py-1 rounded-full text-[11px] font-semibold cursor-pointer transition-colors ${
                         ratingTags.includes(tag)
-                          ? 'bg-[#e2e7ff] text-[#3525cd]'
-                          : 'bg-[#dae2fd] text-[#777587] hover:text-[#131b2e]'
+                          ? 'bg-[var(--skin-hover)] text-[var(--skin-accent)]'
+                          : 'bg-[var(--skin-hover)] text-[var(--skin-muted)] hover:text-[var(--skin-ink)]'
                       }`}
                     >
                       {ratingTags.includes(tag) ? '✓ ' : '+ '}{tag}
@@ -1270,25 +1236,25 @@ export default function ServiceDesk() {
               </div>
 
               <div>
-                <label className="block text-[12px] font-semibold text-[#131b2e] mb-1">结案备注</label>
+                <label className="block text-[12px] font-semibold text-[var(--skin-ink)] mb-1">结案备注</label>
                 <textarea
-                  className="w-full p-2 rounded-lg bg-[#f2f3ff] text-[12px] text-[#131b2e] placeholder:text-[#777587] focus:outline-none focus:bg-white"
+                  className="w-full p-2 rounded-lg bg-[var(--skin-soft)] text-[12px] text-[var(--skin-ink)] placeholder:text-[var(--skin-muted)] focus:outline-none focus:bg-[var(--desk-panel)]"
                   placeholder="已为企业VIP客户升级顺丰特快并同步单号，客户诉求已全面解决。"
                   rows={2}
                 />
               </div>
             </div>
 
-            <div className="p-4 bg-[#f2f3ff] flex items-center justify-between">
+            <div className="p-4 bg-[var(--skin-soft)] flex items-center justify-between">
               <button
                 onClick={() => setShowRating(false)}
-                className="px-4 py-2 rounded bg-white text-[#131b2e] hover:bg-[#e2e7ff] text-[12px] font-medium transition-colors"
+                className="px-4 py-2 rounded bg-[var(--desk-panel)] text-[var(--skin-ink)] hover:bg-[var(--skin-hover)] text-[12px] font-medium transition-colors"
               >
                 暂不结束
               </button>
               <button
                 onClick={submitRating}
-                className="px-4 py-2 rounded bg-[#3525cd] text-white hover:bg-[#4f46e5] text-[12px] font-semibold transition-colors shadow-sm flex items-center gap-1"
+                className="px-4 py-2 rounded bg-[var(--skin-accent)] text-white hover:bg-[var(--skin-accent)] text-[12px] font-semibold transition-colors shadow-sm flex items-center gap-1"
               >
                 <Icon name="send" className="text-[16px]" />
                 <span>发送评价并关闭会话</span>

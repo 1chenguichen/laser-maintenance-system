@@ -47,12 +47,14 @@ export class CreateDeviceDto {
   serialNumber: string;
 
   @ApiProperty({ description: '设备型号' })
+  @IsOptional()
   @IsString()
-  model: string;
+  model?: string;
 
   @ApiProperty({ description: '设备类型' })
+  @IsOptional()
   @IsString()
-  deviceType: string;
+  deviceType?: string;
 
   @ApiPropertyOptional({ description: '购买日期' })
   @IsOptional()
@@ -66,6 +68,9 @@ export class CreateDeviceDto {
 }
 
 export class CreateWorkOrderDto {
+  @IsOptional()
+  @IsString()
+  contractId?: string;
   @ApiProperty({ description: '设备ID' })
   @IsString()
   deviceId: string;
@@ -88,9 +93,11 @@ export class CreateWorkOrderDto {
   @IsArray()
   faultPhotos?: string[];
 
-  @ApiPropertyOptional({ description: '紧急程度 0-普通 1-紧急', default: 0 })
+  @ApiPropertyOptional({ description: '紧急程度 0-普通 3-较急 5-紧急', default: 0 })
   @IsOptional()
   @IsNumber()
+  @Min(0)
+  @Max(5)
   emergencyLevel?: number;
 
   @ApiPropertyOptional({ description: '是否有指定工程师', default: false })

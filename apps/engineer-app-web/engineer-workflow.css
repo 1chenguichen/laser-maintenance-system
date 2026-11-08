@@ -1,0 +1,661 @@
+/* Engineer field-service system: task first, consistent spacing and actions. */
+body[data-role="engineer"] [hidden] {
+  display: none !important;
+}
+body[data-role="engineer"] .field-photo-settings > summary {
+  cursor: pointer;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: #20352d;
+  list-style: none;
+}
+body[data-role="engineer"]
+  .field-photo-settings
+  > summary::-webkit-details-marker {
+  display: none;
+}
+body[data-role="engineer"] .field-photo-settings > summary:after {
+  content: "＋";
+  color: #63766d;
+  font-size: 18px;
+  font-weight: 400;
+}
+body[data-role="engineer"] .field-photo-settings[open] > summary:after {
+  content: "−";
+}
+body[data-role="engineer"] .field-photo-settings[open] > summary {
+  margin-bottom: 16px;
+}
+body[data-role="engineer"] .field-logout {
+  display: block;
+  min-height: 48px;
+  width: 100%;
+  border: 1px solid #e3e8e5;
+  border-radius: 12px;
+  background: #fff;
+  color: #b8473c;
+  font-size: 13px;
+  margin-top: 16px;
+}
+body[data-role="engineer"] .field-filter-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 10px;
+  margin: 16px 0 8px;
+  padding: 14px;
+  background: #fff;
+  border: 1px solid #dfe6e0;
+  border-radius: 12px;
+}
+body[data-role="engineer"] .field-filter-panel label,
+body[data-role="engineer"] .field-stock-search {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #63766d;
+  min-width: 0;
+}
+body[data-role="engineer"] .field-filter-panel input,
+body[data-role="engineer"] .field-filter-panel select,
+body[data-role="engineer"] .field-stock-search input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  margin: 6px 0 0;
+  padding: 10px;
+  border: 1px solid #dfe6e0;
+  border-radius: 9px;
+  font: inherit;
+  font-size: 12px;
+  background: #fff;
+  color: #20352d;
+}
+body[data-role="engineer"] .field-result-count {
+  font-size: 11px;
+  color: #63766d;
+  margin: 10px 0 14px;
+  line-height: 1.6;
+}
+body[data-role="engineer"] .field-empty {
+  padding: 28px 16px;
+  background: #fff;
+  border: 1px dashed #d3dfd7;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #63766d;
+}
+body[data-role="engineer"] .pool-summary {
+  padding: 16px;
+  border: 1px solid #d2e5d9;
+  border-radius: 12px;
+  background: #eaf3ed;
+  gap: 12px;
+}
+body[data-role="engineer"] .pool-summary strong {
+  font-size: 18px;
+}
+body[data-role="engineer"] .pool-summary small {
+  font-size: 12px;
+  line-height: 1.7;
+}
+body[data-role="engineer"] .pool-task .task-city {
+  font-size: 12px;
+}
+body[data-role="engineer"] .pool-task .task-footer {
+  border-top: 1px solid #e5ebe7;
+  margin-top: 14px;
+  padding-top: 12px;
+  gap: 12px;
+}
+body[data-role="engineer"] .pool-task .task-footer > span {
+  font-size: 12px;
+  color: #63766d;
+  overflow-wrap: anywhere;
+}
+body[data-role="engineer"] .field-qualifications {
+  background: #eaf3ed;
+  border-color: #d2e5d9;
+}
+body[data-role="engineer"] .field-qualifications h2 {
+  font-size: 16px;
+}
+body[data-role="engineer"] .course-card {
+  overflow: hidden;
+}
+body[data-role="engineer"] .course-card .course-cover {
+  height: 132px;
+  object-fit: cover;
+  margin-bottom: 0;
+  border-radius: 8px;
+  width: 100%;
+}
+body[data-role="engineer"] .course-card .course-demo-label {
+  font-size: 10px;
+  margin: 4px 0 12px;
+  color: #7a8b81;
+}
+body[data-role="engineer"] .course-card details {
+  border-top: 1px solid #e5ebe7;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+body[data-role="engineer"] .course-card summary {
+  min-height: 32px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #147552;
+}
+body[data-role="engineer"] #engineerForm {
+  display: grid;
+  gap: 16px;
+}
+body[data-role="engineer"] #engineerForm label {
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+body[data-role="engineer"] #engineerForm :is(input, select, textarea) {
+  margin-top: 7px;
+  border-radius: 9px;
+  min-height: 44px;
+  font-size: 14px;
+}
+body[data-role="engineer"] #engineerForm .market-primary {
+  margin: 0;
+  width: 100%;
+}
+body[data-role="engineer"][data-page="inventory"] .wh-hero {
+  border: 1px solid #d2e5d9;
+  border-radius: 12px;
+  background: #eaf3ed;
+  padding: 16px;
+  color: #20352d;
+  box-shadow: none;
+}
+body[data-role="engineer"] .wh-hero small {
+  opacity: 1;
+  color: #63766d;
+  font-size: 11px;
+}
+body[data-role="engineer"] .wh-hero h2 {
+  font-size: 17px;
+  line-height: 1.5;
+  margin: 5px 0 18px;
+}
+body[data-role="engineer"] .wh-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+body[data-role="engineer"] .wh-stats > div {
+  border-right: 1px solid #cfe0d4;
+}
+body[data-role="engineer"] .wh-stats > div:last-child {
+  border: 0;
+}
+body[data-role="engineer"] .wh-stats strong {
+  font-size: 24px;
+  color: #147552;
+  line-height: 1.4;
+}
+body[data-role="engineer"] .wh-stats span {
+  font-size: 11px;
+  opacity: 1;
+  color: #63766d;
+}
+body[data-role="engineer"] .wh-actions {
+  margin: 16px 0 20px;
+  gap: 8px;
+}
+body[data-role="engineer"] .wh-actions button {
+  min-height: 76px;
+  border-radius: 12px;
+  border: 1px solid #dfe6e0;
+  font-size: 12px;
+  padding: 12px 4px;
+}
+body[data-role="engineer"] .wh-tabs {
+  background: #e9eeeb;
+  border: 0;
+  border-radius: 10px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+body[data-role="engineer"] .wh-tabs button {
+  flex: 1;
+  min-height: 40px;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 4px;
+  font-size: 12px;
+  color: #63766d;
+}
+body[data-role="engineer"] .wh-tabs button.active {
+  border: 0;
+  background: #fff;
+  color: #147552;
+  box-shadow: 0 1px 3px #183b2514;
+}
+body[data-role="engineer"] .wh-card {
+  padding: 16px;
+  border-color: #dfe6e0;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+body[data-role="engineer"] .wh-card h3 {
+  font-size: 14px;
+  line-height: 1.5;
+}
+body[data-role="engineer"] .wh-primary {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  background: #147552;
+  font-size: 13px;
+}
+body[data-role="engineer"] .wh-empty {
+  border: 1px dashed #d3dfd7;
+  border-radius: 12px;
+  background: #fff;
+  padding: 28px 14px;
+  line-height: 1.8;
+}
+body[data-role="engineer"] .field-stock-search {
+  margin-bottom: 10px;
+}
+body[data-role="engineer"] .engineer-workspace {
+  border-radius: 12px;
+  padding: 14px 16px;
+  background: #eaf3ed;
+  border-color: #d2e5d9;
+}
+body[data-role="engineer"] .workspace-brand strong {
+  font-size: 14px;
+  line-height: 1.6;
+}
+body[data-role="engineer"] .engineer-workspace p {
+  font-size: 11px;
+  line-height: 1.7;
+}
+body[data-role="engineer"] .field-profile-card {
+  padding: 16px !important;
+  border-radius: 12px !important;
+  border-color: #dfe6e0 !important;
+}
+body[data-role="engineer"] .field-profile-card [data-ui-avatar] {
+  border-radius: 12px;
+  background: #eaf3ed !important;
+}
+body[data-role="engineer"] .profile-maintenance-note {
+  font-size: 11px;
+  color: #63766d;
+  margin: 8px 0;
+}
+body[data-role="engineer"] .field-account-links {
+  background: #fff;
+  border: 1px solid #dfe6e0;
+  border-radius: 12px;
+  padding: 16px;
+}
+body[data-role="engineer"] .field-account-links h2 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+body[data-role="engineer"] .field-account-links a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  font-size: 13px;
+  color: #20352d;
+  text-decoration: none;
+  border-top: 1px solid #edf1ee;
+}
+body[data-role="engineer"] .status-btn {
+  min-height: 44px;
+  font-size: 13px;
+  border-radius: 9px;
+}
+body[data-role="engineer"] .profile-feedback {
+  font-size: 11px;
+  color: #63766d;
+  line-height: 1.7;
+}
+@media (max-width: 360px) {
+  body[data-role="engineer"] .field-filter-panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  body[data-role="engineer"] .pool-task .task-footer {
+    flex-wrap: wrap;
+  }
+  body[data-role="engineer"] .pool-task .task-footer .market-primary {
+    width: 100%;
+    margin: 0;
+  }
+}
+body[data-role="engineer"] {
+  --field-space: 16px;
+  --field-radius: 12px;
+  --field-accent: #147552;
+  --field-muted: #63766d;
+}
+body[data-role="engineer"] .market-root {
+  padding: 20px 16px 110px;
+}
+body[data-role="engineer"] .market-heading {
+  margin-bottom: 20px;
+}
+body[data-role="engineer"] .market-heading h1 {
+  font-size: 24px;
+  line-height: 1.4;
+  margin: 0 0 8px;
+  letter-spacing: -0.4px;
+}
+body[data-role="engineer"] .market-heading p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+body[data-role="engineer"] .market-card {
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: var(--field-radius);
+  box-shadow: none;
+}
+body[data-role="engineer"] .section-heading {
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+body[data-role="engineer"] .engineer-identity {
+  padding: 0 0 16px;
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--market-border);
+  gap: 12px;
+}
+body[data-role="engineer"] .engineer-identity small {
+  font-size: 12px;
+  line-height: 1.6;
+}
+body[data-role="engineer"] .work-metrics {
+  margin: 16px 0;
+  border-radius: 12px;
+  padding: 14px 0;
+}
+body[data-role="engineer"] .work-metrics strong {
+  font-size: 25px;
+}
+body[data-role="engineer"] .qualification-notice {
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 12px;
+}
+body[data-role="engineer"] .engineer-tools {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: 12px 4px;
+  background: #fff;
+  border: 1px solid var(--market-border);
+  border-radius: 12px;
+  gap: 4px;
+  margin: 0 0 20px;
+}
+body[data-role="engineer"] .engineer-tools a {
+  padding: 8px 0;
+  gap: 8px;
+  min-width: 0;
+}
+body[data-role="engineer"] .engineer-tools strong {
+  font-size: 12px;
+}
+body[data-role="engineer"] .engineer-field-banner {
+  min-height: 100px;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+body[data-role="engineer"] .engineer-field-copy {
+  padding: 16px;
+  max-width: 90%;
+}
+body[data-role="engineer"] .engineer-field-copy strong {
+  font-size: 16px;
+  margin: 4px 0;
+}
+body[data-role="engineer"] .engineer-field-copy p {
+  font-size: 11px;
+}
+body[data-role="engineer"] .market-order-card {
+  border-left: 1px solid var(--market-border);
+  padding: 16px;
+}
+body[data-role="engineer"] .engineer-priority-task .market-order-card {
+  border: 1px solid #aacdbb;
+  box-shadow: 0 2px 8px #154e3510;
+}
+body[data-role="engineer"] .market-order-card h3 {
+  font-size: 16px;
+  line-height: 1.5;
+}
+body[data-role="engineer"] .order-category {
+  font-size: 11px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+body[data-role="engineer"] .order-source {
+  margin: 0;
+  font-size: 10px;
+  background: #f2f5f3;
+  border: 1px solid #e0e7e2;
+  padding: 1px 5px;
+  color: #63766d;
+  border-radius: 4px;
+}
+body[data-role="engineer"] .order-description {
+  font-size: 13px;
+  line-height: 1.65;
+  margin: 10px 0;
+}
+body[data-role="engineer"] .order-meta {
+  font-size: 12px;
+  line-height: 1.6;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+body[data-role="engineer"] .order-card-bottom {
+  margin-top: 12px;
+  padding-top: 12px;
+  gap: 8px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--market-border);
+}
+body[data-role="engineer"] .order-card-bottom > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #147552;
+}
+body[data-role="engineer"] .category-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 4px;
+  background: #e9eeeb;
+  border-radius: 10px;
+  border: 0;
+  margin-bottom: 12px;
+}
+body[data-role="engineer"] .category-tabs button {
+  flex: 1;
+  white-space: nowrap;
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: 12px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+}
+body[data-role="engineer"] .category-tabs button[aria-pressed="true"] {
+  background: #fff;
+  color: #126b4c;
+  box-shadow: 0 1px 3px #183b2514;
+}
+body[data-role="engineer"] .order-filter-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 108px;
+  gap: 8px;
+}
+body[data-role="engineer"] .order-filter-row input,
+body[data-role="engineer"] .order-filter-row select {
+  min-width: 0;
+  width: 100%;
+  height: 44px;
+  font-size: 12px;
+  border-radius: 9px;
+}
+body[data-role="engineer"] .market-primary,
+body[data-role="engineer"] .market-secondary {
+  min-height: 44px;
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+body[data-role="engineer"] .market-primary:active {
+  filter: brightness(0.92);
+}
+body[data-role="engineer"]
+  :is(button, a, input, select, textarea):focus-visible {
+  outline: 2px solid #147552;
+  outline-offset: 3px;
+}
+body[data-role="engineer"] .detail-status {
+  padding: 16px;
+  background: #eaf3ed;
+  border: 1px solid #d2e5d9;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+body[data-role="engineer"] .detail-status h2 {
+  font-size: 21px;
+}
+body[data-role="engineer"] .detail-status p {
+  font-size: 13px;
+  line-height: 1.65;
+}
+body[data-role="engineer"] .detail-action-bar {
+  position: static;
+  left: auto;
+  bottom: auto;
+  transform: none;
+  width: 100%;
+  padding: 14px 16px;
+  margin: 0 0 12px;
+  border: 1px solid #bdd7c8;
+  border-radius: 12px;
+  box-shadow: none;
+  flex-wrap: wrap;
+}
+body[data-role="engineer"] .detail-action-bar button {
+  margin: 0;
+  min-height: 44px;
+}
+body[data-role="engineer"] .detail-action-bar strong {
+  font-size: 13px;
+}
+body[data-role="engineer"] .market-root:has(.detail-action-bar) {
+  padding-bottom: 110px;
+}
+body[data-role="engineer"] .detail-facts dl {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 12px 14px;
+  font-size: 13px;
+}
+body[data-role="engineer"] .detail-facts dt {
+  color: var(--field-muted);
+}
+body[data-role="engineer"] .detail-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+body[data-role="engineer"] .detail-facts h2,
+body[data-role="engineer"] .market-card > h2 {
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+body[data-role="engineer"] .detail-contact {
+  padding: 14px 16px;
+}
+body[data-role="engineer"] .engineer-records summary {
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  min-height: 32px;
+}
+body[data-role="engineer"] .engineer-records[open] summary {
+  margin-bottom: 16px;
+}
+@media (max-width: 360px) {
+  body[data-role="engineer"] .market-root {
+    padding-inline: 12px;
+  }
+  body[data-role="engineer"] .market-card {
+    padding: 14px;
+  }
+  body[data-role="engineer"] .engineer-tools strong {
+    font-size: 11px;
+  }
+  body[data-role="engineer"] .detail-facts dl {
+    grid-template-columns: 68px minmax(0, 1fr);
+    gap: 10px;
+  }
+  body[data-role="engineer"] .detail-action-bar > div:last-child {
+    width: 100%;
+  }
+  body[data-role="engineer"] .detail-action-bar button {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body[data-role="engineer"]
+    :is(.market-primary, .market-secondary, .category-tabs button) {
+    transition:
+      background-color 0.16s ease,
+      box-shadow 0.16s ease;
+  }
+  body[data-role="engineer"] .market-card:active {
+    transition: background-color 0.12s ease;
+  }
+}
+
+/* Engineer white theme, shared by the remaining business screens. */
+body.market-body[data-role="engineer"],
+body.mobile-system[data-role="engineer"] {
+  --market-ground: #ffffff;
+  --app-ground: #ffffff;
+  --ui-surface: #ffffff;
+  --market-border: #e6ebe7;
+  --app-border: #e6ebe7;
+  background: #ffffff !important;
+}
+body.market-body[data-role="engineer"] .market-top,
+body.mobile-system[data-role="engineer"] > header {
+  background: #ffffff !important;
+}
+body[data-role="engineer"] .field-filter-panel {
+  background: #fafbfa;
+}
+body[data-role="engineer"] .market-card,
+body[data-role="engineer"] .wh-card {
+  box-shadow: none;
+}

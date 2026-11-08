@@ -1,7 +1,20 @@
+import DeviceLabels from './DeviceLabels';
+import CustomerImport from './CustomerImport';
+import {useWorkspaceFeedback} from '../components/WorkspaceFeedback';
+import useWorkspaceState from '../components/useWorkspaceState';
+import PageHeading from '../components/PageHeading';
+import './order-flow.css';
+import { API_BASE,getToken } from '../api';
 import React, { useState, useEffect } from 'react';
 import { getDevices, Device, getCustomers, Customer, getDeviceDetail } from '../api';
 
 export default function Devices() {
+  const [importing,setImporting]=useState(false);
+  const notify=useWorkspaceFeedback();
+  const [search,setSearch]=useWorkspaceState('devices:search','');
+  const [labelDevices,setLabelDevices]=useState<Device[]|null>(null);
+  const [selected,setSelected]=useState<string[]>([]);
+  const [bindingError,setBindingError]=useState('');
   const [devices, setDevices] = useState<Device[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +56,8 @@ export default function Devices() {
     setShowModal(true);
   }
 
+
+
   async function handleEditDevice(device: Device) {
     try {
       const detail = await getDeviceDetail(device.id);
@@ -53,20 +68,29 @@ export default function Devices() {
     }
   }
 
+  const visibleRows=devices.filter(row=>!search.trim()||String(row.model||'').toLowerCase().includes(search.trim().toLowerCase()) || String(row.serialNumber||'').toLowerCase().includes(search.trim().toLowerCase()));
+
   if (loading) {
     return <div className="card"><div className="loading">加载中...</div></div>;
   }
 
   return (
-    <div>
+    <div className="order-flow">
+      {importing&&<CustomerImport mode="devices" onClose={()=>setImporting(false)} onImported={message=>{setSearch('');loadDevices();notify(message)}}/>}
+      <PageHeading title="设备管理" description="维护设备档案，打印设备二维码，让客户扫码识别设备与售后服务。" />
+      {bindingError&&<div className="error-message">{bindingError}</div>}
+      {labelDevices&&<DeviceLabels devices={labelDevices} onClose={()=>setLabelDevices(null)}/>}
       <div className="card">
         <div className="filter-bar">
-          <input className="search-input" placeholder="搜索设备型号/序列号..." />
-          <button className="btn btn-default" onClick={handleBindDevice}>+ 新增设备</button>
+          <input className="search-input" placeholder="搜索设备型号/序列号..."  aria-label="搜索列表" value={search} onChange={e=>setSearch(e.target.value)} />
+          <button className="btn btn-default" onClick={()=>setImporting(true)}>导入 Excel</button>
+          <button className="btn btn-default" disabled={!selected.length} onClick={()=>{const rows=devices.filter(d=>selected.includes(d.id));if(rows.length>50){setBindingError("单次最多打印 50 台设备，请减少勾选数量");return;}setBindingError('');setLabelDevices(rows);}}>打印选中设备码{selected.length?`（${selected.length}）`:''}</button>
+          <button className="btn btn-primary" onClick={handleBindDevice}>+ 新增设备</button>
         </div>
         <table className="table">
           <thead>
             <tr>
+              <th className="device-selection"><input type="checkbox" aria-label="选择当前列表全部设备" checked={!!visibleRows.length&&visibleRows.every(d=>selected.includes(d.id))} onChange={e=>setSelected(e.target.checked?Array.from(new Set([...selected,...visibleRows.map(d=>d.id)])):selected.filter(id=>!visibleRows.some(d=>d.id===id)))}/></th>
               <th>设备型号</th>
               <th>序列号</th>
               <th>所属客户</th>
@@ -76,28 +100,29 @@ export default function Devices() {
             </tr>
           </thead>
           <tbody>
-            {devices.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ textAlign: 'center', padding: 20 }}>
-                  暂无设备数据
+                <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
+                  {search.trim() ? '没有匹配的设备，请调整搜索内容' : '暂无设备数据'}
                 </td>
               </tr>
             ) : (
-              devices.map((d) => {
+              visibleRows.map((d) => {
                 const isValid = isWarrantyValid(d.warrantyExpire as any);
                 return (
                   <tr key={d.id}>
+                    <td className="device-selection"><input type="checkbox" aria-label={'选择设备 '+d.serialNumber} checked={selected.includes(d.id)} onChange={e=>setSelected(e.target.checked?[...selected,d.id]:selected.filter(id=>id!==d.id))}/></td>
                     <td>{d.model}</td>
                     <td>{d.serialNumber}</td>
                     <td>{d.customer?.name || '-'}</td>
                     <td>{d.warrantyExpire ? new Date(d.warrantyExpire as any).toLocaleDateString('zh-CN') : '-'}</td>
                     <td>
-                      <span className={`badge ${isValid ? 'badge-working' : 'badge-cancelled'}`}>
-                        {isValid ? '保修期内' : '已过期'}
+                      <span className={`badge ${!d.warrantyExpire?'badge-neutral':isValid ? 'badge-success' : 'badge-warning'}`}>
+                        {!d.warrantyExpire?'未登记保修':isValid ? '保修期内' : '已过期'}
                       </span>
                     </td>
                     <td>
-                      <button className="btn btn-link" onClick={() => handleEditDevice(d)}>编辑</button>
+                      <button className="btn btn-link btn-small" onClick={() => handleEditDevice(d)}>编辑</button><button className="btn btn-link btn-small" onClick={()=>setLabelDevices([d])}>设备二维码</button><a className="btn btn-link btn-small" href={`/iot?deviceId=${d.id}`}>运行监测</a>
                     </td>
                   </tr>
                 );
@@ -154,8 +179,8 @@ function DeviceModal({ device, customers, onClose, onSuccess }: DeviceModalProps
 
     setSaving(true);
     try {
-      const API_BASE = `${window.location.protocol}//${window.location.hostname}:8080`;
-      const token = localStorage.getItem('cs_admin_token');
+
+      const token = getToken();
       const url = isEdit ? `${API_BASE}/admin/devices/${device.id}` : `${API_BASE}/admin/devices`;
       const method = isEdit ? 'PUT' : 'POST';
 

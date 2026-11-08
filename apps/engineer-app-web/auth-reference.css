@@ -1,0 +1,149 @@
+body.auth-reference {
+  --auth-accent: #1669df;
+  --auth-ink: #172a42;
+  --auth-ground: #f6f8fc;
+  --auth-border: #e6ebf2;
+  --auth-radius: 20px;
+  background: var(--auth-ground) !important;
+  color: var(--auth-ink);
+  width: 100%;
+  max-width: 460px !important;
+  margin: 0 auto !important;
+  min-height: 100dvh;
+  font:
+    14px/1.65 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "Microsoft YaHei",
+    sans-serif;
+  padding: 0 !important;
+  box-sizing: border-box;
+}
+body.auth-reference[data-role="engineer"] {
+  --auth-accent: #147552;
+  --auth-ink: #20352d;
+  --auth-ground: #f3f5f3;
+  --auth-border: #dfe6e0;
+  --auth-radius: 12px;
+}
+.auth-reference * {
+  box-sizing: border-box;
+}
+.auth-reference > main {
+  padding: 36px 22px !important;
+  min-width: 0;
+}
+.auth-reference > header {
+  height: 64px;
+  background: white;
+  border-bottom: 1px solid var(--auth-border);
+}
+.auth-reference > header button {
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--auth-accent) !important;
+}
+.auth-reference main > div.text-center {
+  margin: 12px 0 28px;
+}
+.auth-reference main > div.text-center h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.7px;
+  color: var(--auth-ink) !important;
+}
+.auth-reference main > div.text-center p {
+  color: #66788d !important;
+  font-size: 13px;
+}
+.auth-reference main > div.text-center > div {
+  box-shadow: none;
+  border: 1px solid var(--auth-border);
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+.auth-reference main > .bg-white {
+  border: 1px solid var(--auth-border);
+  border-radius: var(--auth-radius);
+  box-shadow: none;
+  padding: 24px !important;
+}
+.auth-reference main > .bg-white h2 {
+  font-size: 18px;
+  color: var(--auth-ink);
+}
+.auth-reference :is(input, select) {
+  font: 16px/1.5 inherit;
+  font-family: inherit;
+  font-size: 16px !important;
+  min-height: 48px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--auth-border) !important;
+  border-radius: 12px;
+  padding: 12px !important;
+  background: white;
+  color: var(--auth-ink);
+}
+.auth-reference label {
+  font-size: 13px !important;
+  color: var(--auth-ink) !important;
+}
+.auth-reference :is(#loginBtn, #registerBtn, button[type="submit"]) {
+  min-height: 48px;
+  border-radius: 12px !important;
+  background: var(--auth-accent) !important;
+  color: white;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.auth-reference #sendCodeBtn {
+  min-width: 102px;
+  min-height: 44px;
+  white-space: nowrap;
+  color: var(--auth-accent) !important;
+  font-size: 12px;
+}
+.auth-reference a {
+  color: var(--auth-accent) !important;
+}
+.auth-reference main > .text-center:last-child {
+  font-size: 11px;
+  color: #6b7b8e !important;
+}
+.auth-reference :is(a, button, input, select):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--auth-accent) 40%, white);
+  outline-offset: 3px;
+}
+.auth-reference[data-role="engineer"]
+  :is(input, select, #loginBtn, #registerBtn, button[type="submit"]) {
+  border-radius: 9px !important;
+}
+.auth-reference button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@media (min-width: 700px) {
+  html:has(.auth-reference) {
+    background: #edf1f6;
+  }
+  body.auth-reference {
+    box-shadow: 0 0 0 1px #e0e5ec;
+  }
+}
+@media (max-width: 360px) {
+  .auth-reference > main {
+    padding-inline: 16px !important;
+  }
+  .auth-reference main > .bg-white {
+    padding: 20px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-reference * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

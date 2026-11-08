@@ -1,0 +1,17 @@
+// Explicitly started demo only; Ctrl+C closes the public tunnels started here.
+import {spawn} from 'node:child_process';import {readFile,writeFile,mkdir,appendFile} from 'node:fs/promises';import path from 'node:path';import {fileURLToPath} from 'node:url';import http from 'node:http';
+const root=fileURLToPath(new URL('../',import.meta.url)),out=path.join(root,'.local-preview/cpolar');await mkdir(out,{recursive:true});
+const names=['admin','customer','engineer','platform'];
+try{const old=JSON.parse(await readFile(path.join(out,'session.json'),'utf8'));process.kill(old.cpolarPid,0);console.log('已有演示连接运行。当前地址记录：'+path.join(out,'links.json'));process.exit(0);}catch{}
+const source=await readFile(path.join(process.env.USERPROFILE,'.cpolar/cpolar.yml'),'utf8'),token=source.split(/\r?\n/).find(l=>/^authtoken\s*:/.test(l));if(!token)throw Error('请先在本机执行 cpolar authtoken 完成认证。');
+let yaml=token+'\ninspect_addr: false\ntunnels:\n';for(const [i,name]of names.entries())yaml+=`  ${name}:\n    proto: http\n    addr: 127.0.0.1:${45100+i}\n    region: cn\n    inspect: false\n    bind_tls: true\n`;await writeFile(path.join(out,'tunnels.yml'),yaml);
+let gateway,cpolar,closing=false;const links={};
+async function alive(){try{const r=await fetch('http://127.0.0.1:45100/',{signal:AbortSignal.timeout(1000)});return r.headers.get('x-demo-end')==='admin';}catch{return false}}
+if(!await alive()){gateway=spawn(process.execPath,[path.join(root,'scripts/four-end-demo-proxy.mjs')],{cwd:root,windowsHide:true,stdio:'ignore'});gateway.on('error',e=>console.error(e.message));for(let i=0;i<20&&!await alive();i++)await new Promise(r=>setTimeout(r,250));if(!await alive())throw Error('本地演示入口未启动，请检查端口和后台构建。');}
+const executable=process.env.CPOLAR_EXE||'D:\\cpolar\\cpolar.exe';cpolar=spawn(executable,['start','-config',path.join(out,'tunnels.yml'),'-daemon','off','-processMode','single','-log','stdout','-log-level','INFO',...names],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
+await writeFile(path.join(out,'session.json'),JSON.stringify({cpolarPid:cpolar.pid,gatewayPid:gateway?.pid||null,startedAt:new Date().toISOString()}));
+const seen=new Set();let buffer='';async function discover(url){for(let i=0;i<3&&!closing;i++){try{const r=await fetch(url+'/',{signal:AbortSignal.timeout(8000)}),name=r.headers.get('x-demo-end');await r.body?.cancel();if(!names.includes(name))throw Error('Not ready');links[name]=url;await writeFile(path.join(out,'links.json'),JSON.stringify({updatedAt:new Date().toISOString(),links},null,2));console.log(name+': '+url);if(Object.keys(links).length===4)console.log('四个地址已获取；请在外部网络检查实际操作。关闭本窗口会停止本次隧道。');return;}catch{}}console.log('隧道已建立，但未完成入口识别：'+url);}
+function consume(data){const safe=data.toString().replace(/(authtoken|password|token)[=:][^\s,]+/gi,'$1=[REDACTED]');appendFile(path.join(out,'connection.log'),safe).catch(()=>{});buffer=(buffer+safe).slice(-8000);for(const m of buffer.matchAll(/Tunnel established at (https:\/\/[a-z0-9.-]+)/g)){if(seen.has(m[1]))continue;seen.add(m[1]);discover(m[1]);}if(/authentication failed|session limit|ERR_CPOLAR/i.test(safe))console.error('连接被服务端拒绝，请检查账号状态或其他 cpolar 实例。');}
+cpolar.stdout.on('data',consume);cpolar.stderr.on('data',consume);cpolar.on('error',e=>console.error(e.message));cpolar.on('exit',code=>{if(!closing){console.log('cpolar 已退出，退出码 '+code);gateway?.kill();}});
+function stop(){closing=true;cpolar?.kill();gateway?.kill();process.exit(0);}process.on('SIGINT',stop);process.on('SIGTERM',stop);
+console.log('正在连接免费演示隧道，认证信息不会显示。');

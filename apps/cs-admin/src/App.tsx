@@ -1,3 +1,12 @@
+import IoTDashboard from './features/iot/IoTDashboard';
+import ServiceNetwork from './pages/ServiceNetworkPage';
+import {CompanyProvider} from './components/CompanyBrand';
+import CompanySettings from './pages/CompanySettings';
+import {WorkspaceFeedback} from './components/WorkspaceFeedback';
+import {AdminAppearance} from './components/AdminAppearance';
+import WarehouseCenter from './pages/WarehouseCenter';
+import Contracts from './pages/Contracts';
+import Finance from './pages/Finance';
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -13,6 +22,10 @@ import ServiceDesk from './pages/ServiceDesk';
 import Login from './pages/Login';
 import { getToken } from './api';
 import './index.css';
+import './components/design-system.css';
+import './components/admin-themes.css';
+import './components/admin-motion.css';
+import './components/admin-controls.css';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!getToken()) {
@@ -23,7 +36,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <AdminAppearance><WorkspaceFeedback><BrowserRouter><CompanyProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
@@ -45,14 +58,20 @@ export default function App() {
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<Orders />} />
           <Route path="orders/:id" element={<OrderDetail />} />
+          <Route path="service-network" element={<ServiceNetwork />} />
+          <Route path="company" element={<CompanySettings />} />
           <Route path="customers" element={<Customers />} />
           <Route path="engineers" element={<Engineers />} />
           <Route path="devices" element={<Devices />} />
+          <Route path="iot" element={<IoTDashboard />} />
+          <Route path="warehouse" element={<WarehouseCenter />} />
+          <Route path="contracts" element={<Contracts />} />
+          <Route path="finance" element={<Finance />} />
           <Route path="parts" element={<Parts />} />
           <Route path="complaints" element={<Complaints />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </CompanyProvider></BrowserRouter></WorkspaceFeedback></AdminAppearance>
   );
 }

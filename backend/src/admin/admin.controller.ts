@@ -1,9 +1,14 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, BadRequestException } from '@nestjs/common';
+import {networkInterfaces} from 'node:os';
+import { indexPerson,indexAsset } from '../identity/store.js';
+import { currentTenant } from '../tenancy/context.js';
+import { registry } from '../tenancy/registry.js';
+import { Roles } from '../auth/roles.decorator.js';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Request, BadRequestException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WorkOrder } from '../database/entities/work-order.entity.js';
 import { Engineer } from '../database/entities/engineer.entity.js';
-import { EngineerStatus, ComplaintStatus } from '../database/entities/enums.js';
+import { EngineerStatus, ComplaintStatus, DispatchType } from '../database/entities/enums.js';
 import { Customer } from '../database/entities/customer.entity.js';
 import { Device } from '../database/entities/device.entity.js';
 import { Part } from '../database/entities/part.entity.js';
@@ -16,6 +21,7 @@ import type { AuthenticatedRequest } from '../auth/types.js';
 
 @Controller('admin')
 @UseGuards(JwtAuthGuard)
+@Roles('cs_operator')
 export class AdminController {
   constructor(
     @InjectRepository(WorkOrder) private workOrderRepo: Repository<WorkOrder>,
@@ -42,10 +48,12 @@ export class AdminController {
 
   @Get('work-orders/:id')
   async getWorkOrderDetail(@Param('id') id: string) {
-    return this.workOrderRepo.findOne({
+    const order = await this.workOrderRepo.findOne({
       where: { id },
       relations: { device: true, address: true, engineer: true, customer: true } as any,
     });
+    if (!order) throw new NotFoundException('工单不存在');
+    return order;
   }
 
   @Put('work-orders/:id/classify')
@@ -63,16 +71,17 @@ export class AdminController {
     const workOrder = await this.workOrderRepo.findOne({ where: { id } });
     if (!workOrder) throw new Error('工单不存在');
 
+    if (workOrder.status !== WorkOrderStatus.PENDING) throw new BadRequestException('仅待派单工单可修改派单分类');
+    if (![DispatchType.SYSTEM, DispatchType.DESIGNATED].includes(body.dispatchType as DispatchType)) throw new BadRequestException('派单方式无效');
+    if (!Number.isFinite(body.estimatedAmount) || body.estimatedAmount < 0) throw new BadRequestException('预估金额无效');
+    if (body.dispatchType === DispatchType.DESIGNATED) {
+      if (!body.designatedEngineerId || !await this.engineerRepo.findOneBy({ id: body.designatedEngineerId })) throw new BadRequestException('请选择有效的指定工程师');
+    }
     workOrder.faultType = body.faultType;
     workOrder.emergencyLevel = body.emergencyLevel;
     workOrder.estimatedAmount = body.estimatedAmount;
-    workOrder.dispatchType = body.dispatchType as any;
-    if (body.designatedEngineerId) {
-      workOrder.designatedEngineerId = body.designatedEngineerId;
-    }
-    if (body.csOperatorId) {
-      workOrder.csOperatorId = body.csOperatorId;
-    }
+    workOrder.dispatchType = body.dispatchType as DispatchType;
+    workOrder.designatedEngineerId = body.dispatchType === DispatchType.DESIGNATED ? body.designatedEngineerId! : null as any;
 
     return this.workOrderRepo.save(workOrder);
   }
@@ -82,6 +91,8 @@ export class AdminController {
     const workOrder = await this.workOrderRepo.findOne({ where: { id } });
     if (!workOrder) throw new Error('工单不存在');
 
+    if (workOrder.status !== WorkOrderStatus.PENDING) throw new BadRequestException('当前工单不可重新派单');
+    if (!await this.engineerRepo.findOneBy({ id: engineerId })) throw new BadRequestException('工程师不存在');
     workOrder.engineerId = engineerId;
     workOrder.status = WorkOrderStatus.DISPATCHED;
     return this.workOrderRepo.save(workOrder);
@@ -89,12 +100,14 @@ export class AdminController {
 
   @Delete('work-orders/:id')
   async deleteWorkOrder(@Param('id') id: string) {
-    // 直接使用原生 SQL 删除，避免 ORM 关联加载问题
-    // 按依赖顺序删除所有子表记录，再删主表
-    await this.workOrderRepo.query('DELETE FROM reviews WHERE work_order_id = $1', [id]);
-    await this.workOrderRepo.query('DELETE FROM dispatch_records WHERE work_order_id = $1', [id]);
-    await this.workOrderRepo.query('DELETE FROM notifications WHERE work_order_id = $1', [id]);
-    await this.workOrderRepo.query('DELETE FROM work_orders WHERE id = $1', [id]);
+    await this.workOrderRepo.manager.transaction(async manager => {
+      const movements = await manager.query('SELECT 1 FROM stock_movements WHERE work_order_id = $1 LIMIT 1', [id]);
+      if (movements.length) throw new BadRequestException('工单已有用料流水，请保留以便对账');
+      for (const table of ['reviews', 'complaints', 'service_chats', 'maintenance_records', 'dispatch_records', 'notifications']) {
+        await manager.query(`DELETE FROM ${table} WHERE work_order_id = $1`, [id]);
+      }
+      await manager.query('DELETE FROM work_orders WHERE id = $1', [id]);
+    });
     return { message: '删除成功' };
   }
 
@@ -137,13 +150,20 @@ export class AdminController {
 
   @Post('engineers')
   async createEngineer(@Body() body: { name: string; phone: string }) {
-    const engineer = this.engineerRepo.create({
-      name: body.name,
-      phone: body.phone,
-      status: EngineerStatus.OFFLINE,
-      joinedAt: new Date(),
-    });
-    return this.engineerRepo.save(engineer);
+    const client=await registry.connect();
+    try {
+      await client.query('BEGIN');
+      const tenant=(await client.query('SELECT employee_limit FROM platform.tenants WHERE id=$1 FOR UPDATE',[currentTenant().id])).rows[0];
+      const admins=(await client.query("SELECT count(*)::int AS count FROM platform.memberships WHERE tenant_id=$1 AND role='cs_operator'",[currentTenant().id])).rows[0].count;
+      const engineer=await this.engineerRepo.manager.transaction(async manager=>{
+        const count=await manager.count(Engineer);
+        if(count+admins>=tenant.employee_limit)throw new BadRequestException('企业员工额度已用完，请联系平台管理员扩容');
+        return manager.save(Engineer,manager.create(Engineer,{name:body.name,phone:body.phone,status:EngineerStatus.OFFLINE,joinedAt:new Date()}));
+      });
+      await client.query('COMMIT');
+      await indexPerson(currentTenant().id,'engineer',engineer.id,engineer.phone,engineer.name);
+      return engineer;
+    }catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
   }
 
   // ==================== 客户管理 ====================
@@ -152,6 +172,25 @@ export class AdminController {
     return this.customerRepo.find({
       order: { createdAt: 'DESC' },
     });
+  }
+
+  @Post('customers')
+  async createCustomer(@Body() body: { name?: string; phone?: string }) {
+    const name = typeof body?.name === 'string' ? body.name.trim() : '';
+    const phone = typeof body?.phone === 'string' ? body.phone.trim() : '';
+    if (!name || name.length > 50) throw new BadRequestException('客户姓名为必填项，最多50个字符');
+    if (!/^1[3-9]\d{9}$/.test(phone)) throw new BadRequestException('请输入有效的11位手机号码');
+    try {
+      return await this.customerRepo.manager.transaction(async manager => {
+        if (await manager.findOne(Customer, { where: { phone } })) throw new BadRequestException('该手机号已在本企业客户列表中');
+        const customer = await manager.save(Customer, manager.create(Customer, { name, phone }));
+        await indexPerson(currentTenant().id, 'customer', customer.id, customer.phone, customer.name);
+        return customer;
+      });
+    } catch (error: any) {
+      if (error?.code === '23505' || error?.driverError?.code === '23505') throw new BadRequestException('该手机号已在本企业客户列表中');
+      throw error;
+    }
   }
 
   @Get('customers/:id')
@@ -183,7 +222,9 @@ export class AdminController {
     if (body.name) customer.name = body.name;
     if (body.phone) customer.phone = body.phone;
 
-    return this.customerRepo.save(customer);
+    const saved=await this.customerRepo.save(customer);
+    await indexPerson(currentTenant().id,'customer',saved.id,saved.phone,saved.name);
+    return saved;
   }
 
   // ==================== 设备管理 ====================
@@ -226,7 +267,18 @@ export class AdminController {
     device.deviceType = body.deviceType;
     device.purchaseDate = body.purchaseDate ? new Date(body.purchaseDate) as any : null;
     device.warrantyExpire = body.warrantyExpire ? new Date(body.warrantyExpire) as any : null;
-    return this.deviceRepo.save(device);
+    const saved=await this.deviceRepo.save(device);
+    await indexAsset(currentTenant().id,saved.id,saved.serialNumber);
+    return saved;
+  }
+
+  @Get('devices/:id/claim-link')
+  async deviceClaimLink(@Param('id') id:string,@Request() req:any){
+    const device=await this.deviceRepo.findOneBy({id});if(!device)throw new NotFoundException('设备不存在');
+    const tenant=currentTenant(),asset=await indexAsset(tenant.id,device.id,device.serialNumber);
+    const localHost=['localhost','127.0.0.1','::1'].includes(req.hostname);
+    const lan=Object.entries(networkInterfaces()).filter(([name])=>!/virtual|vethernet|wsl|vpn|docker|loopback/i.test(name)).flatMap(([,items])=>items||[]).find(i=>i.family==='IPv4'&&!i.internal);
+    return {assetKey:asset.id,path:'/device-scan.html?asset='+asset.id,companyName:tenant.name,customerBaseUrl:process.env.CUSTOMER_WEB_URL||(localHost&&lan?'http://'+lan.address+':4101':req.protocol+'://'+req.hostname+':3101')};
   }
 
   @Put('devices/:id')
@@ -247,7 +299,9 @@ export class AdminController {
     if (body.purchaseDate) device.purchaseDate = new Date(body.purchaseDate) as any;
     if (body.warrantyExpire) device.warrantyExpire = new Date(body.warrantyExpire) as any;
 
-    return this.deviceRepo.save(device);
+    const saved=await this.deviceRepo.save(device);
+    await indexAsset(currentTenant().id,saved.id,saved.serialNumber);
+    return saved;
   }
 
   // ==================== 配件管理 ====================

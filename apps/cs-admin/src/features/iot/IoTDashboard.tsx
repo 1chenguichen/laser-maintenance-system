@@ -1,0 +1,6 @@
+import React,{useEffect,useRef} from 'react';
+import {API_BASE,getToken} from '../../api';
+declare global{interface Window{IoTConsole?:{mount:(root:HTMLElement,config:any)=>()=>void}}}
+let loading:Promise<void>|null=null;
+function load(){if(window.IoTConsole)return Promise.resolve();return loading||=(new Promise<void>((resolve,reject)=>{if(!document.querySelector('link[data-iot-css]')){const css=document.createElement('link');css.rel='stylesheet';css.href='/iot/console.css';css.dataset.iotCss='true';document.head.append(css);}const script=document.createElement('script');script.src='/iot/console.js';script.onload=()=>resolve();script.onerror=()=>{loading=null;reject(Error('设备监控组件加载失败，请刷新重试'));};document.head.append(script);}));}
+export default function IoTDashboard(){const root=useRef<HTMLDivElement>(null);useEffect(()=>{let active=true,cleanup:(()=>void)|undefined;load().then(()=>{if(active&&root.current)cleanup=window.IoTConsole!.mount(root.current,{mode:'company',apiBase:API_BASE,token:getToken(),deviceId:new URLSearchParams(location.search).get('deviceId')});}).catch(e=>{if(active&&root.current)root.current.textContent=e.message;});return()=>{active=false;cleanup?.();};},[]);return <div ref={root} className="company-iot-view">正在读取设备监控…</div>;}

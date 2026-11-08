@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>完工签字 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -22,8 +26,8 @@
       touch-action: none;
     }
   </style>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-24 mobile-system" data-role="engineer" data-refined="true" data-page="signature">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
@@ -72,7 +76,7 @@
   </div>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
     var orderId = null;
     var orderData = null;
@@ -100,7 +104,7 @@
       fetch(API_BASE + '/engineer/orders/' + orderId, {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         orderData = data;
         renderSummary(data);
@@ -216,6 +220,7 @@
     }
 
     function submitComplete() {
+      if (!orderData) { alert('工单数据尚未加载，请稍后重试'); return; }
       if (!signatureData) {
         alert('请让客户签字确认');
         return;
@@ -229,12 +234,12 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
-          partsFee: orderData.partsFee,
-          laborFee: orderData.laborFee,
+          partsFee: Number(orderData.partsFee) || 0,
+          laborFee: Number(orderData.laborFee) || 0,
           signatureUrl: signatureData
         })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('完工确认成功');
         // 跳转到 working tab

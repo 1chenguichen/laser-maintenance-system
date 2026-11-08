@@ -1,3 +1,5 @@
+import { DataSource } from 'typeorm';
+import { routeDataSource } from '../tenancy/context.js';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -12,6 +14,7 @@ const __dirname = dirname(__filename);
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
+      dataSourceFactory: async (options) => routeDataSource(await new DataSource(options!).initialize()),
       useFactory: (config: ConfigService) => ({
         type: 'postgres',
         host: config.get('DB_HOST', 'localhost'),

@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNumber, IsArray, IsEnum } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsArray, IsEnum, Min } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EngineerStatus } from '../database/entities/enums.js';
 
@@ -38,10 +38,12 @@ export class AcceptDesignatedOrderDto {
 export class CompleteOrderDto {
   @ApiProperty({ description: '配件费' })
   @IsNumber()
+  @Min(0)
   partsFee: number;
 
   @ApiProperty({ description: '人工费' })
   @IsNumber()
+  @Min(0)
   laborFee: number;
 
   @ApiPropertyOptional({ description: '配件明细' })
@@ -78,9 +80,11 @@ export class UploadPhotoDto {
 export class QuoteOrderDto {
   @ApiProperty({ description: '配件费用' })
   @IsNumber()
+  @Min(0)
   partsFee: number;
 
   @ApiProperty({ description: '人工费用' })
   @IsNumber()
+  @Min(0)
   laborFee: number;
 }

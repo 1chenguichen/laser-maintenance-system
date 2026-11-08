@@ -1,3 +1,4 @@
+import { ServiceContract } from '../database/entities/operations.entity.js';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -25,6 +26,8 @@ export class CustomerService {
     private dispatchService: DispatchService,
   ) {}
 
+  private addressFields(dto:CreateAddressDto):Partial<CreateAddressDto>{const value:any={};for(const key of ['province','city','district','detail','longitude','latitude','label','isDefault'])if((dto as any)[key]!==undefined)value[key]=(dto as any)[key];return value;}
+
   // ==================== 地址管理 ====================
   async getAddresses(customerId: string): Promise<Address[]> {
     return this.addressRepo.find({ where: { customerId }, order: { isDefault: 'DESC', createdAt: 'DESC' } });
@@ -35,7 +38,7 @@ export class CustomerService {
       // 取消其他默认地址
       await this.addressRepo.update({ customerId, isDefault: true }, { isDefault: false });
     }
-    const address = this.addressRepo.create({ ...dto, customerId });
+    const address = this.addressRepo.create({ ...this.addressFields(dto), customerId });
     return this.addressRepo.save(address);
   }
 
@@ -47,11 +50,12 @@ export class CustomerService {
       await this.addressRepo.update({ customerId, isDefault: true }, { isDefault: false });
     }
 
-    Object.assign(address, dto);
+    Object.assign(address, this.addressFields(dto));
     return this.addressRepo.save(address);
   }
 
   async deleteAddress(customerId: string, addressId: string): Promise<void> {
+    if (await this.workOrderRepo.count({ where: { addressId, customerId } })) throw new BadRequestException('该地址已关联工单，请保留历史服务地址');
     const result = await this.addressRepo.delete({ id: addressId, customerId });
     if (result.affected === 0) throw new NotFoundException('地址不存在');
   }
@@ -72,6 +76,7 @@ export class CustomerService {
       throw new BadRequestException('该设备不存在，请联系客服添加设备后再绑定');
     }
 
+    if (device.customerId === customerId) return device;
     if (device.customerId) {
       throw new BadRequestException('该设备已被其他客户绑定');
     }
@@ -86,7 +91,8 @@ export class CustomerService {
   }
 
   async deleteDevice(customerId: string, deviceId: string): Promise<void> {
-    const result = await this.deviceRepo.delete({ id: deviceId, customerId });
+    // Unbind instead of deleting the equipment and breaking historical orders.
+    const result = await this.deviceRepo.update({ id: deviceId, customerId }, { customerId: null as any });
     if (result.affected === 0) throw new NotFoundException('设备不存在');
   }
 
@@ -109,11 +115,19 @@ export class CustomerService {
     const address = await this.addressRepo.findOne({ where: { id: dto.addressId, customerId } });
     if (!address) throw new NotFoundException('地址不存在');
 
+    let contract: ServiceContract | null = null;
+    if (dto.contractId) {
+      contract = await this.workOrderRepo.manager.findOneBy(ServiceContract, { id: dto.contractId, customerId, status: 'ACTIVE' });
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Shanghai' });
+      if (!contract || contract.startDate > today || contract.endDate < today || (contract.deviceIds.length && !contract.deviceIds.includes(device.id))) throw new BadRequestException('合同未生效、已到期或未覆盖该设备');
+    }
     // 生成工单号
     const orderNo = `WX${new Date().toISOString().slice(0, 10).replace(/-/g, '')}${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
     const workOrder = this.workOrderRepo.create({
       orderNo,
+      contractId: contract?.id,
+      contractTerms: contract ? { number: contract.number, laborIncluded: contract.laborIncluded, partsDiscount: Number(contract.partsDiscount) } : undefined,
       customerId,
       deviceId: dto.deviceId,
       addressId: dto.addressId,
@@ -161,101 +175,70 @@ export class CustomerService {
   }
 
   async confirmWorkOrder(customerId: string, workOrderId: string, confirm: boolean, refuseReason?: string): Promise<WorkOrder> {
-    const workOrder = await this.workOrderRepo.findOne({
-      where: { id: workOrderId, customerId },
+    if (typeof confirm !== 'boolean') throw new BadRequestException('请明确确认或拒绝报价');
+    return this.workOrderRepo.manager.transaction(async manager => {
+      const repo = manager.getRepository(WorkOrder);
+      const order = await repo.findOne({ where: { id: workOrderId, customerId }, lock: { mode: 'pessimistic_write' } });
+      if (!order) throw new NotFoundException('工单不存在');
+      if (order.status !== WorkOrderStatus.PENDING_PAYMENT || order.customerConfirm) throw new BadRequestException('当前状态不能确认报价');
+      const total = Number(order.partsFee || 0) + Number(order.laborFee || 0);
+      if (total < 0 || (total === 0 && !order.contractId)) throw new BadRequestException('工程师尚未提交有效报价');
+      order.customerConfirm = confirm;
+      if (confirm) { order.prepayAmount = Math.round(total * 30) / 100; if (total === 0) order.status = WorkOrderStatus.REPAIRING; }
+      else { order.status = WorkOrderStatus.REFUSED; order.refuseReason = refuseReason || ''; }
+      return repo.save(order);
     });
-    if (!workOrder) throw new NotFoundException('工单不存在');
-
-    console.log('=== confirmWorkOrder called ===');
-    console.log('confirm value:', confirm, typeof confirm);
-    console.log('workOrder id:', workOrderId);
-
-    if (confirm) {
-      // 客户确认报价，状态变为待支付定金
-      workOrder.status = WorkOrderStatus.PENDING_PAYMENT;
-      workOrder.customerConfirm = true;
-      // 计算定金金额（30%）
-      const totalAmount = Number(workOrder.partsFee || 0) + Number(workOrder.laborFee || 0);
-      workOrder.prepayAmount = totalAmount * 0.3;
-      console.log('Setting status to PENDING_PAYMENT, prepayAmount:', workOrder.prepayAmount);
-    } else {
-      workOrder.status = WorkOrderStatus.REFUSED;
-      workOrder.refuseReason = refuseReason ?? '';
-    }
-
-    return this.workOrderRepo.save(workOrder);
   }
 
-  // ==================== 支付定金 ====================
+  // Local demo payment: no third-party funds are charged by these endpoints.
   async payPrepayment(customerId: string, workOrderId: string): Promise<WorkOrder> {
-    const workOrder = await this.workOrderRepo.findOne({
-      where: { id: workOrderId, customerId },
+    return this.workOrderRepo.manager.transaction(async manager => {
+      const repo = manager.getRepository(WorkOrder);
+      const order = await repo.findOne({ where: { id: workOrderId, customerId }, lock: { mode: 'pessimistic_write' } });
+      if (!order) throw new NotFoundException('工单不存在');
+      if (order.status !== WorkOrderStatus.PENDING_PAYMENT || !order.customerConfirm) throw new BadRequestException('请先确认报价，且勿重复支付');
+      order.status = WorkOrderStatus.REPAIRING;
+      return repo.save(order);
     });
-    if (!workOrder) throw new NotFoundException('工单不存在');
-    if (workOrder.status !== WorkOrderStatus.PENDING_PAYMENT) {
-      throw new BadRequestException('当前状态不需要支付定金');
-    }
-
-    // 支付定金后，状态变为维修中
-    workOrder.status = WorkOrderStatus.REPAIRING;
-    return this.workOrderRepo.save(workOrder);
   }
 
-  // ==================== 支付尾款 ====================
   async payFinalPayment(customerId: string, workOrderId: string): Promise<WorkOrder> {
-    const workOrder = await this.workOrderRepo.findOne({
-      where: { id: workOrderId, customerId },
+    return this.workOrderRepo.manager.transaction(async manager => {
+      const repo = manager.getRepository(WorkOrder);
+      const order = await repo.findOne({ where: { id: workOrderId, customerId }, lock: { mode: 'pessimistic_write' } });
+      if (!order) throw new NotFoundException('工单不存在');
+      if (order.status !== WorkOrderStatus.PENDING_FINAL_PAYMENT) throw new BadRequestException('当前状态不需要支付尾款');
+      const total = Number(order.finalAmount) || Number(order.partsFee || 0) + Number(order.laborFee || 0);
+      order.finalPaymentAmount = Math.round((total - Number(order.prepayAmount || 0)) * 100) / 100;
+      order.status = WorkOrderStatus.COMPLETED;
+      if (order.engineerId) {
+        await manager.getRepository(Engineer).createQueryBuilder().update().set({
+          monthlyOrders: () => 'monthly_orders + 1', totalOrders: () => 'total_orders + 1',
+          monthlyRevenue: () => 'monthly_revenue + :total', totalRevenue: () => 'total_revenue + :total',
+        }).where('id = :id', { id: order.engineerId, total }).execute();
+      }
+      return repo.save(order);
     });
-    if (!workOrder) throw new NotFoundException('工单不存在');
-    if (workOrder.status !== WorkOrderStatus.PENDING_FINAL_PAYMENT) {
-      throw new BadRequestException('当前状态不需要支付尾款');
-    }
-
-    // 计算尾款（70%）
-    const totalAmount = Number(workOrder.finalAmount) || (Number(workOrder.partsFee || 0) + Number(workOrder.laborFee || 0));
-    workOrder.finalPaymentAmount = totalAmount * 0.7;
-    workOrder.status = WorkOrderStatus.COMPLETED;
-
-    // 更新工程师统计（只有在收到尾款后才计入）
-    const engineer = await this.engineerRepo.findOne({ where: { id: workOrder.engineerId } });
-    if (engineer) {
-      engineer.monthlyOrders += 1;
-      engineer.monthlyRevenue = Number(engineer.monthlyRevenue) + totalAmount;
-      engineer.totalOrders += 1;
-      engineer.totalRevenue = Number(engineer.totalRevenue) + totalAmount;
-      await this.engineerRepo.save(engineer);
-    }
-
-    return this.workOrderRepo.save(workOrder);
   }
   async createReview(customerId: string, dto: CreateReviewDto): Promise<Review> {
-    const workOrder = await this.workOrderRepo.findOne({
-      where: { id: dto.workOrderId, customerId },
+    return this.workOrderRepo.manager.transaction(async manager => {
+      const orders = manager.getRepository(WorkOrder);
+      const order = await orders.findOne({ where: { id: dto.workOrderId, customerId }, lock: { mode: 'pessimistic_write' } });
+      if (!order) throw new NotFoundException('工单不存在');
+      if (order.status !== WorkOrderStatus.COMPLETED) throw new BadRequestException('只能对已完成的工单进行评价');
+      if (order.reviewed) throw new BadRequestException('该工单已评价');
+      const reviews = manager.getRepository(Review);
+      const review = reviews.create({ workOrderId: order.id, customerId, engineerId: order.engineerId, rating: dto.rating, content: dto.content, tags: dto.tags, isAnonymous: dto.isAnonymous || false });
+      await reviews.save(review);
+      order.reviewed = true;
+      await orders.save(order);
+      return review;
     });
-    if (!workOrder) throw new NotFoundException('工单不存在');
-    if (workOrder.status !== WorkOrderStatus.COMPLETED) {
-      throw new BadRequestException('只能对已完成的工单进行评价');
-    }
-
-    const review = this.reviewRepo.create({
-      workOrderId: dto.workOrderId,
-      customerId,
-      engineerId: workOrder.engineerId,
-      rating: dto.rating,
-      content: dto.content,
-      tags: dto.tags,
-      isAnonymous: dto.isAnonymous || false,
-    });
-
-    // 标记工单已评价
-    workOrder.reviewed = true;
-    await this.workOrderRepo.save(workOrder);
-
-    return this.reviewRepo.save(review);
   }
 
   // ==================== 投诉 ====================
   async createComplaint(customerId: string, dto: CreateComplaintDto): Promise<Complaint> {
+    if (dto.workOrderId) await this.getWorkOrderDetail(customerId, dto.workOrderId);
     const complaint = this.complaintRepo.create({
       workOrderId: dto.workOrderId,
       customerId,
@@ -276,6 +259,10 @@ export class CustomerService {
     });
     if (!workOrder) throw new NotFoundException('工单不存在');
 
+    if (![WorkOrderStatus.REPAIRING, WorkOrderStatus.PENDING_FINAL_PAYMENT, WorkOrderStatus.COMPLETED].includes(workOrder.status)) throw new BadRequestException('该工单尚未支付，无法申请退款');
+    const paid = Number(workOrder.prepayAmount || 0) + Number(workOrder.finalPaymentAmount || 0);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > paid) throw new BadRequestException('退款金额必须大于0且不能超过已支付金额');
+    if (await this.complaintRepo.findOne({ where: { workOrderId, customerId, complaintType: ComplaintType.REFUND, status: ComplaintStatus.PENDING } })) throw new BadRequestException('该工单已有待处理退款申请');
     // 创建退款投诉
     const complaint = this.complaintRepo.create({
       workOrderId,

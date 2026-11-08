@@ -12,6 +12,12 @@ export class Warehouse {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'owner_engineer_id', nullable: true, unique: true })
+  ownerEngineerId: string;
+
+  @Column({ default: 'CENTRAL' })
+  kind: string;
+
   @Column({ length: 100 })
   name: string;
 

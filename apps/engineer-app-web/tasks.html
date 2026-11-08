@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>我的任务 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -23,8 +28,8 @@
       }
     }
   </script>
-</head>
-<body class="bg-surface pb-20">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-20 mobile-system" data-role="engineer" data-refined="true" data-page="tasks">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <div class="w-10"></div>
@@ -60,6 +65,7 @@
 
   <!-- Main Content -->
   <main class="pt-28 px-4 space-y-4">
+    <section data-engineer-companies aria-live="polite" aria-label="所属企业" style="background:#f0f8f3;border:1px solid #d5e8dc;border-radius:12px;padding:14px 16px;margin-top:16px"><p style="margin:0;font-size:14px;color:#52665a">正在核实所属企业…</p></section>
     <div id="taskList">
       <div class="text-center py-12 text-on-surface-variant">加载中...</div>
     </div>
@@ -89,7 +95,7 @@
   </nav>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
     var currentTab = 'pending';
     var taskData = { pending: [], working: [], pendingFinal: [], completed: [] };
@@ -101,6 +107,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadTasks();
       setupTabs();
+      setInterval(function () { if (!document.hidden) loadTasks(); }, 5000);
     });
 
     function setupTabs() {
@@ -127,19 +134,20 @@
     }
 
     function loadTasks() {
-      Promise.all([
-        fetch(API_BASE + '/engineer/orders?status=DISPATCHED', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
-        fetch(API_BASE + '/engineer/orders?status=ACCEPTED', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
-        fetch(API_BASE + '/engineer/orders?status=PENDING_PAYMENT', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
-        fetch(API_BASE + '/engineer/orders?status=REPAIRING', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
-        fetch(API_BASE + '/engineer/orders?status=PENDING_FINAL_PAYMENT', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); }),
-        fetch(API_BASE + '/engineer/orders?status=COMPLETED', { headers: { 'Authorization': 'Bearer ' + token } }).then(function(r) { return r.json(); })
+      return Promise.all([
+        fetch(API_BASE + '/engineer/designated-orders', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=DISPATCHED', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=ACCEPTED', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=PENDING_PAYMENT', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=REPAIRING', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=PENDING_FINAL_PAYMENT', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse),
+        fetch(API_BASE + '/engineer/orders?status=COMPLETED', { headers: { 'Authorization': 'Bearer ' + token } }).then(window.readApiResponse)
       ])
       .then(function(results) {
-        taskData.pending = Array.isArray(results[0]) ? results[0] : [];
-        taskData.working = [...(Array.isArray(results[1]) ? results[1] : []), ...(Array.isArray(results[2]) ? results[2] : []), ...(Array.isArray(results[3]) ? results[3] : [])];
-        taskData.pendingFinal = Array.isArray(results[4]) ? results[4] : [];
-        taskData.completed = Array.isArray(results[5]) ? results[5] : [];
+        taskData.pending = [...results[0], ...results[1]];
+        taskData.working = [...results[2], ...results[3], ...results[4]];
+        taskData.pendingFinal = results[5];
+        taskData.completed = results[6];
 
         document.getElementById('tab-pending-count').textContent = taskData.pending.length || '';
         document.getElementById('tab-working-count').textContent = taskData.working.length || '';
@@ -172,7 +180,7 @@
         var addr = task.address ? [task.address.city, task.address.district, task.address.detail].filter(Boolean).join('') : '-';
         var statusBadge, statusClass;
         if (currentTab === 'pending') {
-          statusBadge = '今日任务';
+          statusBadge = task.status === 'PENDING' ? '指定待接单' : '今日任务';
           statusClass = 'bg-primary-container text-primary';
         } else if (currentTab === 'working') {
           if (task.status === 'ACCEPTED') {
@@ -197,6 +205,7 @@
         }
 
         html += '<article class="bg-white rounded-xl p-4 border border-outline-variant mb-4">';
+        if(task.serviceName)html+='<p class="text-xs mb-2" style="color:#7b8b9e">服务企业：'+window.escapeHtml(task.serviceName)+'</p>';
         html += '<div class="flex justify-between items-center mb-3">';
         html += '<div class="flex items-center gap-2">';
         html += '<span class="px-2 py-1 rounded text-xs font-semibold ' + statusClass + '">' + statusBadge + '</span>';
@@ -207,20 +216,20 @@
         }
         html += '</div>';
 
-        html += '<h3 class="font-semibold mb-3" style="color: #111827;">' + (task.faultType || '维修任务') + '</h3>';
+        html += '<h3 class="font-semibold mb-3" style="color: #111827;">' + escapeHtml((task.faultType || '维修任务')) + '</h3>';
 
         html += '<div class="space-y-2 text-sm text-on-surface-variant mb-4">';
         html += '<div class="flex items-center gap-2">';
         html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">devices</span>';
-        html += '<span>' + (task.device ? task.device.model : '-') + '</span>';
+        html += '<span>' + escapeHtml((task.device ? task.device.model : '-')) + '</span>';
         html += '</div>';
         html += '<div class="flex items-center gap-2">';
         html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">person</span>';
-        html += '<span>' + (task.customer ? task.customer.name : '-') + '</span>';
+        html += '<span>' + escapeHtml((task.customer ? task.customer.name : '-')) + '</span>';
         html += '</div>';
         html += '<div class="flex items-center gap-2">';
         html += '<span class="material-symbols-outlined text-sm" style="color: #006d33;">location_on</span>';
-        html += '<span>' + addr + '</span>';
+        html += '<span>' + escapeHtml(addr) + '</span>';
         html += '</div>';
         html += '</div>';
 
@@ -230,7 +239,9 @@
         html += (task.customer ? task.customer.name : '-') + ' - ' + (task.customer ? task.customer.phone : '-');
         html += '</div>';
 
-        if (currentTab === 'pending') {
+        if (currentTab === 'pending' && task.status === 'PENDING') {
+          html += '<button class="px-4 py-2 text-white text-sm rounded-lg bg-primary" onclick="acceptDesignated(\'' + task.id + '\')">接受指派</button>';
+        } else if (currentTab === 'pending') {
           html += '<button class="px-4 py-2 text-white text-sm font-medium rounded-lg" style="background-color: #006d33;" onclick="startWork(\'' + task.id + '\')">开始打卡</button>';
         } else {
           html += '<button class="px-4 py-2 border text-sm font-medium rounded-lg" style="border-color: #006d33; color: #006d33;" onclick="viewDetail(\'' + task.id + '\')">查看详情</button>';
@@ -242,12 +253,22 @@
       container.innerHTML = html;
     }
 
+    async function acceptDesignated(orderId) {
+      try {
+        await window.readApiResponse(await fetch(API_BASE + '/engineer/accept-designated', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ workOrderId: orderId })
+        }));
+        await loadTasks();
+      } catch (err) { alert(err.message); }
+    }
+
     function startWork(orderId) {
       fetch(API_BASE + '/engineer/orders/' + orderId + '/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('已开始作业');
         window.location.href = 'tasks.html';

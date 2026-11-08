@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
+<script src="/workspace-scope.js"></script>
+<script src="/workspace-experience.js" defer></script>
+<link rel="stylesheet" href="/workspace-experience.css">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>工单详情 - 工程师端</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -23,11 +27,11 @@
       }
     }
   </script>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/flow-design.css"><link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen flow-screen bg-surface pb-24 mobile-system" data-role="engineer" data-refined="true" data-page="task-detail">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" onclick="window.history.back()">
+    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" aria-label="返回上一页" onclick="window.history.back()">
       <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
     </button>
     <h1 class="font-semibold text-base" style="color: #111827;">工单详情</h1>
@@ -36,17 +40,21 @@
 
   <!-- Main Content -->
   <main class="pt-14 px-4 space-y-4">
+    <aside class="flow-summary"><small>当前任务 · 下一步</small><p id="flowNext">正在核实工单状态…</p><div id="flowCompany" class="flow-company"></div></aside>
+<div id="flowFeedback" class="flow-feedback" role="alert" hidden><p id="flowError"></p><button id="flowRetry" type="button" onclick="loadDetail()">重新加载</button><a href="tasks.html">返回工单列表</a></div>
     <div id="detailContent">
       <div class="text-center py-12 text-on-surface-variant">加载中...</div>
     </div>
 
     <!-- Action Buttons -->
+    <a id="materialLink" class="block p-3 rounded-lg text-center text-sm mt-4" style="background:#e9f7ee;color:#006d33" href="inventory.html">登记这张工单的配件用料 →</a>
     <div id="actionButtons" class="space-y-3 mt-4"></div>
   </main>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('engineer_token');
+    document.getElementById('materialLink').href = 'inventory.html?workOrderId=' + location.hash.slice(1);
     var orderId = null;
     var orderData = null;
 
@@ -68,13 +76,22 @@
       fetch(API_BASE + '/engineer/orders/' + orderId, {
         headers: { 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
+        document.getElementById('flowFeedback').hidden = true;
+        document.getElementById('actionButtons').hidden = false;
+        document.getElementById('materialLink').hidden = false;
         orderData = data;
         renderDetail(data);
+        document.dispatchEvent(new CustomEvent("iot-device-context",{detail:{id:data.deviceId||data.device?.id}}));
       })
       .catch(function(err) {
-        document.getElementById('detailContent').innerHTML = '<div class="text-center py-12 text-on-surface-variant">加载失败: ' + err.message + '</div>';
+        document.getElementById('flowFeedback').hidden = false;
+        document.getElementById('flowError').textContent = '任务暂时无法读取：' + err.message + '。请重新加载后再操作。';
+        document.getElementById('flowNext').textContent = '当前任务状态未确认';
+        document.getElementById('detailContent').textContent = '';
+        document.getElementById('actionButtons').hidden = true;
+        document.getElementById('materialLink').hidden = true;
       });
     }
 
@@ -84,7 +101,7 @@
       var statusMap = {
         'PENDING': { text: '待派单', class: 'bg-gray-100 text-on-surface' },
         'DISPATCHED': { text: '已派单', class: 'bg-primary-container text-primary' },
-        'ACCEPTED': { text: '已接单', class: 'bg-primary-container text-primary' },
+        'ACCEPTED': { text: '已上门', class: 'bg-primary-container text-primary' },
         'PENDING_PAYMENT': { text: '待付款', class: 'bg-warning-container text-[#ad6800]' },
         'REPAIRING': { text: '维修中', class: 'bg-warning-container text-[#ad6800]' },
         'PENDING_FINAL_PAYMENT': { text: '待尾款', class: 'bg-warning-container text-[#ad6800]' },
@@ -139,7 +156,7 @@
       if (order.faultDescription) {
         html += '<div class="bg-white rounded-xl p-4 border border-outline-variant">';
         html += '<h3 class="font-semibold mb-2" style="color: #111827;">故障描述</h3>';
-        html += '<p class="text-sm text-on-surface-variant break-all">' + order.faultDescription + '</p>';
+        html += '<p class="text-sm text-on-surface-variant break-all">' + escapeHtml(order.faultDescription) + '</p>';
         html += '</div>';
       }
 
@@ -180,6 +197,10 @@
 
       document.getElementById('detailContent').innerHTML = html;
 
+      document.getElementById('flowCompany').textContent = '服务企业：' + (order.serviceName || '当前工作企业');
+      document.getElementById('flowNext').textContent = ({PENDING:'等待企业完成派单',DISPATCHED:'核对任务信息，到场后确认上门',ACCEPTED:'记录现场检测结果并准备报价',PENDING_PAYMENT:'等待客户确认报价及支付',REPAIRING:'完成维修，并核对实际用料和验证结果',PENDING_FINAL_PAYMENT:'等待客户完成结算',COMPLETED:'任务已完成，可查阅维修记录',CANCELLED:'任务已取消',REFUSED:'任务已拒绝'})[order.status] || '核对当前任务信息';
+      document.getElementById('materialLink').hidden = order.status !== 'REPAIRING';
+      if(order.serviceId)document.getElementById('materialLink').href='inventory.html?workOrderId='+encodeURIComponent(order.id)+'&serviceId='+encodeURIComponent(order.serviceId);
       renderActionButtons(order);
     }
 
@@ -208,7 +229,7 @@
 
       if (order.status === 'REPAIRING') {
         html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="completeRepair()">';
-        html += '<span class="material-symbols-outlined mr-2">done</span>完工确认';
+        html += '提交完工';
         html += '</button>';
       }
 
@@ -229,7 +250,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('已确认上门');
         window.location.reload();
@@ -248,5 +269,5 @@
       window.location.href = 'quote.html#' + orderId;
     }
   </script>
-</body>
+<script src="/iot/entry.js" defer></script></body>
 </html>

@@ -1,3 +1,6 @@
+import {CompanyController,CompanyService} from './company.controller.js';
+import {CustomerImportController} from './customer-import.controller.js';
+import {CustomerImportService} from './customer-import.service.js';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AdminController } from './admin.controller.js';
@@ -25,6 +28,7 @@ import { AuthModule } from '../auth/auth.module.js';
     ]),
     AuthModule,
   ],
-  controllers: [AdminController],
+  controllers: [AdminController, CustomerImportController, CompanyController],
+  providers: [CustomerImportService, CompanyService],
 })
 export class AdminModule {}

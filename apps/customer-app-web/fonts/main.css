@@ -48,6 +48,11 @@ body {
   margin: 0 auto;
 }
 
+/* Outrank Tailwind's dynamically injected body margin reset. */
+html body {
+  margin-inline: auto;
+}
+
 html {
   overflow-y: scroll;
 }

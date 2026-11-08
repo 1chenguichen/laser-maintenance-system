@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>注册 - 设备报修门户</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -45,8 +46,8 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="flex flex-col min-h-screen">
+<link rel="stylesheet" href="/auth-reference.css"><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="flex flex-col min-h-screen auth-reference" data-role="customer">
   <!-- Top Bar -->
   <header class="flex items-center px-4 h-14">
     <button onclick="window.history.back()" class="text-white">
@@ -126,7 +127,7 @@
   </main>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var countdown = 0;
 
     function sendCode() {
@@ -141,7 +142,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone: phone })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         alert('验证码已发送');
         startCountdown();
@@ -198,7 +199,7 @@
           role: 'customer'
         })
       })
-      .then(function(res) { return res.json(); })
+      .then(window.readApiResponse)
       .then(function(data) {
         if (data.accessToken) {
           localStorage.setItem('customer_token', data.accessToken);

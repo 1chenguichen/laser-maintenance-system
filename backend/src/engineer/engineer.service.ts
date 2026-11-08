@@ -1,3 +1,4 @@
+import { tenantKey } from '../tenancy/context.js';
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -38,7 +39,7 @@ export class EngineerService {
     const engineer = await this.engineerRepo.findOne({ where: { id: engineerId } });
     if (!engineer) throw new NotFoundException('工程师不存在');
 
-    this.engineerLocations.set(engineerId, {
+    this.engineerLocations.set(tenantKey(engineerId), {
       longitude: dto.longitude,
       latitude: dto.latitude,
       address: dto.address,
@@ -49,7 +50,7 @@ export class EngineerService {
   }
 
   async getLocation(engineerId: string): Promise<{ longitude: number; latitude: number; address?: string } | null> {
-    return this.engineerLocations.get(engineerId) || null;
+    return this.engineerLocations.get(tenantKey(engineerId)) || null;
   }
 
   // ==================== 订单池 ====================
@@ -89,15 +90,14 @@ export class EngineerService {
     });
     if (!workOrder) throw new NotFoundException('工单不存在或已被抢');
 
-    const customerId = workOrder.customerId;
-    workOrder.engineerId = engineerId;
-    workOrder.status = WorkOrderStatus.DISPATCHED;
-    workOrder.dispatchType = DispatchType.GRAB;
-
-    const savedOrder = await this.workOrderRepo.save(workOrder);
-
-    // 通知客户订单已被抢
-    this.dispatchService.notifyCustomerOrderDispatched(customerId, savedOrder);
+    // Atomic conditional update: two engineers cannot both claim the same order.
+    const claimed = await this.workOrderRepo.update(
+      { id: workOrder.id, status: WorkOrderStatus.PENDING, dispatchType: DispatchType.SYSTEM },
+      { engineerId, status: WorkOrderStatus.DISPATCHED, dispatchType: DispatchType.GRAB },
+    );
+    if (!claimed.affected) throw new BadRequestException('订单已被其他工程师接走');
+    const savedOrder = await this.workOrderRepo.findOneByOrFail({ id: workOrder.id });
+    this.dispatchService.notifyCustomerOrderDispatched(workOrder.customerId, savedOrder);
 
     return savedOrder;
   }
@@ -131,10 +131,14 @@ export class EngineerService {
     });
     if (!workOrder) throw new NotFoundException('工单不存在或已被接');
 
-    workOrder.engineerId = engineerId;
-    workOrder.status = WorkOrderStatus.DISPATCHED;
-
-    return this.workOrderRepo.save(workOrder);
+    const result = await this.workOrderRepo.update(
+      { id: workOrder.id, status: WorkOrderStatus.PENDING, designatedEngineerId: engineerId },
+      { engineerId, status: WorkOrderStatus.DISPATCHED },
+    );
+    if (!result.affected) throw new BadRequestException('工单已被接单或状态已变更');
+    const saved = await this.workOrderRepo.findOneByOrFail({ id: workOrder.id });
+    this.dispatchService.notifyCustomerOrderDispatched(saved.customerId, saved);
+    return saved;
   }
 
   async refuseDesignatedOrder(engineerId: string, workOrderId: string, reason: string): Promise<WorkOrder> {
@@ -234,13 +238,18 @@ export class EngineerService {
 
     // 计算下个等级还差多少单
     let nextTier = null;
-    if (orderCount < 10) {
-      nextTier = { threshold: 10, rate: 0.25, remaining: 10 - orderCount };
-    } else if (orderCount < 30) {
-      nextTier = { threshold: 30, rate: 0.30, remaining: 30 - orderCount };
+    if (orderCount <= 10) {
+      nextTier = { threshold: 11, rate: 0.25, remaining: 11 - orderCount };
+    } else if (orderCount <= 30) {
+      nextTier = { threshold: 31, rate: 0.30, remaining: 31 - orderCount };
     }
 
     return {
+      monthlyOrders: engineer.monthlyOrders,
+      monthlyRevenue: Number(engineer.monthlyRevenue),
+      totalOrders: engineer.totalOrders,
+      totalRevenue: Number(engineer.totalRevenue),
+      avgRating: Number(engineer.rating),
       currentMonth: {
         orderCount,
         revenue: Number(engineer.monthlyRevenue),
@@ -269,10 +278,12 @@ export class EngineerService {
     });
     if (!workOrder) throw new NotFoundException('工单不存在或状态不允许');
 
+    if (dto.partsFee + dto.laborFee <= 0 && !workOrder.contractId) throw new BadRequestException('报价总额必须大于0');
+
     // 记录报价信息
-    workOrder.partsFee = dto.partsFee;
-    workOrder.laborFee = dto.laborFee;
-    workOrder.estimatedAmount = dto.partsFee + dto.laborFee;
+    workOrder.partsFee = Math.round(dto.partsFee * Number(workOrder.contractTerms?.partsDiscount ?? 100)) / 100;
+    workOrder.laborFee = workOrder.contractTerms?.laborIncluded ? 0 : dto.laborFee;
+    workOrder.estimatedAmount = Number(workOrder.partsFee) + Number(workOrder.laborFee);
 
     // 状态变为等待客户付款
     workOrder.status = WorkOrderStatus.PENDING_PAYMENT;

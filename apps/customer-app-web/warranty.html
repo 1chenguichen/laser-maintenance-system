@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <script src="/app-config.js"></script>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>官方延保套餐</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
@@ -48,8 +49,8 @@
       min-height: 100vh;
     }
   </style>
-</head>
-<body class="bg-surface pb-24">
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<body class="product-screen bg-surface pb-24 mobile-system" data-role="customer" data-page="warranty">
   <!-- Top App Bar -->
   <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
     <button class="text-primary" onclick="window.history.back()">
@@ -61,12 +62,12 @@
 
   <main class="pt-14 px-4 space-y-4">
     <!-- Hero Banner -->
-    <section class="rounded-xl p-4 text-white mt-4" style="background: linear-gradient(135deg, #1890ff 0%, #0052d9 100%);">
+    <section class="bg-white border border-outline-variant rounded-xl p-4 mt-4 warranty-intro">
       <div class="flex items-center gap-3">
-        <span class="material-symbols-outlined fill text-4xl">shield</span>
+        <span class="material-symbols-outlined text-3xl" style="color:#1890ff">shield</span>
         <div>
           <h2 class="font-semibold text-lg">官方延保服务</h2>
-          <p class="text-sm opacity-90 mt-1">延长设备质保期，享受原厂配件与服务</p>
+          <p class="text-sm text-on-surface-variant mt-1">延长设备质保期，享受原厂配件与服务</p>
         </div>
       </div>
     </section>
@@ -97,7 +98,7 @@
     <!-- Warranty Plans -->
     <section class="space-y-3" id="warrantyPlans">
       <!-- Plan 1: 1 Year -->
-      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors" onclick="selectPlan('1year')">
+      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors" onclick="selectPlan('1year', this)">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="font-semibold" style="color: #111827;">延保1年</h3>
@@ -114,7 +115,7 @@
       </div>
 
       <!-- Plan 2: 2 Years -->
-      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors relative" onclick="selectPlan('2year')">
+      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors relative" onclick="selectPlan('2year', this)">
         <div class="absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-xs text-white" style="background-color: #ff4d4f;">
           热销
         </div>
@@ -135,7 +136,7 @@
       </div>
 
       <!-- Plan 3: 3 Years -->
-      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors" onclick="selectPlan('3year')">
+      <div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm cursor-pointer hover:border-primary transition-colors" onclick="selectPlan('3year', this)">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="font-semibold" style="color: #111827;">延保3年</h3>
@@ -157,9 +158,6 @@
       <h3 class="font-semibold mb-3" style="color: #111827;">选择设备</h3>
       <select id="deviceSelect" class="w-full p-3 border border-outline-variant rounded-lg text-sm bg-white" onchange="updatePrice()">
         <option value="">请选择要购买延保的设备</option>
-        <option value="1" data-model="3000W激光切割机" data-price="2800">3000W激光切割机 - 延保1年 ¥2,800</option>
-        <option value="2" data-model="2000W激光焊接机" data-price="4800" selected>2000W激光焊接机 - 延保2年 ¥4,800</option>
-        <option value="3" data-model="1500W激光清洗机" data-price="6500">1500W激光清洗机 - 延保3年 ¥6,500</option>
       </select>
     </section>
 
@@ -167,27 +165,34 @@
     <section id="priceSummary" class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-on-surface-variant">延保费用</p>
+          <p class="text-sm text-on-surface-variant">参考延保费用</p>
           <p class="text-lg font-bold mt-1" style="color: #1890ff;" id="totalPrice">¥4,800</p>
         </div>
         <button class="px-4 py-2 rounded-lg text-sm text-white" style="background-color: #1890ff;" onclick="purchaseWarranty()">
-          立即购买
+          咨询延保
         </button>
       </div>
     </section>
   </main>
 
   <script>
-    var API_BASE = window.location.protocol + '//' + window.location.hostname + ':8080';
+    var API_BASE = window.APP_API_BASE;
     var token = localStorage.getItem('customer_token');
     var selectedPlan = '2year';
-    var selectedDevice = '2';
+    var selectedDevice = '';
+    document.addEventListener('DOMContentLoaded', async function () {
+      try {
+        var devices = await window.readApiResponse(await fetch(API_BASE + '/customer/devices', { headers: { Authorization: 'Bearer ' + token } }));
+        var select = document.getElementById('deviceSelect');
+        devices.forEach(function (d) { select.add(new Option(d.model + ' - ' + d.serialNumber, d.id)); });
+      } catch (err) { alert(err.message); }
+    });
 
     if (!token) {
       window.location.href = 'login.html';
     }
 
-    function selectPlan(plan) {
+    function selectPlan(plan, element) {
       selectedPlan = plan;
       updatePrice();
       // Highlight selected
@@ -196,15 +201,12 @@
         el.classList.add('border-outline-variant');
       });
       event.currentTarget.classList.remove('border-outline-variant');
-      event.currentTarget.classList.add('border-primary');
+      if (element) element.classList.add('border-primary');
     }
 
     function updatePrice() {
-      var select = document.getElementById('deviceSelect');
-      var option = select.options[select.selectedIndex];
-      if (option && option.dataset.price) {
-        document.getElementById('totalPrice').textContent = '¥' + Number(option.dataset.price).toLocaleString();
-      }
+      var prices = { '1year': 2800, '2year': 4800, '3year': 6500 };
+      document.getElementById('totalPrice').textContent = '¥' + prices[selectedPlan].toLocaleString();
     }
 
     function purchaseWarranty() {
@@ -213,7 +215,7 @@
         alert('请选择设备');
         return;
       }
-      alert('即将跳转支付...');
+      window.location.href = 'chat.html';
     }
   </script>
 </body>

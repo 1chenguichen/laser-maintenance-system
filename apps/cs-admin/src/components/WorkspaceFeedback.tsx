@@ -1,0 +1,4 @@
+import React,{createContext,useContext,useState,useRef,useEffect} from 'react';
+const Context=createContext((message:string)=>{});
+export function WorkspaceFeedback({children}:{children:React.ReactNode}){const [message,setMessage]=useState('');const timer=useRef<ReturnType<typeof setTimeout>|null>(null);useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current)},[]);function notify(text:string){if(timer.current)clearTimeout(timer.current);setMessage(text);timer.current=setTimeout(()=>setMessage(''),7000)}return <Context.Provider value={notify}>{children}{message&&<div className="workspace-feedback" role="status"><span>{message}</span><button aria-label="关闭提示" onClick={()=>setMessage('')}>×</button></div>}</Context.Provider>}
+export const useWorkspaceFeedback=()=>useContext(Context);

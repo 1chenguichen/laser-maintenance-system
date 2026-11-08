@@ -16,6 +16,12 @@ export class WorkOrder {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ name: 'contract_id', nullable: true })
+  contractId: string;
+
+  @Column({ name: 'contract_terms', type: 'json', nullable: true })
+  contractTerms: { number: string; laborIncluded: boolean; partsDiscount: number };
+
   @Column({ name: 'order_no', unique: true, length: 20 })
   orderNo: string;
 

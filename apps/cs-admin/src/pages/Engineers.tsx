@@ -1,15 +1,21 @@
+import useWorkspaceState from '../components/useWorkspaceState';
+import {useWorkspaceFeedback} from '../components/WorkspaceFeedback';
+import PageHeading from '../components/PageHeading';
+import './order-flow.css';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { EngineerStatus } from '../types';
 import { getEngineers, createEngineer, Engineer } from '../api';
 
 const STATUS_TEXT: Record<string, string> = {
-  ONLINE: '🟢 在线',
-  OFFLINE: '⚪ 离线',
-  WORKING: '🟡 工作中',
+  ONLINE: '在线',
+  OFFLINE: '离线',
+  WORKING: '工作中',
 };
 
 export default function Engineers() {
+  const [search,setSearch]=useWorkspaceState('engineers:search','');
+  const notify=useWorkspaceFeedback();
   const [engineers, setEngineers] = useState<Engineer[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -34,37 +40,40 @@ export default function Engineers() {
 
   async function handleCreate() {
     if (!newName || !newPhone) {
-      alert('请填写姓名和电话');
+      notify('请填写姓名和电话');
       return;
     }
     try {
       setSaving(true);
       await createEngineer({ name: newName, phone: newPhone });
-      alert('创建成功');
+      notify('创建成功');
       setShowModal(false);
       setNewName('');
       setNewPhone('');
       loadEngineers();
     } catch (err: any) {
-      alert(err.message || '创建失败');
+      notify(err.message || '创建失败');
     } finally {
       setSaving(false);
     }
   }
+
+  const visibleRows=engineers.filter(row=>!search.trim()||String(row.name||'').toLowerCase().includes(search.trim().toLowerCase()) || String(row.phone||'').toLowerCase().includes(search.trim().toLowerCase()));
 
   if (loading) {
     return <div className="card"><div className="loading">加载中...</div></div>;
   }
 
   return (
-    <div>
+    <div className="order-flow">
+      <PageHeading title="工程师管理" description="管理工程师资料与工作身份，查看当前服务状态。" />
       <div className="card">
         <div className="filter-bar">
           <input
             className="search-input"
             placeholder="搜索工程师姓名/电话..."
-            disabled
-          />
+
+           aria-label="搜索列表" value={search} onChange={e=>setSearch(e.target.value)} />
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + 新增工程师
           </button>
@@ -82,14 +91,14 @@ export default function Engineers() {
             </tr>
           </thead>
           <tbody>
-            {engineers.length === 0 ? (
+            {visibleRows.length === 0 ? (
               <tr>
                 <td colSpan={7} style={{ textAlign: 'center', padding: 20 }}>
-                  暂无工程师数据
+                  {search.trim() ? '没有匹配的工程师，请调整搜索内容' : '暂无工程师数据'}
                 </td>
               </tr>
             ) : (
-              engineers.map((e) => (
+              visibleRows.map((e) => (
                 <tr key={e.id}>
                   <td>{e.name}</td>
                   <td>{e.phone}</td>
@@ -100,9 +109,9 @@ export default function Engineers() {
                   </td>
                   <td>{e.monthlyOrders} 单</td>
                   <td>¥{Number(e.monthlyRevenue).toFixed(0)}</td>
-                  <td>⭐ {Number(e.rating).toFixed(1)}</td>
+                  <td>{Number(e.rating).toFixed(1)} 分</td>
                   <td>
-                    <Link to={`/engineers/${e.id}`} className="btn btn-default btn-small">
+                    <Link to={`/engineers/${e.id}`} className="btn btn-link btn-small">
                       详情
                     </Link>
                   </td>

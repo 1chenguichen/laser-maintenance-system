@@ -57,7 +57,7 @@ describe('Auth API (E2E)', () => {
     it('客服登录成功', async () => {
       const res = await request(baseUrl)
         .post('/auth/login')
-        .send({ phone: '01012345678', code: '000000', role: 'cs_operator' })
+        .send({ phone: '13800138000', code: '000000', role: 'cs_operator' })
         .expect(201);
 
       expect(res.body.accessToken).toBeDefined();
@@ -151,10 +151,10 @@ describe('WorkOrder API (E2E)', () => {
         .post('/customer/work-orders')
         .set('Authorization', `Bearer ${customerToken}`)
         .send({
-          deviceId: 'non-existent-id',
+          deviceId: '00000000-0000-0000-0000-000000000000',
           faultType: '设备故障',
           faultDescription: '测试故障',
-          addressId: 'some-address',
+          addressId: '00000000-0000-0000-0000-000000000001',
           emergencyLevel: 1,
         })
         .expect(404);

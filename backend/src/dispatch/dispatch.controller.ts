@@ -1,3 +1,4 @@
+import { Roles } from '../auth/roles.decorator.js';
 import { Controller, Get, Post, Body, Param, UseGuards, Request } from '@nestjs/common';
 import { DispatchService } from './dispatch.service.js';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -5,6 +6,7 @@ import type { AuthenticatedRequest } from '../auth/types.js';
 
 @Controller('dispatch')
 @UseGuards(JwtAuthGuard)
+@Roles('cs_operator')
 export class DispatchController {
   constructor(private dispatchService: DispatchService) {}
 

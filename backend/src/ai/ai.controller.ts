@@ -1,3 +1,6 @@
+import { currentTenant, tenantContext } from '../tenancy/context.js';
+import { RedisService } from '../redis/redis.service.js';
+import { Roles } from '../auth/roles.decorator.js';
 import { Controller, Post, Get, Body, Param, Query, Request, UseGuards, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
@@ -24,6 +27,7 @@ interface CsSendMessageDto {
 export class AiController {
   constructor(
     private readonly aiService: AiService,
+    private readonly redis: RedisService,
     private readonly csPollingService: CsPollingService,
   ) {}
 
@@ -31,11 +35,16 @@ export class AiController {
    * 工程师AI助手 - 流式代理到Dify
    */
   @Post('engineer/chat')
+  @UseGuards(JwtAuthGuard)
+  @Roles('engineer')
   async engineerChat(
     @Body() body: { query: string; conversation_id?: string },
     @Res() res: Response,
   ) {
-    const difyApiKey = process.env.DIFY_API_KEY || 'app-vDGe9PBzWhaUim4CLe75qDYy';
+    const identity = tenantContext.getStore()!.user;
+    if (body.conversation_id && await this.redis.get('dify:' + body.conversation_id) !== identity.sub) { res.status(403).json({message:'该会话不属于当前账号'}); return; }
+    const difyApiKey = process.env.DIFY_API_KEY;
+    if (!difyApiKey) { res.status(503).json({ message: '工程师AI服务尚未配置 DIFY_API_KEY' }); return; }
     const difyApiUrl = 'https://api.dify.ai/v1/chat-messages';
 
     try {
@@ -47,12 +56,14 @@ export class AiController {
         },
         body: JSON.stringify({
           query: body.query,
-          user: 'engineer-web',
+          user: currentTenant().id + ':engineer:' + identity.sub,
           inputs: {},
           response_mode: 'streaming',
           conversation_id: body.conversation_id || '',
         }),
       });
+
+      if (!response.ok) { res.status(502).json({ message: 'AI服务请求失败，请检查服务配置' }); return; }
 
       // 透传 Dify 的响应头
       const contentType = response.headers.get('content-type') || 'text/plain';
@@ -69,13 +80,18 @@ export class AiController {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      let sseBuffer = "";
       const streamRead = () => {
-        reader.read().then(({ done, value }) => {
+        reader.read().then(async ({ done, value }) => {
           if (done) {
             res.end();
             return;
           }
-          res.write(decoder.decode(value, { stream: true }));
+          const chunk = decoder.decode(value, { stream: true });
+          sseBuffer += chunk;
+          const lines = sseBuffer.split('\n'); sseBuffer = lines.pop() || '';
+          for (const line of lines) { if (line.startsWith('data:')) { let event: any; try {event=JSON.parse(line.slice(5));} catch {} if(event?.conversation_id) await this.redis.set('dify:'+event.conversation_id,identity.sub,604800); } }
+          res.write(chunk);
           streamRead();
         }).catch((err) => {
           console.error('[AI] Stream error:', err);
@@ -95,6 +111,7 @@ export class AiController {
    */
   @Post('chat')
   @UseGuards(JwtAuthGuard)
+  @Roles('customer')
   async customerChat(@Request() req: AuthenticatedRequest, @Body() dto: SendMessageDto) {
     const customerId = req.user.sub;
     const result = await this.aiService.processCustomerMessage(
@@ -110,6 +127,7 @@ export class AiController {
    */
   @Get('chats')
   @UseGuards(JwtAuthGuard)
+  @Roles('customer')
   async getChats(@Request() req: AuthenticatedRequest, @Query('workOrderId') workOrderId?: string) {
     const customerId = req.user.sub;
     return this.aiService.getCustomerChats(customerId, workOrderId);
@@ -120,6 +138,7 @@ export class AiController {
    */
   @Post('cs/send')
   @UseGuards(JwtAuthGuard)
+  @Roles('cs_operator')
   async csSendMessage(@Request() req: AuthenticatedRequest, @Body() dto: CsSendMessageDto) {
     const csOperatorId = req.user.sub;
     const chat = await this.aiService.sendCsMessage(
@@ -136,6 +155,7 @@ export class AiController {
    */
   @Get('cs/chats/:customerId')
   @UseGuards(JwtAuthGuard)
+  @Roles('cs_operator')
   async getCustomerChatsByCs(
     @Param('customerId') customerId: string,
     @Query('workOrderId') workOrderId?: string,
@@ -148,6 +168,7 @@ export class AiController {
    */
   @Get('cs/waiting')
   @UseGuards(JwtAuthGuard)
+  @Roles('cs_operator')
   async getWaitingCustomers() {
     return this.csPollingService.getWaitingCustomers();
   }
@@ -157,10 +178,24 @@ export class AiController {
    */
   @Post('cs/accept')
   @UseGuards(JwtAuthGuard)
-  async acceptCustomer(@Body() body: { customerId: string; csOperatorId: string }) {
-    this.csPollingService.startSession(body.customerId, body.csOperatorId);
+  @Roles('cs_operator')
+  async acceptCustomer(@Body() body: { customerId: string; csOperatorId?: string }, @Request() req: AuthenticatedRequest) {
+    await this.aiService.assertCustomer(body.customerId);
+    const csOperatorId = req.user.sub;
+    this.csPollingService.startSession(body.customerId, csOperatorId);
     // 通过 WebSocket 通知客户
-    sendToCustomer(body.customerId, 'cs_accepted', { csOperatorId: body.csOperatorId });
+    sendToCustomer(body.customerId, 'cs_accepted', { csOperatorId });
+    return { success: true };
+  }
+
+  @Post('cs/end')
+  @UseGuards(JwtAuthGuard)
+  @Roles('cs_operator')
+  async endCustomerSession(@Body() body: { customerId: string }) {
+    await this.aiService.assertCustomer(body.customerId);
+    this.csPollingService.removeCustomer(body.customerId);
+    this.csPollingService.endSession(body.customerId);
+    sendToCustomer(body.customerId, 'cs_ended', {});
     return { success: true };
   }
 
@@ -169,7 +204,9 @@ export class AiController {
    */
   @Post('cs/rating')
   @UseGuards(JwtAuthGuard)
+  @Roles('cs_operator')
   async submitRating(@Body() body: { customerId: string; rating: number; tags: string[]; remark?: string }) {
+    await this.aiService.assertCustomer(body.customerId);
     // 结束会话
     this.csPollingService.endSession(body.customerId);
     // 发送评价邀请给客户

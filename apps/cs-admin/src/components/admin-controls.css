@@ -1,0 +1,368 @@
+/* Shared admin controls. Variants follow action priority, not page ownership. */
+:root {
+  --control-surface: #fff;
+  --control-height: 38px;
+  --control-small-height: 32px;
+  --control-radius: 8px;
+  --control-primary-ink: #fff;
+  --status-success-bg: #edf7f1;
+  --status-success-ink: #257349;
+  --status-warning-bg: #fff5e4;
+  --status-warning-ink: #8b611d;
+  --status-info-bg: #edf3fd;
+  --status-info-ink: #315e9b;
+  --status-neutral-bg: #f0f2f4;
+  --status-neutral-ink: #626b78;
+  --status-danger-bg: #fff0ee;
+  --status-danger-ink: #ab473e;
+}
+:root[data-admin-theme="black"] {
+  --control-surface: #1e2227;
+  --control-primary-ink: #13243f;
+  --status-success-bg: #1d372a;
+  --status-success-ink: #8fd6ad;
+  --status-warning-bg: #3a3020;
+  --status-warning-ink: #e9c580;
+  --status-info-bg: #233348;
+  --status-info-ink: #a9c8ff;
+  --status-neutral-bg: #2b3038;
+  --status-neutral-ink: #bac0ca;
+  --status-danger-bg: #3e2728;
+  --status-danger-ink: #efaaa3;
+}
+:root :is(.layout .content, .service-workbench) :is(.btn, .biz-link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--control-height);
+  height: auto;
+  box-sizing: border-box;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--control-radius);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    opacity 140ms ease;
+}
+:root :is(.layout .content, .service-workbench) .btn.btn-primary {
+  background: var(--skin-accent);
+  border-color: var(--skin-accent);
+  color: var(--control-primary-ink);
+}
+:root :is(.layout .content, .service-workbench) .btn.btn-default {
+  background: var(--control-surface);
+  border-color: var(--skin-border);
+  color: var(--skin-ink);
+}
+:root :is(.layout .content, .service-workbench) .btn.btn-danger {
+  background: var(--status-danger-ink);
+  border-color: var(--status-danger-ink);
+  color: #fff;
+}
+:root :is(.layout .content, .service-workbench) .btn.btn-small {
+  min-height: var(--control-small-height);
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 20px;
+}
+:root :is(.layout .content, .service-workbench) .btn.btn-full {
+  width: 100%;
+}
+:root :is(.layout .content, .service-workbench) :is(.btn.btn-link, .biz-link) {
+  min-height: var(--control-small-height);
+  padding: 5px 8px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--skin-accent);
+  font-size: 13px;
+  line-height: 20px;
+}
+:root :is(.layout .content, .service-workbench) .biz-link.danger {
+  color: var(--status-danger-ink);
+}
+:root :is(.layout .content, .service-workbench) :is(.btn.btn-filter) {
+  background: var(--control-surface);
+  border-color: var(--skin-border);
+  color: var(--skin-muted);
+  font-weight: 400;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  .btn.btn-filter[aria-pressed="true"] {
+  background: var(--skin-active);
+  border-color: var(--skin-focus);
+  color: var(--skin-accent);
+  font-weight: 600;
+}
+@media (hover: hover) {
+  :root
+    :is(.layout .content, .service-workbench)
+    .btn.btn-primary:hover:not(:disabled):not([aria-disabled="true"]) {
+    filter: brightness(0.94);
+  }
+  :root
+    :is(.layout .content, .service-workbench)
+    .btn.btn-default:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--skin-hover);
+    border-color: var(--skin-focus);
+  }
+  :root
+    :is(.layout .content, .service-workbench)
+    :is(.btn.btn-link, .biz-link, .btn.btn-filter):hover:not(:disabled):not(
+      [aria-disabled="true"]
+    ) {
+    background: var(--skin-soft);
+    color: var(--skin-accent);
+  }
+  :root
+    :is(.layout .content, .service-workbench)
+    .biz-link.danger:hover:not(:disabled) {
+    color: var(--status-danger-ink);
+    background: var(--status-danger-bg);
+  }
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.btn, .biz-link):is(:disabled, [aria-disabled="true"]) {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: none;
+  box-shadow: none;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.btn, .biz-link):focus-visible {
+  outline: 2px solid var(--skin-focus);
+  outline-offset: 3px;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .search-input,
+    .biz-filter input,
+    .biz-filter select,
+    .form-input,
+    .form-group input:not([type="checkbox"]):not([type="radio"]),
+    .form-group select,
+    .biz-field input:not([type="checkbox"]):not([type="radio"]),
+    .biz-field select
+  ) {
+  height: var(--control-height);
+  min-height: var(--control-height);
+  padding: 8px 12px;
+  background: var(--control-surface);
+  color: var(--skin-ink);
+  border: 1px solid var(--skin-border);
+  border-radius: var(--control-radius);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  box-sizing: border-box;
+}
+:root :is(.layout .content, .service-workbench) .filter-bar .search-input {
+  width: 260px;
+  max-width: 100%;
+}
+:root :is(.layout .content, .service-workbench) .biz-filter input {
+  width: 260px;
+  max-width: 100%;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .search-input,
+    .biz-filter input,
+    .form-input,
+    .form-group input,
+    .biz-field input
+  )::placeholder {
+  color: var(--skin-muted);
+  opacity: 0.7;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--skin-focus);
+  outline-offset: 1px;
+  border-color: var(--skin-accent);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(input, select, textarea):disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+:root :is(.layout .content, .service-workbench) .filter-bar {
+  gap: 10px;
+}
+:root :is(.layout .content, .service-workbench) :is(.badge, .biz-badge) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  border: 0;
+  border-radius: 5px;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .badge-success,
+    .badge-online,
+    .badge-completed,
+    .biz-badge.active,
+    .biz-badge.received,
+    .biz-badge.completed,
+    .biz-badge.confirmed,
+    .biz-badge.issued
+  ) {
+  background: var(--status-success-bg);
+  color: var(--status-success-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .badge-pending,
+    .badge-warning,
+    .biz-badge.pending,
+    .biz-badge.pending_payment,
+    .biz-badge.pending_final_payment,
+    .biz-badge.requested
+  ) {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .badge-working,
+    .badge-dispatched,
+    .badge-primary,
+    .biz-badge.approved,
+    .biz-badge.shipped,
+    .biz-badge.repairing,
+    .biz-badge.dispatched,
+    .biz-badge.accepted
+  ) {
+  background: var(--status-info-bg);
+  color: var(--status-info-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.badge-cancelled, .badge-neutral, .badge-offline, .biz-badge.draft) {
+  background: var(--status-neutral-bg);
+  color: var(--status-neutral-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.biz-badge.rejected, .biz-badge.terminated) {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.modal-header h3, .modal-title, .biz-modal-heading h2) {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--skin-ink);
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.modal-close, .dossier-close, .biz-modal-heading > button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--skin-muted);
+  font-size: 23px;
+  line-height: 1;
+  cursor: pointer;
+}
+:root
+  :is(.layout .content, .service-workbench)
+  :is(.modal-close, .dossier-close, .biz-modal-heading > button):hover:not(
+    :disabled
+  ) {
+  background: var(--skin-hover);
+  color: var(--skin-ink);
+}
+:root :is(.layout .content, .service-workbench) .biz-tabs button {
+  min-height: var(--control-height);
+  border-radius: var(--control-radius);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 8px 12px;
+  color: var(--skin-muted);
+}
+:root :is(.layout .content, .service-workbench) .biz-tabs button.active {
+  background: var(--skin-active);
+  color: var(--skin-accent);
+}
+@media (max-width: 700px) {
+  :root :is(.layout .content, .service-workbench) .filter-bar .search-input {
+    width: 100%;
+  }
+  :root :is(.layout .content, .service-workbench) .biz-filter input {
+    width: 100%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root :is(.layout .content, .service-workbench) :is(.btn, .biz-link) {
+    transition: none;
+  }
+}
+
+:root
+  :is(.layout .content, .service-workbench)
+  :is(
+    .form-label,
+    .biz-field > span,
+    .form-group > label,
+    .company-field > span
+  ) {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--skin-muted);
+}
+:root .layout .content :is(.modal-header, .biz-modal-heading) {
+  padding: 20px 24px;
+  border-color: var(--skin-border);
+}
+:root .layout .content :is(.modal-body, .biz-modal-body) {
+  padding: 24px;
+}
+:root .layout .content :is(.modal-footer, .biz-modal footer) {
+  padding: 16px 24px;
+  gap: 10px;
+  border-color: var(--skin-border);
+}
+:root
+  .layout
+  .content
+  :is(.modal-close, .dossier-close, .biz-modal-heading > button):disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
