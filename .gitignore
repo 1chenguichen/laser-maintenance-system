@@ -81,3 +81,9 @@ backend/private-market-media/
 
 # Local upload helper (depends on private preview scripts)
 /upload-github.cmd
+
+# iOS packaging source
+!/scripts/ios/
+!/scripts/ios/**
+__pycache__/
+*.py[cod]
