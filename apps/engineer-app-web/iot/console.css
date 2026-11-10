@@ -1841,16 +1841,16 @@
 }
 
 /* Enterprise phone workspace stays a phone layout even inside a wide desktop viewport. */
-html:has(body.iot-mobile-body[data-role="business"]) {
+html:has(body.iot-mobile-body:is([data-role="business"], [data-role="engineer"])) {
   background: #edf2f8;
 }
-.iot-mobile-body[data-role="business"] {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) {
   max-width: 600px;
   margin: 0 auto;
   min-height: 100dvh;
   box-shadow: 0 0 0 1px #e3eaf3;
 }
-.iot-mobile-body[data-role="business"] .iot-mobile-header {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-header {
   box-sizing: border-box;
   height: auto;
   min-height: 74px;
@@ -1858,131 +1858,131 @@ html:has(body.iot-mobile-body[data-role="business"]) {
   align-items: center;
   gap: 14px;
 }
-.iot-mobile-body[data-role="business"] .iot-mobile-header > div {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-header > div {
   flex: 1;
   min-width: 0;
 }
-.iot-mobile-body[data-role="business"] .iot-mobile-header strong {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-header strong {
   display: block;
   line-height: 1.5;
   word-break: normal;
   overflow-wrap: break-word;
 }
-.iot-mobile-body[data-role="business"] #switch-company {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) #switch-company {
   flex: none;
   font-size: 11px;
   white-space: nowrap;
 }
-.iot-mobile-body[data-role="business"] .iot-mobile-header > .iot-company-label {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-header > .iot-company-label {
   display: none;
 }
-.iot-mobile-body[data-role="business"] .iot-mobile-root {
+.iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-root {
   width: 100%;
   max-width: none;
   padding: 24px 20px;
   box-sizing: border-box;
 }
-.iot-business {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
 }
-.iot-business .iot-heading {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-heading {
   align-items: flex-start;
   flex-direction: column;
   gap: 14px;
   margin-bottom: 22px;
 }
-.iot-business .iot-heading h1 {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-heading h1 {
   font-size: 25px;
 }
-.iot-business .iot-heading-actions {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-heading-actions {
   justify-content: flex-start;
 }
-.iot-business .iot-toolbar {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-toolbar {
   gap: 10px;
 }
-.iot-business .iot-toolbar > input {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-toolbar > input {
   width: 100%;
   box-sizing: border-box;
 }
-.iot-business .iot-toolbar > select {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-toolbar > select {
   flex: 1;
   min-width: 100px;
 }
-.iot-business .iot-tabs {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-tabs {
   width: 100%;
   margin: 2px 0 0;
   box-sizing: border-box;
 }
-.iot-business .iot-tabs button {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-tabs button {
   flex: 1;
   min-width: 0;
   padding: 9px 7px;
 }
-.iot-business #iot-main-actions {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) #iot-main-actions {
   margin-left: auto;
 }
-.iot-business .iot-stats {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-.iot-business .iot-stats article {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats article {
   padding: 18px;
   min-width: 0;
 }
-.iot-business .iot-stats strong {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats strong {
   font-size: 29px;
   margin: 9px 0 6px;
 }
-.iot-business .iot-stats small {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats small {
   line-height: 1.65;
   display: block;
 }
-.iot-business .iot-device-grid {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-grid {
   grid-template-columns: minmax(0, 1fr);
   gap: 16px;
 }
-.iot-business .iot-device-card {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-card {
   padding: 20px;
   min-width: 0;
 }
-.iot-business .iot-device-top {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-top {
   display: grid;
   grid-template-columns: 40px minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
 }
-.iot-business .iot-device-title {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-title {
   font-size: 15px;
   line-height: 1.55;
   word-break: normal;
   overflow-wrap: break-word;
 }
-.iot-business .iot-device-top small {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-top small {
   font-size: 11px;
   line-height: 1.5;
   word-break: normal;
   overflow-wrap: anywhere;
 }
-.iot-business .iot-device-meta {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-meta {
   font-size: 11px;
   line-height: 1.7;
   gap: 6px 10px;
 }
-.iot-business .iot-metrics {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   padding: 22px 0;
 }
-.iot-business .iot-metrics > div {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics > div {
   min-width: 0;
 }
-.iot-business .iot-metrics span {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics span {
   font-size: 11px;
   line-height: 1.6;
 }
-.iot-business .iot-metrics strong {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics strong {
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
@@ -1991,11 +1991,11 @@ html:has(body.iot-mobile-body[data-role="business"]) {
   line-height: 1.45;
   letter-spacing: -0.4px;
 }
-.iot-business .iot-metrics small {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics small {
   margin: 0;
   font-size: 10px;
 }
-.iot-business .iot-device-bottom {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-bottom {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -2003,61 +2003,61 @@ html:has(body.iot-mobile-body[data-role="business"]) {
   font-size: 11px;
   line-height: 1.7;
 }
-.iot-business .iot-device-bottom button {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-bottom button {
   font-size: 12px;
   padding: 5px 0;
 }
-.iot-business .iot-section-head {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-section-head {
   flex-wrap: wrap;
   gap: 12px;
   padding: 18px;
 }
-.iot-business .iot-section-head select {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-section-head select {
   flex: 1;
   min-width: 120px;
 }
-.iot-business .iot-list-heading {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-list-heading {
   padding: 0 0 14px;
 }
-.iot-business .iot-detail-meta {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-detail-meta {
   gap: 8px 16px;
   line-height: 1.7;
 }
-.iot-business .iot-detail-actions {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-detail-actions {
   gap: 10px;
 }
-.iot-business .iot-detail-actions .iot-btn {
+:is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-detail-actions .iot-btn {
   white-space: normal;
 }
 @media (max-width: 380px) {
-  .iot-mobile-body[data-role="business"] .iot-mobile-root {
+  .iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-root {
     padding: 20px 14px;
   }
-  .iot-mobile-body[data-role="business"] .iot-mobile-header {
+  .iot-mobile-body:is([data-role="business"], [data-role="engineer"]) .iot-mobile-header {
     padding: 14px 16px;
   }
-  .iot-business .iot-device-card {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-card {
     padding: 16px;
   }
-  .iot-business .iot-device-top {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-top {
     grid-template-columns: 34px minmax(0, 1fr) auto;
     gap: 9px;
   }
-  .iot-business .iot-device-icon {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-device-icon {
     width: 34px;
     height: 34px;
   }
-  .iot-business .iot-metrics {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 15px;
   }
-  .iot-business .iot-metrics > div:last-child:nth-child(odd) {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-metrics > div:last-child:nth-child(odd) {
     grid-column: 1/-1;
   }
-  .iot-business .iot-stats article {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats article {
     padding: 15px;
   }
-  .iot-business .iot-stats small {
+  :is(.iot-business, .iot-mobile-body[data-role="engineer"] .iot-console) .iot-stats small {
     font-size: 10px;
   }
 }
@@ -2303,3 +2303,18 @@ body[data-role="business"]:has(#business-detail-back:not([hidden]))
 .iot-status-donut small {
   color: var(--iot-muted, #71849c);
 }
+
+/* Engineer diagnostics use the same mobile canvas as the field-service app. */
+html:has(body.iot-mobile-body[data-role="engineer"]) { background: #edf1f5; }
+.iot-mobile-body[data-role="engineer"] { background:#fff; color:#20342e; }
+.iot-mobile-body[data-role="engineer"] .iot-console {
+ --iot-accent:#14775b; --iot-text:#20342e; --iot-muted:#72827a; --iot-line:#e1e9e5;
+}
+.iot-mobile-body[data-role="engineer"] .iot-mobile-header { position:sticky; top:0; z-index:10; background:#fff; }
+.iot-mobile-body[data-role="engineer"] .iot-mobile-header a { color:#14775b; }
+.iot-mobile-body[data-role="engineer"] .iot-heading-actions { flex-wrap:wrap; }
+.iot-mobile-body[data-role="engineer"] .iot-stats small { display:none; }
+.iot-mobile-body[data-role="engineer"] .iot-pagination { flex-wrap:wrap; gap:10px; }
+.iot-mobile-body[data-role="engineer"] .iot-empty { padding:40px 16px; }
+.iot-mobile-body[data-role="engineer"] .iot-detail-head { grid-template-columns:minmax(0,1fr); }
+.iot-mobile-body[data-role="engineer"] .iot-detail-head > .iot-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
