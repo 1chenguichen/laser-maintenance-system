@@ -1,0 +1,60 @@
+name: iOS TrollStore demo IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_url:
+        description: 'LAN backend root URL; editable again inside the installed app'
+        required: true
+        default: 'http://192.168.0.100:8180'
+        type: string
+  push:
+    branches: [master, 'codex/ios-trollstore*']
+    paths:
+      - '.github/workflows/ios-trollstore.yml'
+      - 'apps/ios-shell/**'
+      - 'scripts/ios/**'
+      - 'apps/customer-app-web/**'
+      - 'apps/engineer-app-web/**'
+      - 'docs/IOS-TROLLSTORE.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-trollstore-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      BACKEND_URL: ${{ inputs.backend_url || 'http://192.168.0.100:8180' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Apple toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Build two arm64 IPA packages
+        run: python3 scripts/ios/build-ipas.py
+      - name: Upload TrollStore test packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-trollstore-ipas-${{ github.run_number }}
+          path: |
+            outputs/ios/*.ipa
+            outputs/ios/build-report.json
+            outputs/ios/*-asset-server-test.json
+            outputs/ios/INSTALL.md
+          if-no-files-found: error
+          retention-days: 7
+      - name: Add download instructions to run summary
+        run: |
+          echo '## iOS TrollStore test packages' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Download the artifact below, extract the ZIP, and open the IPA in an already working TrollStore installation.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'These are ad-hoc signed local-demo builds, not App Store or Apple Developer distribution builds. Real-device testing is still required.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Both apps bundle web assets and connect to the backend URL configurable inside the app. Keep the PC backend running on the same LAN.' >> "$GITHUB_STEP_SUMMARY"
