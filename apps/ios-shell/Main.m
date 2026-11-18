@@ -21,7 +21,6 @@
 -(void)viewDidLoad {
     [super viewDidLoad];self.view.backgroundColor=UIColor.blackColor;self.captureQueue=dispatch_queue_create("laser.scanner",DISPATCH_QUEUE_SERIAL);
     self.session=[AVCaptureSession new];NSError *error=nil;
-    if(self.cloud){NSString *validated=[self validatedServer:cloudOrigin];if(![validated hasPrefix:@"https://"]){[self message:@"配置不正确" detail:@"请安装重新构建的应用。"];return;}self.origin=validated;}
     AVCaptureDevice *camera=[AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     AVCaptureDeviceInput *input=camera?[AVCaptureDeviceInput deviceInputWithDevice:camera error:&error]:nil;
     AVCaptureMetadataOutput *output=[AVCaptureMetadataOutput new];
@@ -63,6 +62,7 @@
     self.server=[AssetServer new];self.server.root=[NSBundle.mainBundle.resourcePath stringByAppendingPathComponent:@"web"];self.server.port=self.engineer?43102:43101;
     self.origin=[NSString stringWithFormat:@"http://127.0.0.1:%d",self.server.port];
     NSError *error=nil;
+    if(self.cloud){NSString *validated=[self validatedServer:cloudOrigin];if(![validated hasPrefix:@"https://"]){[self message:@"配置不正确" detail:@"请安装重新构建的应用。"];return;}self.origin=validated;}
     if(!self.cloud&&![[NSFileManager defaultManager] fileExistsAtPath:[self.server.root stringByAppendingPathComponent:@"login.html"]]){
         UILabel *failure=[[UILabel alloc]initWithFrame:self.view.bounds];failure.autoresizingMask=UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;failure.numberOfLines=0;failure.textAlignment=NSTextAlignmentCenter;failure.text=@"安装包缺少内置登录页，请安装重新构建的 IPA。";[self.view addSubview:failure];return;
     }
