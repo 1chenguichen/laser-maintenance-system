@@ -781,8 +781,8 @@ body[data-role="engineer"] .engineer-records summary {
 body[data-role="engineer"] .engineer-records[open] summary {
   margin-bottom: 18px;
 }
-body[data-refined][data-page="profile"] > header,
-body[data-refined][data-page="task-detail"] > header {
+body[data-refined][data-page="profile"] > header:not(.engineer-page-header),
+body[data-refined][data-page="task-detail"] > header:not(.engineer-page-header) {
   background: #ffffff !important;
   border-bottom: 0 !important;
 }
@@ -1114,7 +1114,7 @@ body[data-refined][data-page="task-detail"] #materialLink {
 }
 
 /* List, form and tool surfaces share the same white hierarchy. */
-body.mobile-system[data-refined] > header {
+body.mobile-system[data-refined] > header:not(.engineer-page-header) {
   background: #fff !important;
   border-bottom: 1px solid #f0f2ef !important;
 }
@@ -1692,7 +1692,7 @@ body[data-page="profile"] .income-values strong {
 body[data-page="profile"] .workspace-switch {
   margin-left: auto;
   align-self: center;
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid #e8ece6;
   border-radius: 20px;
   background: #fff;

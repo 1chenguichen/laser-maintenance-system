@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>注册 - 设备报修门户</title>
+  <title>注册 - 设备报修门户 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -46,14 +46,10 @@
       min-height: 100vh;
     }
   </style>
-<link rel="stylesheet" href="/auth-reference.css"><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="/auth-reference.css"><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="flex flex-col min-h-screen auth-reference" data-role="customer">
   <!-- Top Bar -->
-  <header class="flex items-center px-4 h-14">
-    <button onclick="window.history.back()" class="text-white">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="login.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">注册账号</h1><span class="client-header-space" aria-hidden="true"></span></header>
 
   <main class="flex-1 flex flex-col justify-center px-6">
     <!-- Logo Section -->
@@ -101,7 +97,7 @@
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" id="registerBtn"
+          <button data-ui="primary" type="submit" id="registerBtn"
             class="w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
             style="background-color: #1890ff; box-shadow: 0 4px 12px rgba(24,144,255,0.35);">
             注册

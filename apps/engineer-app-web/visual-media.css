@@ -1,0 +1,72 @@
+/* Shared equipment-image presentation used by the engineer detail pages. */
+.visual-media {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: #e9edf2;
+  border-radius: 14px;
+  isolation: isolate;
+}
+.visual-media > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.2s ease;
+}
+.visual-media figcaption {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  border-radius: 5px;
+  padding: 3px 6px;
+  background: #ffffffde;
+  color: #4b5e73;
+  font-size: 9px;
+  line-height: 1.4;
+  z-index: 1;
+  pointer-events: none;
+}
+.visual-fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  z-index: -1;
+  color: #64758a;
+  font-size: 12px;
+  background: #e9edf2;
+}
+.visual-media.media-unavailable .visual-fallback {
+  display: flex;
+  z-index: 0;
+}
+.device-cover {
+  aspect-ratio: 16/9;
+  margin-bottom: 18px;
+  border: 1px solid #e7ecf2;
+}
+.device-cover > img {
+  object-fit: cover;
+  object-position: center 54%;
+}
+.device-thumbnail {
+  width: 88px;
+  height: 76px;
+  border-radius: 12px;
+  flex-shrink: 0;
+  border: 1px solid #e5ebf2;
+}
+.device-thumbnail figcaption {
+  right: 3px;
+  bottom: 3px;
+  font-size: 8px;
+  padding: 1px 4px;
+}
+.device-row:has(.device-thumbnail) {
+  align-items: center;
+  gap: 12px;
+}
+
+@media(prefers-reduced-motion:reduce){.visual-media > img{transition:none}}

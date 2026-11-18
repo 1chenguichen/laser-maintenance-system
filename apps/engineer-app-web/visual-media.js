@@ -37,7 +37,7 @@
             "device-" + key,
             descriptions[key] + "类型示意图，AI生成",
             compact ? "device-thumbnail" : "device-cover",
-            "类型示意",
+            "型号参考",
           )
         : "";
     },
@@ -69,7 +69,7 @@
           }[scene] +
           "场景示意图，AI生成",
         "service-cover",
-        "场景示意",
+        "服务配图",
       );
     },
   };

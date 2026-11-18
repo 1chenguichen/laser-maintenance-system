@@ -12,9 +12,6 @@ body.product-screen input:not([type=checkbox]):not([type=radio]),body.product-sc
 body.product-screen button:focus-visible,body.product-screen a:focus-visible,body.product-screen input:focus-visible,body.product-screen select:focus-visible,body.product-screen textarea:focus-visible{outline:3px solid var(--ui-focus);outline-offset:3px}
 body.product-screen button:disabled{cursor:not-allowed;opacity:.55}
 body.product-screen button:active:not(:disabled){filter:brightness(.96)}
-body.product-screen nav .nav-icon{font-size:24px}
-body.product-screen nav img{width:40px!important;height:40px!important;object-fit:contain}
-body.product-screen nav a[style]{margin-top:0!important}
 body.product-screen .wh-hero{background:#eaf3ff;color:#174b80;box-shadow:none;border:1px solid #d7e6f8;border-radius:12px}
 body.product-screen .wh-stats span{font-size:12px;opacity:1;color:#56718c}
 body.product-screen .wh-hero small{opacity:1;color:#56718c}

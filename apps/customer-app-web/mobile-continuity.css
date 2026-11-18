@@ -53,7 +53,7 @@ body.mobile-system[data-role="engineer"] {
   line-height: 1;
   flex-shrink: 0;
 }
-body.mobile-system > header {
+body.mobile-system > header:not(.client-page-header) {
   position: sticky !important;
   top: 0 !important;
   left: auto !important;
@@ -71,8 +71,8 @@ body.mobile-system > header {
   border-bottom: 1px solid var(--app-border) !important;
   z-index: 40;
 }
-.mobile-system > header h1,
-.mobile-system > header > span:not(.material-symbols-outlined) {
+.mobile-system > header:not(.client-page-header) h1,
+.mobile-system > header:not(.client-page-header) > span:not(.material-symbols-outlined) {
   font-size: 16px !important;
   font-weight: 650;
   color: var(--app-ink) !important;
@@ -80,8 +80,8 @@ body.mobile-system > header {
   line-height: 1.4;
   text-align: center;
 }
-.mobile-system > header button,
-.mobile-system > header > a {
+.mobile-system > header:not(.client-page-header) button,
+.mobile-system > header:not(.client-page-header) > a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -93,7 +93,7 @@ body.mobile-system > header {
   color: var(--app-accent) !important;
   padding: 8px;
 }
-.mobile-system > header .material-symbols-outlined {
+.mobile-system > header:not(.client-page-header) .material-symbols-outlined {
   color: var(--app-accent) !important;
   font-size: 23px !important;
 }
@@ -640,7 +640,7 @@ body.mobile-system .mobile-navigation .material-symbols-outlined {
   flex-direction: column;
   overflow: hidden;
 }
-.mobile-system[data-layout="chat"] > header {
+.mobile-system[data-layout="chat"] > header:not(.client-page-header) {
   flex-shrink: 0;
 }
 .mobile-system[data-layout="chat"] > .chat-container {

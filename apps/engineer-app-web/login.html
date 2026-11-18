@@ -4,35 +4,11 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>工程师登录 - 激光设备维保</title>
-  <script src="/tailwind.js"></script>
-  <link href="/fonts/material-symbols.css" rel="stylesheet">
-  <link href="/fonts/main.css" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#006d33",
-            "on-primary": "#ffffff",
-            "surface": "#f7f9fb",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-low": "#f2f4f6",
-            "on-surface": "#191c1e",
-            "on-surface-variant": "#43474f",
-            "outline": "#737780",
-            "outline-variant": "#c3c6d1",
-            "secondary": "#52c41a"
-          },
-          fontFamily: {
-            display: ["IBM Plex Sans"],
-            body: ["Noto Sans"]
-          }
-        }
-      }
-    }
-  </script>
+  <title>工程师登录 - 激光设备维保 · 智修工</title>
+
+
+  <link rel="stylesheet" href="/styles/bundled/layout-80b6d424a3c3.css">
+
   <style>
     .material-symbols-outlined {
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -48,10 +24,10 @@
       min-height: 100vh;
     }
   </style>
-<link rel="stylesheet" href="/auth-reference.css"><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/login-screen.css"></head>
+<script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><script src="/engineer-refresh.js" defer></script><link rel="stylesheet" href="/styles/bundled/layout-348a6cf65736.css"><script src="/engineer-feedback.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="flex flex-col justify-center px-6 auth-reference login-screen" data-role="engineer" data-refined="true">
   <main class="login-main">
-    <header class="login-brand"><img src="/brand/laser-service-mark.svg" width="40" height="40" alt="激光设备服务"><div><strong>激光设备服务</strong><span>工程师工作台</span></div></header>
+    <header class="login-brand"><img src="/brand/zhixiugong-icon.svg" width="40" height="40" alt="智修工"><div><strong>智修工</strong><span>工程师工作台</span></div></header>
     <section class="login-intro"><p class="login-eyebrow">现场服务 · 专业履约</p><h1>欢迎回来，<br>开始今天的服务</h1><p class="login-description">使用工作手机号，登录你的服务工作台。</p></section>
     <form id="loginForm" class="login-form" onsubmit="handleLogin(event)">
       <div id="organizationContext"></div>
@@ -60,7 +36,7 @@
       <button type="submit" id="loginBtn">登录</button>
       <p class="login-demo">演示体验 · 已预填账号，验证码 000000</p>
     </form>
-    <p class="login-bottom">首次使用？<button type="button" onclick="alert('请联系企业管理员开通工程师账号')">联系企业管理员开通</button></p>
+    <p class="login-bottom">首次使用？<button type="button" onclick="window.EngineerFeedback.notice('请联系企业管理员开通工程师账号')">联系企业管理员开通</button></p>
     <p class="login-legal">工作身份与服务权限由所属企业及平台管理。</p>
   </main>
 
@@ -73,11 +49,11 @@
       var btn = document.getElementById('sendCodeBtn');
       if (btn.disabled) return;
       var phone = document.getElementById('phone').value;
-      if (!/^1[3-9]\d{9}$/.test(phone)) { alert('请输入正确的手机号'); return; }
+      if (!/^1[3-9]\d{9}$/.test(phone)) { window.EngineerFeedback.notice('请输入正确的手机号'); return; }
       btn.disabled = true;
       try {
         await organizationLogin.sendCode(phone);
-      } catch (err) { btn.disabled = false; alert(err.message); return; }
+      } catch (err) { btn.disabled = false; window.EngineerFeedback.notice(err.message); return; }
       btn.textContent = '60s';
       btn.disabled = true;
       var countdown = 60;

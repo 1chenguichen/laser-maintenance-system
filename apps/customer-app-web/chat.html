@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>客服智能助手</title>
+  <title>客服智能助手 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link rel="stylesheet" href="/fonts/main.css">
   <script>document.write('<script src="' + window.APP_API_BASE + '/socket.io/socket.io.js"><\/script>');</script>
@@ -59,24 +59,10 @@
       word-wrap: break-word;
     }
   </style>
-<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-refresh.css"><script src="/client-refresh.js" defer></script><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen bg-surface mobile-system" data-role="customer" data-page="chat" data-layout="chat">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" onclick="window.history.back()">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <div class="text-center">
-      <h1 class="font-semibold text-base" style="color: #111827;">象小秘 智能排障</h1>
-      <p class="text-xs text-green-500 flex items-center justify-center gap-1">
-        <span class="w-2 h-2 rounded-full bg-green-500"></span>
-        在线
-      </p>
-    </div>
-    <button class="text-primary">
-      <span class="material-symbols-outlined">more_vert</span>
-    </button>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="profile.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">设备服务咨询</h1><span class="client-header-space" aria-hidden="true"></span></header>
 
   <!-- Chat Messages -->
   <main class="chat-container pt-14 pb-16 px-4">
@@ -86,8 +72,8 @@
         <span class="text-sm" style="color: #1890ff;">🤖</span>
       </div>
       <div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">
-        <p class="text-sm" style="color: #191c1e;">您好！我是象小秘，您的智能排障助手。</p>
-        <p class="text-sm mt-2" style="color: #191c1e;">请描述一下您遇到的设备故障现象，我可以帮您快速定位问题。</p>
+        <p class="text-sm" style="color: #191c1e;">您好，请描述设备型号与故障现象。</p>
+        <p class="text-sm mt-2" style="color: #191c1e;">咨询记录用于辅助沟通，具体维修方案由服务人员确认。</p>
       </div>
     </div>
 
@@ -116,11 +102,9 @@
   <!-- Input Area -->
   <div class="fixed bottom-0 w-full max-w-[414px] bg-white border-t border-outline-variant px-4 py-3">
     <div class="flex items-center space-x-3">
-      <button class="text-gray-400 hover:text-primary">
-        <span class="material-symbols-outlined">add_circle</span>
-      </button>
+
       <input type="text" id="messageInput" placeholder="输入您的问题..." class="flex-1 px-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-      <button class="text-gray-400 hover:text-primary" onclick="sendMessage()">
+      <button class="text-gray-400 hover:text-primary" onclick="sendMessage()" aria-label="发送消息">
         <span class="material-symbols-outlined">send</span>
       </button>
     </div>

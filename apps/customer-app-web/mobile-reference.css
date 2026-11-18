@@ -251,23 +251,6 @@ body[data-role="engineer"] {
 .home-intro .eyebrow {
   color: #486b98;
 }
-.device-art {
-  position: absolute;
-  right: -24px;
-  bottom: 18px;
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background: #dbe9ff;
-  display: grid;
-  place-items: center;
-  opacity: 0.65;
-  transform: rotate(-12deg);
-}
-.device-art .material-symbols-outlined {
-  font-size: 106px;
-  color: #769edf;
-}
 .home-quicklinks {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1311,9 +1294,6 @@ body[data-role="engineer"] .mobile-navigation a {
   .detail-action-bar button {
     font-size: 11px;
     padding-inline: 10px;
-  }
-  .device-art {
-    right: -60px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

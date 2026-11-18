@@ -1,0 +1,170 @@
+/* Client-only system adapted from elayadesign/ai-design-skills. */
+:root{--engineer-blue:#087454;--engineer-ink:#19342b;--engineer-muted:#687970;--engineer-line:#e3eae6;--engineer-motion:cubic-bezier(.22,1,.36,1)}
+html{background:#f0f3f1}
+body[data-role="engineer"].engineer-refresh{--market-accent:var(--engineer-blue);--ui-accent:var(--engineer-blue);--market-ink:var(--engineer-ink);--market-muted:var(--engineer-muted);--market-border:var(--engineer-line);--market-ground:#ffffff;--market-soft:#edf6f1;max-width:460px!important;width:100%;margin:0 auto!important;background:#ffffff;color:var(--engineer-ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif!important;font-size:14px;line-height:20px;min-height:100dvh}
+body[data-role="engineer"].engineer-refresh *{box-sizing:border-box}
+body[data-role="engineer"].engineer-refresh h1{font-size:30px;line-height:36px;font-weight:600;letter-spacing:-1px;text-wrap:balance}
+body[data-role="engineer"].engineer-refresh h2{font-size:20px;line-height:28px;font-weight:600;text-wrap:balance}
+body[data-role="engineer"].engineer-refresh h3{font-size:18px;line-height:28px;font-weight:600}
+body[data-role="engineer"].engineer-refresh p{text-wrap:pretty}
+body[data-role="engineer"].engineer-refresh .market-top{min-height:64px;padding:8px 24px;background:#fff;border-bottom:1px solid var(--engineer-line);backdrop-filter:none}
+body[data-role="engineer"].engineer-refresh .market-top>a{font-size:14px;gap:8px}
+body[data-role="engineer"].engineer-refresh .market-root{padding:24px 24px calc(104px + env(safe-area-inset-bottom))}
+body[data-role="engineer"].engineer-refresh .market-heading{margin:0 0 24px}
+body[data-role="engineer"].engineer-refresh .market-heading h1{font-size:30px;line-height:36px;margin:0 0 8px;font-weight:600}
+body[data-role="engineer"].engineer-refresh .market-heading p{font-size:14px;line-height:20px;margin:0;color:var(--engineer-muted)}
+body[data-role="engineer"].engineer-refresh :is(.market-card,.business-card,.home-device-list,.home-todos){border:1px solid var(--engineer-line);border-radius:16px;background:#fff;box-shadow:none}
+body[data-role="engineer"].engineer-refresh .market-card{padding:24px;margin-bottom:16px}
+body[data-role="engineer"].engineer-refresh .market-card h2{font-size:18px;line-height:28px;margin-bottom:12px}
+body[data-role="engineer"].engineer-refresh :is(.market-primary,.market-secondary,.business-button){display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 12px;gap:8px;border-radius:12px;font-size:16px;line-height:24px;font-weight:600;box-shadow:none;background-image:none}
+body[data-role="engineer"].engineer-refresh .market-primary{background:var(--engineer-blue);color:#fff;border:1px solid var(--engineer-blue)}
+body[data-role="engineer"].engineer-refresh .market-secondary{background:#fff;color:var(--engineer-ink);border:1px solid #d6dfea}
+body[data-role="engineer"].engineer-refresh :is(a,button){transition:transform .3s var(--engineer-motion),opacity .3s var(--engineer-motion),background-color .3s var(--engineer-motion);-webkit-tap-highlight-color:transparent}
+body[data-role="engineer"].engineer-refresh :is(a,button):active{transform:scale(.98)}
+body[data-role="engineer"].engineer-refresh :is(a,button,input,select,textarea):focus-visible{outline:3px solid #93c7b2;outline-offset:3px}
+body[data-role="engineer"].engineer-refresh :is(button:disabled,[aria-disabled=true]){opacity:.45;pointer-events:none}
+body[data-role="engineer"].engineer-refresh :is(input:not([type=radio]):not([type=checkbox]),select,textarea){font-size:16px;line-height:24px;border:1px solid #d6dfea;border-radius:12px;background:#fff;max-width:100%;min-height:48px;padding:12px}
+body[data-role="engineer"].engineer-refresh .section-heading{margin:32px 0 12px;gap:12px}
+body[data-role="engineer"].engineer-refresh .section-heading h2{font-size:18px;line-height:28px;font-weight:600;letter-spacing:0}
+body[data-role="engineer"].engineer-refresh .section-heading a{font-size:12px;line-height:16px;min-height:44px;color:var(--engineer-muted)}
+body[data-role="engineer"].engineer-refresh .market-badge{font-size:12px;line-height:16px;padding:4px 8px;border-radius:8px}
+body[data-role="engineer"].engineer-refresh .market-empty{background:#fff;border:1px dashed #d6dfea;border-radius:16px;padding:32px 24px;gap:12px;min-height:160px}
+body[data-role="engineer"].engineer-refresh .market-empty strong{font-size:14px;line-height:20px;color:var(--engineer-muted)}
+body[data-role="engineer"].engineer-refresh .mobile-navigation{max-width:460px!important;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--engineer-line);box-shadow:none;backdrop-filter:none}
+body[data-role="engineer"].engineer-refresh .mobile-navigation a{font-size:12px;line-height:16px;gap:4px;border-radius:12px;color:var(--engineer-muted);min-width:0}
+body[data-role="engineer"].engineer-refresh .mobile-navigation a[aria-current=page]{color:var(--engineer-blue);background:#edf6f1;font-weight:600}
+body[data-role="engineer"].engineer-refresh .mobile-navigation a[aria-current=page]::before{display:none}
+/* Field pages are static; the homepage carousel owns its own transition. */
+body[data-role="engineer"].engineer-refresh .engineer-reveal{opacity:1;transform:none}
+body[data-role="engineer"].engineer-refresh dialog::backdrop{background:#19342b66}
+body[data-role="engineer"].engineer-refresh .media-source-details{font-size:12px;line-height:20px;color:var(--engineer-muted);margin:12px 0 24px}
+body[data-role="engineer"].engineer-refresh .media-source-details summary{cursor:pointer;min-height:44px;display:flex;align-items:center;gap:8px}
+body[data-role="engineer"].engineer-refresh .media-source-details p{margin:0 0 12px}
+body[data-role="engineer"].engineer-refresh .home-visual>.media-source-details{margin:0;padding:0 24px 12px;color:#c6d5e5}
+body[data-role="engineer"].engineer-refresh .market-skeleton{padding:16px 0;display:grid;gap:16px}
+body[data-role="engineer"].engineer-refresh .market-skeleton span{display:block;border-radius:12px;background:#e6ecf4;height:24px;animation:engineer-skeleton 1.2s var(--engineer-motion) 3 alternate}
+body[data-role="engineer"].engineer-refresh .market-skeleton span:nth-child(2){height:280px}body[data-role="engineer"].engineer-refresh .market-skeleton span:last-child{width:65%}
+@keyframes engineer-skeleton{from{opacity:.45}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body[data-role="engineer"].engineer-refresh .engineer-reveal{opacity:1;transform:none}}
+
+/* Engineer hierarchy: white work surface, green actions and compact task rhythm. */
+body[data-role="engineer"].engineer-refresh .market-heading h1{font-size:24px;line-height:32px;letter-spacing:-.5px}
+body[data-role="engineer"].engineer-refresh .market-heading{margin-bottom:24px}
+body[data-role="engineer"].engineer-refresh .market-top{background:#fff}
+body[data-role="engineer"].engineer-refresh .engineer-identity{display:flex;align-items:center;gap:12px;padding:16px;background:#f6f9f7;border:1px solid #e3eae6;border-radius:16px;margin-bottom:24px}
+body[data-role="engineer"].engineer-refresh .engineer-identity>div:nth-child(2){flex:1;min-width:0}
+body[data-role="engineer"].engineer-refresh .engineer-identity strong{font-size:18px;line-height:28px;font-weight:600}
+body[data-role="engineer"].engineer-refresh .engineer-identity small{display:block;font-size:12px;line-height:20px;overflow-wrap:anywhere}
+body[data-role="engineer"].engineer-refresh .engineer-identity>a{font-size:12px;flex-shrink:0}
+body[data-role="engineer"].engineer-refresh .work-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0;margin:0 0 32px}
+body[data-role="engineer"].engineer-refresh .work-metrics>a{padding:16px 8px;background:#f4f8f5;border:1px solid #e3eae6;border-radius:12px;text-align:center}
+body[data-role="engineer"].engineer-refresh .work-metrics strong{display:block;font-size:30px;line-height:36px;font-weight:600;color:#19342b}
+body[data-role="engineer"].engineer-refresh .work-metrics span{font-size:12px;line-height:20px;color:#687970}
+body[data-role="engineer"].engineer-refresh .engineer-tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+body[data-role="engineer"].engineer-refresh .engineer-tools>a{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;padding:16px;border:1px solid #e3eae6;border-radius:12px;background:#fff;min-height:72px}
+body[data-role="engineer"].engineer-refresh .engineer-tools strong{font-size:14px;line-height:20px;font-weight:500}
+body[data-role="engineer"].engineer-refresh .engineer-tools .material-symbols-outlined{color:#087454;background:#edf6f1;border-radius:8px;padding:8px;font-size:24px}
+body[data-role="engineer"].engineer-refresh .market-card-head{gap:12px;align-items:flex-start}
+body[data-role="engineer"].engineer-refresh .market-card-head h2{flex:1;min-width:0}
+body[data-role="engineer"].engineer-refresh .market-card :is(.visual-media,img){max-width:100%}
+body[data-role="engineer"].engineer-refresh .engineer-priority-task .market-card{border-color:#b9d5c7;background:#fbfdfb}
+body[data-role="engineer"].engineer-refresh :is(.wh-card,.wh-panel,.field-panel){border-radius:16px;border-color:#e3eae6;box-shadow:none}
+body[data-role="engineer"].engineer-refresh :is(.wh-primary,[data-ui=primary]){background:#087454;color:#fff;border:1px solid #087454;border-radius:12px;min-height:48px;padding:8px 12px;font-size:16px;line-height:24px}
+body[data-role="engineer"].engineer-refresh :is(.wh-form-grid,.wh-form-actions){gap:12px}
+body[data-role="engineer"].engineer-refresh .market-card dl{display:grid;grid-template-columns:minmax(72px,auto) minmax(0,1fr);gap:12px 16px;font-size:14px;line-height:20px}
+body[data-role="engineer"].engineer-refresh .market-card dd{margin:0;overflow-wrap:anywhere}
+body[data-role="engineer"].engineer-refresh.field-interaction>main{animation:none}
+body[data-role="engineer"].engineer-refresh dialog[open]{animation:engineer-dialog-in .35s var(--engineer-motion)}
+@media(max-width:359px){body[data-role="engineer"].engineer-refresh .market-root{padding-left:16px;padding-right:16px}body[data-role="engineer"].engineer-refresh .engineer-identity{flex-wrap:wrap}body[data-role="engineer"].engineer-refresh .engineer-tools{gap:8px}body[data-role="engineer"].engineer-refresh .engineer-tools>a{padding:12px}}
+@media(prefers-reduced-motion:reduce){body[data-role="engineer"].engineer-refresh *{animation:none!important;transition:none!important}body[data-role="engineer"].engineer-refresh .engineer-reveal{opacity:1;transform:none}}
+
+body[data-role="engineer"].engineer-refresh .engineer-tools>a{width:auto;min-width:0;max-width:none}body[data-role="engineer"].engineer-refresh .engineer-tools strong{white-space:normal;word-break:normal}body[data-role="engineer"].engineer-refresh .engineer-identity{height:auto;min-height:80px}
+
+/* Client now stays static; only the explicitly requested homepage carousel moves. */
+body.engineer-refresh *,body.engineer-refresh *::before,body.engineer-refresh *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+body.engineer-refresh .client-reveal{opacity:1;transform:none}
+body.engineer-refresh :is(a,button):active,body.engineer-refresh .home-quicklinks a:hover,body.engineer-refresh .home-quicklinks a:hover>.material-symbols-outlined{transform:none}
+body.engineer-refresh .engineer-image-loading{opacity:1}
+body.engineer-refresh .intelligence-beam,body.engineer-refresh .intelligence-toggle{display:none}
+body.engineer-refresh .intelligence-art img{transform:none}
+body.engineer-refresh .engineer-banner{position:relative;width:100%;overflow:hidden;background:#edf6f1;aspect-ratio:3/2}
+body.engineer-refresh .banner-track{display:flex;width:100%;height:100%;transition:transform .55s cubic-bezier(.22,1,.36,1)!important}
+body.engineer-refresh .banner-track>img{display:block;flex:0 0 100%;min-width:0;width:100%;height:100%;object-fit:cover;transform:none}
+body.engineer-refresh .banner-controls{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;align-items:center;gap:0}
+body.engineer-refresh .banner-controls button{border:0;width:32px;min-height:44px;background:transparent;padding:0;color:#205c48}
+body.engineer-refresh .banner-controls button:not(.banner-toggle)::after{content:'';display:block;margin:auto;width:6px;height:6px;border-radius:50%;background:#819ab4}
+body.engineer-refresh .banner-controls button[aria-pressed=true]::after{width:18px;border-radius:8px;background:#087454}
+body.engineer-refresh .banner-controls .banner-toggle{width:48px;font-size:12px;background:#ffffffd9;border-radius:12px}
+@media(prefers-reduced-motion:reduce){body.engineer-refresh .banner-track{transition:none!important}}
+
+body.engineer-refresh .engineer-banner{border-radius:16px;margin-bottom:24px;aspect-ratio:2/1}body.engineer-refresh .banner-controls{z-index:2}body.engineer-refresh .engineer-reveal{opacity:1;transform:none}body.engineer-refresh .field-photo-settings[open]{animation:none!important}
+
+body.engineer-refresh .engineer-concept{margin:0 0 24px;overflow:hidden;border-radius:16px;background:#edf6f1}body.engineer-refresh .engineer-concept img{width:100%;height:140px;object-fit:cover;display:block}
+
+/* Field work: task-first hierarchy shared by the engineer pages. */
+body.engineer-refresh .engineer-banner{height:96px;aspect-ratio:auto;margin-bottom:16px}
+body[data-role="engineer"].engineer-refresh .market-heading{margin-bottom:16px}
+body[data-role="engineer"].engineer-refresh .engineer-identity{padding:8px 0;background:transparent;border:0;border-radius:0;min-height:56px;margin-bottom:12px}
+body[data-role="engineer"].engineer-refresh .engineer-identity strong{font-size:16px;line-height:24px}
+body[data-role="engineer"].engineer-refresh .engineer-identity .engineer-avatar{width:36px;height:36px;flex-shrink:0}
+body[data-role="engineer"].engineer-refresh .work-metrics{gap:0;border:1px solid var(--engineer-line);border-radius:12px;margin-bottom:20px;background:#f5f9f6;padding:12px 0}
+body[data-role="engineer"].engineer-refresh .work-metrics>a{padding:0 8px;border:0;border-right:1px solid var(--engineer-line);border-radius:0;background:transparent}
+body[data-role="engineer"].engineer-refresh .work-metrics>a:last-child{border-right:0}
+body[data-role="engineer"].engineer-refresh .work-metrics strong{font-size:24px;line-height:32px}
+body.engineer-refresh .section-heading{margin:20px 0 12px}
+body.engineer-refresh .market-order-card{padding:16px;margin-bottom:12px}
+body.engineer-refresh .market-order-card .engineer-task-identity{display:flex;align-items:center;gap:12px;min-width:0;margin:12px 0}
+body.engineer-refresh .market-order-card .engineer-equipment-thumb{width:52px!important;height:52px!important;flex:0 0 52px;margin:0!important;border-radius:10px}
+body.engineer-refresh .market-order-card .engineer-equipment-thumb img{width:100%;height:100%;object-fit:cover}
+body.engineer-refresh .market-order-card .engineer-equipment-thumb figcaption{font-size:8px;padding:1px 3px}
+body.engineer-refresh .market-order-card h3{font-size:16px;line-height:24px;margin:0;overflow-wrap:anywhere;min-width:0}
+body.engineer-refresh .market-order-card .order-description{font-size:13px;line-height:22px;margin:8px 0}
+body.engineer-refresh .market-order-card .order-meta{font-size:12px;line-height:20px;margin:8px 0;overflow-wrap:anywhere}
+body.engineer-refresh .market-order-card .task-origin-note{display:none}
+body.engineer-refresh .market-order-card .order-card-bottom{padding-top:12px;margin-top:12px;gap:8px;flex-wrap:wrap}
+body.engineer-refresh .market-order-card .order-card-bottom>span{min-height:44px;display:inline-flex;align-items:center;font-size:12px}
+body.engineer-refresh .engineer-priority-task .market-order-card .order-card-bottom>span{background:#176c50;color:#fff;padding:8px 12px;border-radius:8px}
+body.engineer-refresh .engineer-tools{gap:8px}
+body[data-role="engineer"].engineer-refresh .engineer-tools>a{min-height:64px;padding:12px;gap:8px}
+body.engineer-refresh .engineer-load-more{display:block;width:100%;min-height:48px;padding:12px;border:1px solid var(--engineer-line);border-radius:12px;background:#f5f9f6;color:#176c50;font-size:14px;margin:16px 0}
+body.engineer-refresh .order-filter-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body.engineer-refresh .order-filter-row input{grid-column:1/-1;width:100%;min-width:0}
+body.engineer-refresh .order-filter-row select{width:100%;min-width:0}
+body.engineer-refresh .category-tabs{overflow-x:auto;scrollbar-width:none;gap:8px}
+body.engineer-refresh .category-tabs button{min-height:44px;flex-shrink:0}
+body.engineer-refresh .engineer-resource-grid>a{display:grid;grid-template-columns:40px minmax(0,1fr);align-items:center;gap:4px 12px;padding:16px;background:#f5f9f6;border:1px solid var(--engineer-line);border-radius:12px}
+body.engineer-refresh .engineer-resource-grid>a>.engineer-resource-icon{grid-row:1/3;color:#176c50;font-size:28px}
+body.engineer-refresh .engineer-resource-grid>a :is(strong,small){padding:0;margin:0;min-width:0;overflow-wrap:anywhere}
+body.engineer-refresh .engineer-resource-grid{grid-template-columns:1fr;gap:8px}
+body.engineer-refresh .market-card dl{grid-template-columns:80px minmax(0,1fr);gap:12px;font-size:14px;line-height:22px}
+body.engineer-refresh .market-card dt{color:var(--engineer-muted);font-size:12px}
+body.engineer-refresh .market-card dd{overflow-wrap:anywhere;min-width:0}
+body.engineer-refresh .market-card :is(input,textarea,select){max-width:100%;font-size:16px}
+body.engineer-refresh .market-dialog{max-width:calc(100% - 32px);max-height:85dvh;overflow:auto}
+body.engineer-refresh .mobile-navigation .device-symbol>svg{stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+body.engineer-refresh .market-badge{font-size:11px;line-height:18px;white-space:nowrap}
+body.engineer-refresh .status-IN_SERVICE .market-badge{background:#e8f3ff;color:#205a9e}
+body.engineer-refresh :is(.status-ASSIGNED,.status-ACCEPTED,.status-APPROVED) .market-badge{background:#fff3df;color:#895713}
+body.engineer-refresh .status-COMPLETED .market-badge{background:#edf5ef;color:#326b4e}
+body.engineer-refresh :is(.status-CANCELLED,.status-REFUSED) .market-badge{background:#f1f3f5;color:#687970}
+
+body[data-role="engineer"].engineer-refresh .engineer-priority-task .engineer-task-identity{flex-direction:row;align-items:center;gap:12px;margin:12px 0}
+body[data-role="engineer"].engineer-refresh .work-metrics>a strong{font-size:24px!important;line-height:32px!important}
+body[data-role="engineer"].engineer-refresh .engineer-priority-task .market-card{padding:16px;box-shadow:none}
+body.engineer-refresh[data-page=inventory] .engineer-workspace:has(select) .workspace-brand{display:none}
+body.engineer-refresh[data-page=inventory] .engineer-workspace{padding:0 0 16px;margin-bottom:16px}
+body.engineer-refresh[data-page=inventory] .engineer-workspace label{margin:0;display:block}
+body.engineer-refresh[data-page=inventory] .wh-hero{padding:0 0 20px;border-radius:0}
+body.engineer-refresh[data-page=inventory] .wh-hero h2{margin:8px 0 16px}
+body.engineer-refresh[data-page=inventory] .wh-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+body.engineer-refresh[data-page=task-detail] .flow-summary{padding:16px;border:1px solid #dce9df;border-radius:12px;background:#f2f8f4}
+body.engineer-refresh[data-page=task-detail] .flow-summary p{font-size:16px;line-height:24px;margin:8px 0}
+body.engineer-refresh .engineer-photo-failed img{display:none}
+body.engineer-refresh .engineer-photo-failed{display:flex;align-items:center;justify-content:center;background:#f1f5f2;min-height:52px}
+body.engineer-refresh .engineer-photo-failed figcaption{position:static;font-size:9px;color:#687970;padding:2px;text-align:center}
+
+body.engineer-refresh .iot-order-monitor{border-color:#dce9df;padding:16px;margin:16px 0;background:#f7faf8}
+body.engineer-refresh .iot-order-monitor>strong{color:#176c50;font-size:16px}
+body.engineer-refresh .iot-order-monitor details{margin-top:12px;background:#fff;border:1px solid #dce9df;border-radius:8px;overflow:hidden}
+body.engineer-refresh .iot-order-monitor summary{min-height:48px;padding:12px;cursor:pointer;font-size:14px;color:#176c50}
+body.engineer-refresh .iot-order-full{display:flex;align-items:center;min-height:44px;margin-top:8px;font-size:12px;color:#176c50}

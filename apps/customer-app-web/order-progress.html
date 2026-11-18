@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>工单进度与评价</title>
+  <title>工单进度与评价 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -61,16 +61,10 @@
       display: none;
     }
   </style>
-<link rel="stylesheet" href="/flow-design.css"><link rel="stylesheet" href="/product-design.css?v=2"><script src="/service-experience.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="/flow-design.css"><link rel="stylesheet" href="/product-design.css?v=2"><script src="/service-experience.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-refresh.css"><script src="/client-refresh.js" defer></script><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen flow-screen bg-surface mobile-system" data-role="customer" data-page="order-progress">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" aria-label="返回上一页" onclick="window.history.back()">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="font-semibold text-base" style="color: #111827;">工单进度</h1>
-    <span class="w-10" aria-hidden="true"></span>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="market-orders.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">工单进度</h1><span class="client-header-space" aria-hidden="true"></span></header>
 
   <main class="pt-14 px-4 pb-6">
     <aside class="flow-summary"><small>本次服务 · 当前进度</small><p id="flowNext">正在核实维修进度…</p><div id="flowCompany" class="flow-company"></div></aside>
@@ -139,13 +133,13 @@
 
     <!-- Action Buttons -->
     <section id="actionSection" class="mt-6 space-y-3">
-      <button id="confirmQuoteBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="confirmQuote()">
+      <button data-ui="primary" id="confirmQuoteBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="confirmQuote()">
         确认报价
       </button>
-      <button id="payPrepaymentBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payPrepayment()">
+      <button data-ui="primary" id="payPrepaymentBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payPrepayment()">
         支付定金 <span id="prepaymentAmount"></span>
       </button>
-      <button id="payFinalBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payFinal()">
+      <button data-ui="primary" id="payFinalBtn" class="w-full py-3 text-white font-medium rounded-lg hidden" style="background-color: #1890ff;" onclick="payFinal()">
         <span id="finalPayLabel">支付尾款</span> <span id="finalPaymentAmount"></span>
       </button>
       <button id="reviewBtn" class="w-full py-3 border font-medium rounded-lg hidden" style="border-color: #1890ff; color: #1890ff;" onclick="showReview()">
@@ -167,7 +161,7 @@
         </div>
       </div>
       <textarea id="reviewContent" class="w-full p-3 border border-outline-variant rounded-lg text-sm" rows="3" placeholder="请输入您的评价..."></textarea>
-      <button class="w-full py-3 mt-3 text-white font-medium rounded-lg" style="background-color: #1890ff;" onclick="submitReview()">
+      <button data-ui="primary" class="w-full py-3 mt-3 text-white font-medium rounded-lg" style="background-color: #1890ff;" onclick="submitReview()">
         提交评价
       </button>
     </section>

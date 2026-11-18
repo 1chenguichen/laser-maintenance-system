@@ -4,29 +4,15 @@
   <script src="/app-config.js"></script>
 <script src="/workspace-scope.js"></script>
 <script src="/workspace-experience.js" defer></script>
-<link rel="stylesheet" href="/workspace-experience.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>问AI - 工程师端</title>
-  <script src="/tailwind.js"></script>
-  <link href="/fonts/material-symbols.css" rel="stylesheet">
-  <link href="/fonts/main.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#006d33",
-            "on-primary": "#ffffff",
-            "surface": "#f7f9fb",
-            "on-surface": "#191c1e"
-          }
-        }
-      }
-    }
-  </script>
+  <title>问AI - 工程师端 · 智修工</title>
+
+
+
+  <link rel="stylesheet" href="/styles/bundled/layout-6f93c5af11c6.css">
+
   <style>
     .chat-container {
       height: calc(100vh - 56px - 70px);
@@ -65,24 +51,16 @@
       100% { transform: translateY(-3px); }
     }
   </style>
-<link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<script src="/mobile-continuity.js" defer></script><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><script src="/engineer-refresh.js" defer></script><script src="/engineer-navigation.js" defer></script><link rel="stylesheet" href="/styles/bundled/layout-28c9a3df5091.css"><script src="/engineer-feedback.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen bg-surface mobile-system" data-role="engineer" data-refined="true" data-page="ai-assistant" data-layout="chat">
   <!-- Top App Bar with Back Button -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100">
-      <span class="material-symbols-outlined" style="color: #006d33; font-size: 24px;">arrow_back</span>
-    </button>
-    <span class="text-base font-semibold" style="color: #191c1e;">AI助手</span>
-    <button onclick="clearChatHistory()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" title="清空对话">
-      <span class="material-symbols-outlined" style="color: #006d33; font-size: 22px;">delete</span>
-    </button>
-  </header>
+  <header class="engineer-page-header"><a class="engineer-back" href="workbench.html" aria-label="返回上一页"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a><h1 class="engineer-header-title">维修 AI 助手</h1><button type="button" class="engineer-header-action" onclick="clearChatHistory()" aria-label="清空对话"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></svg></button></header>
 
   <!-- Chat Messages -->
   <main class="chat-container pt-14 pb-20 px-4">
     <div class="text-center py-8">
       <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-3" style="background-color:#e6f7ec;">
-        <img src="my-ai-icon.png.png" class="text-3xl" alt="AI">
+        <img src="/brand/zhixiugong-icon.svg" class="text-3xl" alt="AI">
       </div>
       <a href="repair-assist.html" style="display:block;color:#006d33;margin:12px 0;text-decoration:underline">工单维修协助 · 整理真实工单报告</a><h2 class="text-lg font-semibold mb-1" style="color:#191c1e;">AI维修助手</h2>
       <p class="text-sm" style="color:#43474f;">有什么可以帮您的？</p>
@@ -137,7 +115,7 @@
               container.insertAdjacentHTML('beforeend',
                 '<div class="flex items-start space-x-2 mt-4">' +
                 '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style="background-color:#e6f7ec;">' +
-                '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
+                '<img src="/brand/zhixiugong-icon.svg" class="text-sm" alt="AI"></div>' +
                 '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
                 '<p class="text-sm whitespace-pre-line" style="color:#191c1e;">' + escapeHtml(msg.content) + '</p>' +
                 '</div></div>');
@@ -157,8 +135,8 @@
       localStorage.setItem(storagePrefix + 'chat_history', JSON.stringify(chatHistory));
     }
 
-    function clearChatHistory() {
-      if (confirm('确定要清空所有对话记录吗？')) {
+    async function clearChatHistory() {
+      if (await window.EngineerFeedback.confirm('确定要清空所有对话记录吗？')) {
         chatHistory = [];
         localStorage.removeItem(storagePrefix + 'chat_history');
         localStorage.removeItem(storagePrefix + 'conversation_id');
@@ -185,7 +163,7 @@
       var startTime = Date.now();
       var html = '<div class="flex items-start space-x-2 mt-4" id="' + id + '">' +
         '<div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 thinking-robot" style="background-color:#e6f7ec;">' +
-        '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
+        '<img src="/brand/zhixiugong-icon.svg" class="text-sm" alt="AI"></div>' +
         '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm" style="min-width:200px;">' +
         '<div class="flex items-center gap-2 mb-2">' +
         '<p class="text-sm" style="color:#43474f;" id="' + id + '-status">' +
@@ -343,7 +321,7 @@
         container.insertAdjacentHTML('beforeend',
           '<div class="flex items-start space-x-2 mt-4">' +
           '<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">' +
-          '<img src="my-ai-icon.png.png" class="text-sm" alt="AI"></div>' +
+          '<img src="/brand/zhixiugong-icon.svg" class="text-sm" alt="AI"></div>' +
           '<div class="chat-bubble bg-white border border-outline-variant rounded-2xl rounded-tl-sm p-3 shadow-sm">' +
           '<p class="text-sm" style="color: #f22;">抱歉，网络出现问题，请稍后再试。<br><span style="color:#999;font-size:11px;">' + escapeHtml(err.message) + '</span></p>' +
           '</div></div>');

@@ -23,7 +23,7 @@
       src +
       '.webp" alt="' +
       alt +
-      '" width="800" height="450" loading="lazy" decoding="async"><figcaption>' +
+      '" width="800" height="450" loading="' + (kind === "device-thumbnail" ? "eager" : "lazy") + '" decoding="async"><figcaption>' +
       caption +
       '</figcaption><span class="visual-fallback" aria-hidden="true">图片暂不可用</span></figure>'
     );
@@ -35,9 +35,9 @@
       return key
         ? figure(
             "device-" + key,
-            descriptions[key] + "类型示意图，AI生成",
+            descriptions[key] + "类型参考图",
             compact ? "device-thumbnail" : "device-cover",
-            "类型示意",
+            "型号参考",
           )
         : "";
     },
@@ -45,9 +45,9 @@
       if (category === "marking")
         return figure(
           "device-marking",
-          "激光打标设备类型示意图，AI生成",
+          "激光打标设备类型参考图",
           "service-cover",
-          "设备示意",
+          "型号参考",
         );
       var scene =
         {
@@ -67,9 +67,9 @@
             installation: "安装",
             inspection: "检测",
           }[scene] +
-          "场景示意图，AI生成",
+          "服务配图",
         "service-cover",
-        "场景示意",
+        "服务配图",
       );
     },
   };

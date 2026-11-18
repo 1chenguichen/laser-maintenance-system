@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>账单详情确认</title>
+  <title>账单详情确认 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -51,16 +51,10 @@
       min-height: 100vh;
     }
   </style>
-<link rel="stylesheet" href="/product-design.css?v=2"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="/product-design.css?v=2"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-refresh.css"><script src="/client-refresh.js" defer></script><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen bg-surface pb-[180px] mobile-system" data-role="customer" data-page="quote-confirm">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" onclick="window.history.back()">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="font-semibold text-base" style="color: #111827;">账单详情确认</h1>
-    <div class="w-10"></div>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="market-orders.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">确认报价</h1><span class="client-header-space" aria-hidden="true"></span></header>
 
   <main class="pt-14 px-4 space-y-4">
     <!-- Total Amount Card -->
@@ -68,7 +62,7 @@
       <p class="text-sm text-on-surface-variant mb-1">报价总额</p>
       <div class="flex items-baseline justify-center">
         <span class="text-xl mr-1" style="color: #111827;">¥</span>
-        <span class="text-4xl font-bold" style="color: #111827;" id="totalAmount">0.00</span>
+        <span class="text-4xl font-bold" style="color: #111827;" id="totalAmount">—</span>
       </div>
     </section>
 
@@ -80,12 +74,12 @@
       <div class="p-4 space-y-3">
         <div class="flex justify-between items-center">
           <span class="text-sm text-on-surface-variant">配件费用</span>
-          <span class="font-mono text-sm font-semibold" id="partsFee">¥ 0.00</span>
+          <span class="font-mono text-sm font-semibold" id="partsFee">—</span>
         </div>
         <div class="border-b border-dashed border-outline-variant"></div>
         <div class="flex justify-between items-center">
           <span class="text-sm text-on-surface-variant">维修工时费</span>
-          <span class="font-mono text-sm font-semibold" id="laborFee">¥ 0.00</span>
+          <span class="font-mono text-sm font-semibold" id="laborFee">—</span>
         </div>
         <div class="border-b border-dashed border-outline-variant"></div>
       </div>
@@ -132,106 +126,44 @@
 
   <!-- Sticky Footer -->
   <div class="fixed bottom-[80px] w-full max-w-[414px] left-1/2 -translate-x-1/2 bg-white border-t border-outline-variant px-4 py-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-    <button id="payBtn" class="w-full py-3 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md" style="background-color: #1890ff;" onclick="confirmPayment()">
+    <button data-ui="primary" id="payBtn" disabled class="w-full py-3 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors shadow-md" style="background-color: #1890ff;" onclick="confirmPayment()">
       <span class="material-symbols-outlined fill">chat</span>
-      <span>确认报价 <span id="payAmount">¥ 0.00</span></span>
+      <span>确认报价 <span id="payAmount">—</span></span>
     </button>
   </div>
 
   <!-- Bottom Nav Bar -->
-  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">home</span>
-      <span class="text-xs mt-1">首页</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('orders')">
-      <div class="absolute top-2 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
-      <span class="material-symbols-outlined fill" style="font-size: 28px;">receipt_long</span>
-      <span class="text-xs mt-1 font-medium">工单</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('profile')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">person</span>
-      <span class="text-xs mt-1">我的</span>
-    </button>
-  </nav>
+  <nav class="mobile-navigation" aria-label="主要导航"><a href="home.html"><span class="material-symbols-outlined" aria-hidden="true">home</span><span>首页</span></a><a href="services.html"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><span>找服务</span></a><a href="devices.html"><span class="material-symbols-outlined" aria-hidden="true">precision_manufacturing</span><span>设备</span></a><a href="market-orders.html" aria-current="page"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>订单</span></a><a href="profile.html"><span class="material-symbols-outlined" aria-hidden="true">person</span><span>我的</span></a></nav>
 
   <script>
-    var API_BASE = window.APP_API_BASE;
-    var token = localStorage.getItem('customer_token');
-    var orderId = window.location.hash.slice(1) || new URLSearchParams(location.search).get('id');
-    var orderData = null;
-
-    if (!token) {
-      window.location.href = 'login.html';
+    var API_BASE=window.APP_API_BASE,token=localStorage.getItem('customer_token');
+    var orderId=location.hash.slice(1)||new URLSearchParams(location.search).get('id');
+    var orderData=null,submitting=false;
+    if(!token) location.href='login.html';
+    function text(id,value){document.getElementById(id).textContent=value;}
+    function eligible(data){var total=Number(data.partsFee||0)+Number(data.laborFee||0);return data.status==='PENDING_PAYMENT'&&!data.customerConfirm&&Number.isFinite(total)&&(total>0||(total===0&&data.contractId));}
+    function resetQuote(){orderData=null;document.getElementById('payBtn').disabled=true;['totalAmount','payAmount','partsFee','laborFee','deviceModel','orderNo','engineerName'].forEach(id=>text(id,'—'));}
+    async function loadQuoteDetail(){
+      resetQuote();
+      if(!/^[a-f0-9-]{36}$/i.test(orderId||'')){ClientFeedback.show('缺少有效工单编号，请从订单详情进入');return;}
+      ClientFeedback.show('正在读取报价…','loading');
+      try{
+        var data=await fetch(API_BASE+'/customer/work-orders/'+encodeURIComponent(orderId),{headers:{Authorization:'Bearer '+token}}).then(window.readApiResponse);
+        var parts=Number(data.partsFee||0),labor=Number(data.laborFee||0);
+        if(!Number.isFinite(parts)||!Number.isFinite(labor)||parts<0||labor<0)throw new Error('报价金额异常');
+        orderData=data;text('totalAmount',(parts+labor).toFixed(2));text('payAmount','¥ '+(parts+labor).toFixed(2));text('partsFee','¥ '+parts.toFixed(2));text('laborFee','¥ '+labor.toFixed(2));text('deviceModel',data.device?.model||'—');text('orderNo',data.orderNo||'—');text('engineerName',data.engineer?.name||'—');
+        document.getElementById('payBtn').disabled=!eligible(data);
+        if(eligible(data))ClientFeedback.clear();else ClientFeedback.show('当前工单无需确认报价，请返回工单查看进度','loading');
+      }catch(e){resetQuote();ClientFeedback.show('报价读取失败：'+e.message,'error',loadQuoteDetail);}
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-      if (orderId) {
-        loadQuoteDetail(orderId);
-      }
-    });
-
-    function loadQuoteDetail(id) {
-      fetch(API_BASE + '/customer/work-orders/' + id, {
-        headers: { 'Authorization': 'Bearer ' + token }
-      }).then(window.readApiResponse)
-        .then(function(data) {
-          orderData = data;
-          renderQuoteData(data);
-        }).catch(function(e) {
-          console.error(e);
-        });
+    async function confirmPayment(){
+      if(submitting||!orderData||!eligible(orderData))return;
+      submitting=true;var button=document.getElementById('payBtn');button.disabled=true;button.setAttribute('aria-busy','true');
+      try{await fetch(API_BASE+'/customer/work-orders/'+encodeURIComponent(orderId)+'/confirm',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({confirm:true})}).then(window.readApiResponse);location.href='order-progress.html#'+orderId;}
+      catch(e){ClientFeedback.show('确认失败：'+e.message);button.disabled=false;}
+      finally{submitting=false;button.removeAttribute('aria-busy');}
     }
-
-    function renderQuoteData(data) {
-      var total = Number(data.partsFee || 0) + Number(data.laborFee || 0);
-      if (total > 0) {
-        document.getElementById('totalAmount').textContent = total.toFixed(2);
-        document.getElementById('payAmount').textContent = '¥ ' + total.toFixed(2);
-      }
-      document.getElementById('deviceModel').textContent = data.device ? data.device.model : '—';
-      if (data.partsFee !== null && data.partsFee !== undefined) {
-        document.getElementById('partsFee').textContent = '¥ ' + Number(data.partsFee).toFixed(2);
-      }
-      if (data.laborFee !== null && data.laborFee !== undefined) {
-        document.getElementById('laborFee').textContent = '¥ ' + Number(data.laborFee).toFixed(2);
-      }
-      if (data.orderNo) {
-        document.getElementById('orderNo').textContent = data.orderNo;
-      }
-      if (data.engineer && data.engineer.name) {
-        document.getElementById('engineerName').textContent = data.engineer.name;
-      }
-    }
-
-    function confirmPayment() {
-      if (!orderId) {
-        alert('缺少工单编号，请从订单详情进入');
-        return;
-      }
-
-      fetch(API_BASE + '/customer/work-orders/' + orderId + '/confirm', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: true })
-      }).then(window.readApiResponse)
-        .then(function(data) {
-          window.location.href = 'order-progress.html#' + orderId;
-        }).catch(function(e) {
-          alert('确认失败: ' + e.message);
-        });
-    }
-
-    function navigateTo(page) {
-      var pages = {
-        'home': 'index.html',
-        'orders': 'orders.html',
-        'profile': 'profile.html'
-      };
-      if (pages[page]) {
-        window.location.href = pages[page];
-      }
-    }
+    document.addEventListener('DOMContentLoaded',loadQuoteDetail);
   </script>
 </body>
 </html>

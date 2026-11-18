@@ -8,7 +8,7 @@
     ".iot-entry{display:block;background:#fff;border:1px solid #e1e9f3;border-radius:16px;padding:18px 20px;margin:18px 0;text-decoration:none;color:#20364d}.iot-entry strong{display:block;font-size:15px;font-weight:600}.iot-entry small{display:block;font-size:12px;line-height:1.8;color:#7c8fa6;margin-top:5px}.iot-entry .iot-snapshot{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px}.iot-snapshot span{font-size:12px;color:#71839a}.iot-snapshot b{display:block;font-size:18px;font-weight:500;color:#20364d}";
   document.head.append(css);
   function add(container, title, subtitle, href, snapshot) {
-    if (!container || container.querySelector("#iot-device-entry")) return;
+    if (!container || document.getElementById("iot-device-entry")) return;
     const a = document.createElement("a");
     a.id = "iot-device-entry";
     a.className = "iot-entry";
@@ -18,6 +18,42 @@
     const small = document.createElement("small");
     small.textContent = subtitle;
     a.append(strong, small);
+    if (pendingDevice && ["task-detail.html", "platform-order.html"].includes(page)) {
+      a.textContent = "打开完整设备监测 →";
+      const section = document.createElement("section");
+      section.className = "iot-entry iot-order-monitor";
+      section.id = "iot-device-entry";
+      a.removeAttribute("id");
+      a.className = "iot-order-full";
+      strong.textContent = "本单设备监测";
+      small.textContent = "查看设备指标、运行趋势与告警；仅限当前任务授权范围。";
+      if (!pendingDevice.id || ["COMPLETED", "CANCELLED", "REFUSED"].includes(pendingDevice.status)) {
+        small.textContent = !pendingDevice.id
+          ? "本单尚未关联具体设备，暂无法展示物联网数据。"
+          : "工单已结束，实时监测查看授权已结束；维修过程请查看本单服务记录。";
+        section.append(strong, small);
+        const anchor = container.querySelector(".flow-summary,.market-heading");
+        if (anchor) anchor.after(section); else container.prepend(section);
+        return;
+      }
+      const expand = document.createElement("details");
+      const summary = document.createElement("summary");
+      summary.textContent = "展开运行数据与统计图";
+      expand.append(summary);
+      expand.addEventListener("toggle", () => {
+        if (expand.open && !expand.querySelector("iframe")) {
+          const frame = document.createElement("iframe");
+          frame.title = "本单设备物联网数据与运行趋势";
+          frame.src = href + "&embedded=1";
+          frame.style.cssText = "width:100%;height:780px;border:0;display:block;background:#fff";
+          expand.append(frame);
+        } else if (!expand.open) expand.querySelector("iframe")?.remove();
+      });
+      section.append(strong, small, expand, a);
+      const anchor = container.querySelector(".flow-summary,.market-heading");
+      if (anchor) anchor.after(section); else container.prepend(section);
+      return;
+    }
     if (snapshot) {
       const box = document.createElement("div");
       box.className = "iot-snapshot";
@@ -52,7 +88,7 @@
         pendingDevice.snapshot
           ? "查看实时趋势与故障前后数据；下方为报修时留存快照。"
           : "按当前任务权限查看设备运行数据与告警记录。",
-        "iot/monitor.html?deviceId=" + encodeURIComponent(pendingDevice.id),
+        "iot/monitor.html?deviceId=" + encodeURIComponent(pendingDevice.id) + "&task=" + encodeURIComponent(page + location.search + location.hash),
         pendingDevice.snapshot,
       );
       return;
@@ -79,7 +115,8 @@
     }
   }
   document.addEventListener("iot-device-context", (e) => {
-    if (e.detail?.id) {
+    if (e.detail) {
+      document.getElementById("iot-device-entry")?.remove();
       pendingDevice = e.detail;
       mount();
     }

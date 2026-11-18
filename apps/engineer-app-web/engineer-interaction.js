@@ -65,13 +65,7 @@
         else dialog.close(value);
       }
     };
-    if (reduce.matches) {
-      finish();
-      return;
-    }
-    dialog.inert = true;
-    dialog.classList.add("field-dialog-closing");
-    setTimeout(finish, 120);
+    finish();
   }
   window.EngineerInteraction = { closeDialog };
   document.addEventListener(

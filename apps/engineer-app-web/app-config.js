@@ -1,7 +1,7 @@
 // Shared API configuration for both web apps. Override LASER_API_BASE before loading.
 (function () {
   var port = ['3101', '3102', '4101', '4102'].includes(location.port) ? '8180' : '8080';
-  window.APP_API_BASE = window.LASER_API_BASE || location.protocol + '//' + location.hostname + ':' + port;
+  window.APP_API_BASE = window.LASER_API_BASE || (location.protocol === 'https:' ? location.origin + '/api' : location.protocol + '//' + location.hostname + ':' + port);
   window.addEventListener('storage', function(event) { if(event.key === 'engineer_token') location.reload(); });
   var nativeFetch = window.fetch.bind(window);
   window.fetch = function (url, options) {

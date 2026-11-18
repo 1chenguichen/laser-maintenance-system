@@ -4,44 +4,24 @@
   <script src="/app-config.js"></script>
 <script src="/workspace-scope.js"></script>
 <script src="/workspace-experience.js" defer></script>
-<link rel="stylesheet" href="/workspace-experience.css">
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>工单详情 - 工程师端</title>
-  <script src="/tailwind.js"></script>
-  <link href="/fonts/material-symbols.css" rel="stylesheet">
-  <link href="/fonts/main.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#006d33",
-            "on-primary": "#ffffff",
-            "surface": "#f7f9fb",
-            "on-surface": "#191c1e"
-          }
-        }
-      }
-    }
-  </script>
-<link rel="stylesheet" href="/flow-design.css"><link rel="stylesheet" href="/product-design.css?v=2"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+  <title>工单详情 - 工程师端 · 智修工</title>
+
+
+
+
+
+<script src="/mobile-continuity.js" defer></script><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><script src="/engineer-refresh.js" defer></script><script src="/engineer-navigation.js" defer></script><link rel="stylesheet" href="/styles/bundled/layout-d7d0e2397efd.css"><script src="/engineer-feedback.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen flow-screen bg-surface pb-24 mobile-system" data-role="engineer" data-refined="true" data-page="task-detail">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100" aria-label="返回上一页" onclick="window.history.back()">
-      <span class="material-symbols-outlined" style="color: #006d33;">arrow_back</span>
-    </button>
-    <h1 class="font-semibold text-base" style="color: #111827;">工单详情</h1>
-    <div class="w-10"></div>
-  </header>
+  <header class="engineer-page-header"><a class="engineer-back" href="platform-orders.html" aria-label="返回上一页"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a><h1 class="engineer-header-title">工单详情</h1><span class="engineer-header-space" aria-hidden="true"></span></header>
 
   <!-- Main Content -->
   <main class="pt-14 px-4 space-y-4">
     <aside class="flow-summary"><small>当前任务 · 下一步</small><p id="flowNext">正在核实工单状态…</p><div id="flowCompany" class="flow-company"></div></aside>
-<div id="flowFeedback" class="flow-feedback" role="alert" hidden><p id="flowError"></p><button id="flowRetry" type="button" onclick="loadDetail()">重新加载</button><a href="tasks.html">返回工单列表</a></div>
+<div id="flowFeedback" class="flow-feedback engineer-feedback" role="alert" hidden><p id="flowError"></p><button id="flowRetry" type="button" onclick="loadDetail()">重新加载</button><a href="tasks.html">返回工单列表</a></div>
     <div id="detailContent">
       <div class="text-center py-12 text-on-surface-variant">加载中...</div>
     </div>
@@ -65,7 +45,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       orderId = window.location.hash.slice(1);
       if (!orderId) {
-        alert('缺少工单ID');
+        window.EngineerFeedback.notice('缺少工单ID');
         window.location.href = 'tasks.html';
         return;
       }
@@ -83,7 +63,7 @@
         document.getElementById('materialLink').hidden = false;
         orderData = data;
         renderDetail(data);
-        document.dispatchEvent(new CustomEvent("iot-device-context",{detail:{id:data.deviceId||data.device?.id}}));
+        document.dispatchEvent(new CustomEvent("iot-device-context",{detail:{id:data.deviceId||data.device?.id,status:data.status}}));
       })
       .catch(function(err) {
         document.getElementById('flowFeedback').hidden = false;
@@ -113,7 +93,7 @@
 
       var html = '<div class="bg-white rounded-xl p-4 border border-outline-variant mt-4">';
       html += '<div class="flex justify-between items-center mb-4">';
-      html += '<span class="px-2 py-1 rounded text-xs font-semibold ' + status.class + '">' + status.text + '</span>';
+      html += '<span class="px-2 py-1 rounded text-xs font-semibold ' + status.class + '" data-engineer-status="' + ({REPAIRING:'service',COMPLETED:'completed',CANCELLED:'cancelled',REFUSED:'cancelled'}[order.status]||'waiting') + '">' + status.text + '</span>';
       html += '<span class="text-xs text-on-surface-variant font-mono">' + (order.orderNo || order.id) + '</span>';
       html += '</div>';
 
@@ -137,7 +117,7 @@
       if (order.customer && order.customer.phone) {
         html += '<div class="flex items-center gap-3">';
         html += '<span class="material-symbols-outlined text-lg" style="color: #006d33;">phone</span>';
-        html += '<span>电话: ' + order.customer.phone + '</span>';
+        html += '<a class="engineer-contact-call" href="tel:' + String(order.customer.phone).replace(/[^+0-9]/g, '') + '">拨打客户电话</a>';
         html += '</div>';
       }
       html += '<div class="flex items-center gap-3">';
@@ -209,13 +189,13 @@
       var html = '';
 
       if (order.status === 'DISPATCHED') {
-        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="confirmOrder()">';
+        html += '<button class="engineer-primary w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="confirmOrder()">';
         html += '<span class="material-symbols-outlined mr-2">check</span>确认上门';
         html += '</button>';
       }
 
       if (order.status === 'ACCEPTED') {
-        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="submitQuote()">';
+        html += '<button class="engineer-primary w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="submitQuote()">';
         html += '<span class="material-symbols-outlined mr-2">request_quote</span>提交报价';
         html += '</button>';
       }
@@ -228,7 +208,7 @@
       }
 
       if (order.status === 'REPAIRING') {
-        html += '<button class="w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="completeRepair()">';
+        html += '<button class="engineer-primary w-full py-3 text-white font-medium rounded-lg" style="background-color: #006d33;" onclick="completeRepair()">';
         html += '提交完工';
         html += '</button>';
       }
@@ -240,7 +220,6 @@
         html += '</div>';
       }
 
-      html += '<button class="w-full py-3 border font-medium rounded-lg" style="border-color: #006d33; color: #006d33;" onclick="window.location.href=\'tasks.html\'">返回任务列表</button>';
 
       container.innerHTML = html;
     }
@@ -252,16 +231,16 @@
       })
       .then(window.readApiResponse)
       .then(function(data) {
-        alert('已确认上门');
+        window.EngineerFeedback.notice('已确认上门');
         window.location.reload();
       })
       .catch(function(err) {
-        alert('操作失败: ' + err.message);
+        window.EngineerFeedback.notice('操作失败: ' + err.message);
       });
     }
 
-    function completeRepair() {
-      if (!confirm('确定要完工吗？')) return;
+    async function completeRepair() {
+      if (!(await window.EngineerFeedback.confirm('确定要完工吗？'))) return;
       window.location.href = 'signature.html#' + orderId;
     }
 

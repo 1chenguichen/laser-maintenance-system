@@ -4,26 +4,12 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>注册 - 工程师端</title>
-  <script src="/tailwind.js"></script>
-  <link href="/fonts/material-symbols.css" rel="stylesheet">
-  <link href="/fonts/main.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles/shared.css">
-  <script>
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          colors: {
-            primary: "#006d33",
-            "on-primary": "#ffffff",
-            "surface": "#f7f9fb",
-            "on-surface": "#191c1e"
-          }
-        }
-      }
-    }
-  </script>
+  <title>注册 - 工程师端 · 智修工</title>
+
+
+
+  <link rel="stylesheet" href="/styles/bundled/layout-ecebd2d9d374.css">
+
   <style>
     body {
       font-family: 'Noto Sans', sans-serif;
@@ -36,14 +22,10 @@
       font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
   </style>
-<link rel="stylesheet" href="/auth-reference.css"><link rel="stylesheet" href="/brand/brand.css"><link rel="stylesheet" href="/engineer-visuals.css"><script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><link rel="stylesheet" href="/engineer-refined.css"><link rel="stylesheet" href="/engineer-interaction.css"><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<script src="/brand/brand.js" defer></script><script src="/engineer-visuals.js" defer></script><script src="/engineer-interaction.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><script src="/engineer-refresh.js" defer></script><script src="/engineer-navigation.js" defer></script><link rel="stylesheet" href="/styles/bundled/layout-6e6c8c673625.css"><script src="/engineer-feedback.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="flex flex-col min-h-screen auth-reference" data-role="engineer" data-refined="true">
   <!-- Top Bar -->
-  <header class="flex items-center px-4 h-14">
-    <button onclick="window.history.back()" class="text-white">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-  </header>
+  <header class="engineer-page-header"><a class="engineer-back" href="login.html" aria-label="返回上一页"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m7-7-7 7 7 7"/></svg></a><h1 class="engineer-header-title">工程师注册</h1><span class="engineer-header-space" aria-hidden="true"></span></header>
 
   <main class="flex-1 flex flex-col justify-center px-6">
     <!-- Logo Section -->
@@ -99,7 +81,7 @@
 
           <!-- Submit Button -->
           <button type="submit" id="registerBtn"
-            class="w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
+            class="engineer-primary w-full py-3 text-white font-medium rounded-lg transition-all duration-150 active:scale-[0.98]"
             style="background-color: #006d33; box-shadow: 0 4px 12px rgba(0,109,51,0.35);">
             注册
           </button>
@@ -130,7 +112,7 @@
     function sendCode() {
       var phone = document.getElementById('phone').value;
       if (!phone || phone.length !== 11) {
-        alert('请输入正确的11位手机号');
+        window.EngineerFeedback.notice('请输入正确的11位手机号');
         return;
       }
 
@@ -141,11 +123,11 @@
       })
       .then(window.readApiResponse)
       .then(function(data) {
-        alert('验证码已发送');
+        window.EngineerFeedback.show('验证码已发送','success');
         startCountdown();
       })
       .catch(function(err) {
-        alert('发送失败: ' + err.message);
+        window.EngineerFeedback.notice('发送失败: ' + err.message);
       });
     }
 
@@ -175,15 +157,15 @@
       var btn = document.getElementById('registerBtn');
 
       if (!phone || phone.length !== 11) {
-        alert('请输入正确的手机号');
+        window.EngineerFeedback.notice('请输入正确的手机号');
         return;
       }
       if (!smsCode) {
-        alert('请输入验证码');
+        window.EngineerFeedback.notice('请输入验证码');
         return;
       }
       if (!name) {
-        alert('请输入您的姓名');
+        window.EngineerFeedback.notice('请输入您的姓名');
         return;
       }
 
@@ -205,16 +187,16 @@
         if (data.accessToken) {
           localStorage.setItem('engineer_token', data.accessToken);
           localStorage.setItem('engineer_user', JSON.stringify(data.user));
-          alert('注册成功！');
+          window.EngineerFeedback.show('注册成功！','success');
           window.location.href = 'grab.html';
         } else {
-          alert(data.message || data.error || '注册失败');
+          window.EngineerFeedback.notice(data.message || data.error || '注册失败');
           btn.disabled = false;
           btn.textContent = '注册';
         }
       })
       .catch(function(err) {
-        alert('注册失败: ' + err.message);
+        window.EngineerFeedback.notice('注册失败: ' + err.message);
         btn.disabled = false;
         btn.textContent = '注册';
       });

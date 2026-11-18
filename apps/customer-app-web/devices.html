@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script><script src="/visual-media.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>我的设备</title>
+  <title>我的设备 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -70,28 +70,22 @@
       box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
     }
   </style>
-<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><script src="/service-experience.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-media.css"><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
-<body class="product-screen bg-surface pb-20 mobile-system" data-role="customer" data-page="devices">
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/service-experience.css"><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-media.css"><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-refresh.css"><script src="/client-refresh.js" defer></script><script src="/intelligent-pages.js" defer></script><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
+<body class="product-screen bg-surface pb-20 mobile-system client-devices-compact" data-role="customer" data-page="devices">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" onclick="window.history.back()">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="font-semibold text-base" style="color: #111827;">我的设备</h1>
-    <button class="text-primary" onclick="showAddModal()">
-      <span class="material-symbols-outlined">add</span>
-    </button>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="home.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">我的设备</h1><button class="client-header-action" onclick="showAddModal()" aria-label="添加设备"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M12 4v16M4 12h16" stroke-linecap="round"/></svg></button></header>
 
   <main class="pt-14 px-4 space-y-4">
-    <a href="device-scan.html" style="display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#fff;border:1px solid #dfe8f4;border-radius:16px;color:#176bce;text-decoration:none;margin-top:20px"><span><strong style="display:block;font-size:15px">扫码绑定设备</strong><small style="display:block;margin-top:4px;color:#7b8ca3">识别设备与所属企业，快速获取售后服务</small></span><span aria-hidden="true">↗</span></a>
+    <section class="device-list-tools" aria-label="设备查找"><label class="device-search"><span class="material-symbols-outlined" aria-hidden="true">search</span><input id="deviceSearch" type="search" aria-label="搜索设备型号、序列号或企业" placeholder="搜索型号、SN 或服务企业"></label><a class="device-scan-shortcut" href="device-scan.html"><svg class="client-scan-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8V3h5m8 0h5v5M3 16v5h5m8 0h5v-5"/><path d="M7 7h4v4H7zm6 0h4v4h-4zM7 13h4v4H7zm6 0h2v2h2v2h-4z"/></svg>扫一扫</a></section>
+    <div class="device-list-summary"><span id="deviceListCount" aria-live="polite">正在读取设备</span><button type="button" onclick="showAddModal()">绑定设备</button></div>
+    <div id="deviceLoadError" role="alert" hidden></div>
     <!-- Loading -->
     <div id="loading" class="text-center py-10 text-on-surface-variant">
       <span class="material-symbols-outlined animate-spin">progress_activity</span>
       <p class="mt-2">加载中...</p>
     </div>
 
-    <p class="visual-source-note">设备图片为 AI 生成的类型示意，不代表所绑定设备的实物照片。</p>
+    <p class="visual-source-note">缩略图为设备类型参考，实物照片请进入设备档案查看。</p>
     <!-- Device List -->
     <section class="space-y-3 mt-4 hidden" id="deviceListSection">
       <div id="deviceList"></div>
@@ -128,25 +122,7 @@
   </div>
 
   <!-- Bottom Nav Bar -->
-  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">home</span>
-      <span class="text-xs mt-1">首页</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">receipt_long</span>
-      <span class="text-xs mt-1">工单</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">support_agent</span>
-      <span class="text-xs mt-1">客服</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('profile')">
-      <div class="absolute top-2 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
-      <span class="material-symbols-outlined fill" style="font-size: 28px;">person</span>
-      <span class="text-xs mt-1 font-medium">我的</span>
-    </button>
-  </nav>
+  <nav class="mobile-navigation" aria-label="主要导航"><a href="home.html"><span class="material-symbols-outlined" aria-hidden="true">home</span><span>首页</span></a><a href="services.html"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><span>找服务</span></a><a href="devices.html" aria-current="page"><span class="material-symbols-outlined" aria-hidden="true">precision_manufacturing</span><span>设备</span></a><a href="market-orders.html"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>订单</span></a><a href="profile.html"><span class="material-symbols-outlined" aria-hidden="true">person</span><span>我的</span></a></nav>
 
   <script>
     var API_BASE = window.APP_API_BASE;
@@ -161,7 +137,10 @@
       var params=new URLSearchParams(location.search);var asset=params.get('asset');if(asset){location.replace('device-scan.html?asset='+encodeURIComponent(asset));return;}if(params.get('bind'))location.replace('device-scan.html');
     });
 
+    var allDeviceRows=[];
+    document.getElementById('deviceSearch').addEventListener('input',function(){renderDeviceRows()});
     function loadDevices() {
+      document.getElementById('deviceLoadError').hidden=true;
       document.getElementById('loading').classList.remove('hidden');
       document.getElementById('deviceListSection').classList.add('hidden');
       document.getElementById('emptyState').classList.add('hidden');
@@ -176,67 +155,24 @@
         }).catch(function(e) {
           console.error(e);
           document.getElementById('loading').classList.add('hidden');
-          document.getElementById('emptyState').classList.remove('hidden');
+          var problem=document.getElementById('deviceLoadError');problem.hidden=false;problem.innerHTML='设备暂未读取成功。<button type="button" onclick="loadDevices()">重新加载</button>';document.getElementById('deviceListCount').textContent='读取失败';
         });
     }
 
-    function renderDevices(devices) {
-      var listEl = document.getElementById('deviceList');
-      var listSection = document.getElementById('deviceListSection');
-      var emptyState = document.getElementById('emptyState');
-      var addHint = document.getElementById('addHint');
-
-      if (devices.length === 0) {
-        listSection.classList.add('hidden');
-        emptyState.classList.remove('hidden');
-        addHint.classList.remove('hidden');
-        return;
-      }
-
-      listSection.classList.remove('hidden');
-      emptyState.classList.add('hidden');
-
-      listEl.innerHTML = devices.map(function(d) {
-        var warrantyStatus = getWarrantyStatus(d.warrantyExpire);
-        if(warrantyStatus==='未知')warrantyStatus='未登记保修';
-        var bgColor = warrantyStatus === '未登记保修' ? '#f0f4f9' : warrantyStatus === '在保' ? '#e6f7ff' : warrantyStatus === '部分过保' ? '#fff7e6' : '#fff2f0';
-        var textColor = warrantyStatus === '未登记保修' ? '#70839b' : warrantyStatus === '在保' ? '#52c41a' : warrantyStatus === '部分过保' ? '#faad14' : '#ff4d4f';
-        var borderColor = warrantyStatus === '未登记保修' ? '#dbe4f0' : warrantyStatus === '在保' ? '#b7eb8f' : warrantyStatus === '部分过保' ? '#ffd591' : '#ffccc7';
-
-        return '<div class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm" data-device-kind="'+(window.VisualMedia?.deviceKey(d)||'device')+'" data-service-policy="'+window.escapeHtml(d.serviceId||'')+'">' + (window.VisualMedia?.device(d,false)||'') +
-          '<div class="flex items-start justify-between">' +
-            '<div class="flex items-start gap-3">' +
-              '<div class="w-12 h-12 rounded-lg flex items-center justify-center" style="background-color: ' + bgColor + ';">' +
-                '<span class="material-symbols-outlined text-xl" style="color: ' + textColor + ';">precision_manufacturing</span>' +
-              '</div>' +
-              '<div>' +
-                '<h3 class="font-semibold" style="color: #111827;">' + window.escapeHtml(d.model || '未知设备') + '</h3>' + (d.serviceName?'<p class="text-xs mt-1" style="color:#75859a">服务商：'+window.escapeHtml(d.serviceName)+'</p>':'') +
-                '<p class="text-xs text-on-surface-variant mt-1 font-mono">SN: ' + window.escapeHtml(d.serialNumber || '无') + '</p>' +
-                '<div class="flex items-center gap-2 mt-2">' +
-                  '<span class="px-2 py-0.5 rounded text-xs" style="background-color: ' + bgColor + '; color: ' + textColor + '; border: 1px solid ' + borderColor + ';">' + warrantyStatus + '</span>' +
-                  (d.purchaseDate ? '<span class="text-xs text-on-surface-variant">购机：' + formatDate(d.purchaseDate) + '</span>' : '') +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="mt-3 pt-3 border-t border-outline-variant flex items-center justify-end">' +
-            '<a class="visual-company-link" style="margin-right:auto" href="device-detail.html?id='+window.escapeHtml(d.id)+'">设备详情与照片 →</a>' +
-            '<button class="px-3 py-1 rounded-lg text-xs" style="background-color: #e6f7ff; color: #1890ff;" onclick="repairDevice(\'' + d.id + '\')">报修</button>' +
-          '</div>' +
-        '</div>';
-      }).join('') +
-
-      '<div class="bg-white border border-dashed border-outline-variant rounded-xl p-4 text-center cursor-pointer hover:border-primary transition-colors" onclick="showAddModal()">' +
-        '<span class="material-symbols-outlined text-2xl text-on-surface-variant">add_circle</span>' +
-        '<p class="text-sm text-on-surface-variant mt-1">添加新设备</p>' +
-      '</div>';
-      var policyIds=[...new Set(devices.map(d=>d.serviceId).filter(Boolean))];
-      policyIds.forEach(async function(serviceId){
-        try{var response=await fetch(API_BASE+'/market/service-policy/'+encodeURIComponent(serviceId),{headers:{Authorization:'Bearer '+token}});var policy=await window.readApiResponse(response);
-          listEl.querySelectorAll('[data-service-policy]').forEach(function(card){if(card.dataset.servicePolicy!==serviceId)return;var note=document.createElement('p');note.className='device-service-policy';note.style.cssText='font-size:12px;line-height:1.8;color:#62748b;margin-top:12px';note.textContent=policy.service_mode==='SELF'?'售后安排：'+policy.name+'自有团队':policy.service_mode==='OUTSOURCE'?'售后安排：'+policy.contractor_name+'合作承接':'售后安排：维保云平台调度';card.append(note);});
-        }catch{}
-      });
-
+    function renderDevices(devices) {allDeviceRows=devices;renderDeviceRows()}
+    function renderDeviceRows(){
+      var q=document.getElementById('deviceSearch').value.trim().toLowerCase();
+      var rows=allDeviceRows.filter(d=>[d.model,d.serialNumber,d.serviceName].some(v=>String(v||'').toLowerCase().includes(q)));
+      var list=document.getElementById('deviceList');
+      document.getElementById('deviceListCount').textContent=q?'匹配 '+rows.length+' / '+allDeviceRows.length+' 台设备':'共 '+allDeviceRows.length+' 台设备';
+      document.getElementById('deviceListSection').classList.toggle('hidden',!allDeviceRows.length);
+      document.getElementById('emptyState').classList.toggle('hidden',!!allDeviceRows.length);
+      document.getElementById('addHint').classList.toggle('hidden',!!allDeviceRows.length);
+      list.innerHTML=rows.length?rows.map(d=>{
+        var warranty=getWarrantyStatus(d.warrantyExpire),id=window.escapeHtml(d.id),e=window.escapeHtml;
+        return '<article class="client-device-row" data-device-kind="'+(window.VisualMedia?.deviceKey(d)||'device')+'"><div class="client-device-summary">'+(window.VisualMedia?.device(d,true)||'<span class="device-type-icon material-symbols-outlined" aria-hidden="true">precision_manufacturing</span>')+'<a class="client-device-identity" href="device-detail.html?id='+id+'"><h2>'+e(d.model||'设备型号未填写')+'</h2><p>SN '+e(d.serialNumber||'未登记')+'</p><span class="device-warranty '+(warranty==='在保'?'in-warranty':'')+'">'+e(warranty==='未知'?'保修未登记':warranty)+'</span></a></div><p class="client-device-company">服务企业 · '+e(d.serviceName||'待确认')+'</p><div class="client-device-actions"><a href="device-detail.html?id='+id+'">设备档案 <span aria-hidden="true">›</span></a><a class="client-device-repair" href="repair-form.html?deviceId='+id+'">报修</a></div></article>';
+      }).join(''):'<div class="client-device-no-match"><strong>没有匹配的设备</strong><p>试试型号、序列号或服务企业名称。</p><button type="button" id="clearDeviceSearch">清除搜索</button></div>';
+      var clear=document.getElementById('clearDeviceSearch');if(clear)clear.onclick=function(){document.getElementById('deviceSearch').value='';renderDeviceRows()};
     }
 
     function getWarrantyStatus(warrantyExpire) {

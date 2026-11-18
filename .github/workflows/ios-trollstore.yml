@@ -1,0 +1,73 @@
+name: iOS TrollStore cloud demo IPA
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_url:
+        description: 'Backend root URL (cloud mode uses same-origin /api)'
+        required: true
+        default: 'https://43.139.91.94'
+        type: string
+      customer_web_url:
+        description: 'Pinned HTTPS customer web origin'
+        required: true
+        default: 'https://43.139.91.94:8441'
+        type: string
+      engineer_web_url:
+        description: 'Pinned HTTPS engineer web origin'
+        required: true
+        default: 'https://43.139.91.94:8442'
+        type: string
+  push:
+    branches: [master, 'codex/ios-trollstore*']
+    paths:
+      - '.github/workflows/ios-trollstore.yml'
+      - 'apps/ios-shell/**'
+      - 'scripts/ios/**'
+      - 'scripts/mobile_cloud.py'
+      - 'apps/customer-app-web/**'
+      - 'apps/engineer-app-web/**'
+      - 'docs/IOS-TROLLSTORE.md'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-trollstore-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    runs-on: macos-15
+    timeout-minutes: 20
+    env:
+      BACKEND_URL: ${{ inputs.backend_url || 'https://43.139.91.94' }}
+      MOBILE_CUSTOMER_WEB_URL: ${{ inputs.customer_web_url || 'https://43.139.91.94:8441' }}
+      MOBILE_ENGINEER_WEB_URL: ${{ inputs.engineer_web_url || 'https://43.139.91.94:8442' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check Apple toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+      - name: Build two arm64 IPA packages
+        run: python3 scripts/ios/build-ipas.py
+      - name: Upload TrollStore test packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-trollstore-ipas-${{ github.run_number }}
+          path: |
+            outputs/ios/*.ipa
+            outputs/ios/build-report.json
+            outputs/ios/*-asset-server-test.json
+            outputs/ios/INSTALL.md
+          if-no-files-found: error
+          retention-days: 7
+      - name: Add download instructions to run summary
+        run: |
+          echo '## iOS TrollStore test packages' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Download the artifact below, extract the ZIP, and open the IPA in an already working TrollStore installation.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'These are ad-hoc signed local-demo builds, not App Store or Apple Developer distribution builds. Real-device testing is still required.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Both cloud-mode apps load their pinned HTTPS web origin. Normal web-page releases do not require reinstalling; native changes still require a new IPA. Real-device testing is pending.' >> "$GITHUB_STEP_SUMMARY"

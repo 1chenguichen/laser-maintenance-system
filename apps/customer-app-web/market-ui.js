@@ -214,21 +214,19 @@
       }));
     var allActive = active.concat(oldActive);
     frame(
-      "设备服务，随时在身边",
+      "设备与服务",
       "您好，" + (user.name || "欢迎回来"),
-      '<section class="home-intro home-visual"><img src="/media/service-visuals/hero.webp" alt="激光设备车间场景示意，AI生成" width="1200" height="675" fetchpriority="high" decoding="async"><span class="hero-image-label">AI 场景示意</span><div><span class="eyebrow">设备售后 · 一站服务</span><h2>让设备恢复好状态。</h2><p>从故障维修到日常保养，找到合适的服务。</p><a class="market-primary" href="services.html">寻找售后服务' +
-        icon("arrow_forward") +
-        "</a></div></section>" +
+      '<section class="home-intro home-visual"><div class="client-banner" aria-roledescription="轮播" aria-label="智能设备服务"><div class="banner-track"></div><div class="banner-controls"></div></div><p class="home-banner-caption">连接设备与专业服务</p></section>' +
         '<div class="home-quicklinks"><a href="' +
         (devices.length ? "repair-form.html" : "devices.html?bind=1") +
         '">' +
         icon("build") +
-        '<strong>设备报修</strong><small>已有设备售后</small></a><a href="devices.html?bind=1">' +
-        icon("add_circle") +
-        '<strong>绑定设备</strong><small>管理设备档案</small></a><a href="chat.html">' +
+        '<strong>设备报修</strong><small>已有设备售后</small></a><a href="device-scan.html">' +
+        '<svg class="client-scan-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 8V3h5m8 0h5v5M3 16v5h5m8 0h5v-5"/><path d="M7 7h4v4H7zm6 0h4v4h-4zM7 13h4v4H7zm6 0h2v2h2v2h-4z"/></svg>' +
+        '<strong>扫一扫</strong><small>识别与绑定设备</small></a><a href="chat.html">' +
         icon("support_agent") +
         "<strong>联系服务</strong><small>沟通维修需求</small></a></div>" +
-        sectionTitle("今天，有什么需要处理？") +
+        sectionTitle("待您确认") +
         '<section class="home-todos">' +
         (pending
           .map(
@@ -286,7 +284,7 @@
           .slice(0, 3)
           .map(
             (d) =>
-              '<a class="device-row" href="devices.html">' +
+              '<a class="device-row" href="device-detail.html?id=' + e(d.id) + '">' +
               (window.VisualMedia?.device(d, true) ||
                 icon("precision_manufacturing")) +
               "<div><strong>" +
@@ -467,7 +465,7 @@
               "</button>",
           )
           .join("") +
-        '</div><div class="section-heading"><h2>适合你的设备服务</h2><span id="offerCount"></span></div><p class="visual-source-note">图片为 AI 生成的场景示意，服务范围以项目说明为准。</p><div id="offerList"></div><dialog id="requestDialog" class="market-dialog"><div class="dialog-top"><h2>提交服务需求</h2><button type="button" data-close-dialog aria-label="关闭需求表单">' +
+        '</div><div class="section-heading"><h2>适合你的设备服务</h2><span id="offerCount"></span></div><p class="visual-source-note">服务范围、费用与上门安排，请以服务详情及确认结果为准。</p><div id="offerList"></div><dialog id="requestDialog" class="market-dialog"><div class="dialog-top"><h2>提交服务需求</h2><button type="button" data-close-dialog aria-label="关闭需求表单">' +
         icon("close") +
         '</button></div><section id="requestPanel"></section></dialog>',
     );
@@ -1227,7 +1225,7 @@
                 maintenance: "service-maintenance",
                 cutting: "course-practice",
               }[c.skill] || "course-practice") +
-              '.webp" alt="课程场景示意，AI生成" loading="lazy"><p class="course-demo-label">AI 课程场景示意</p><div class="market-card-head"><h2>' +
+              '.webp" alt="课程场景示意，AI生成" loading="lazy"><p class="course-demo-label">课程配图</p><div class="market-card-head"><h2>' +
               e(c.title) +
               "</h2>" +
               badge(labels[c.skill]) +

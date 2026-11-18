@@ -5,10 +5,14 @@
     const img = document.createElement("img");
     img.src = assets + file + ".webp";
     img.alt = alt + "，AI生成示意图";
-    img.loading = "lazy";
+    img.loading = "eager";
     img.decoding = "async";
     const label = document.createElement("figcaption");
-    label.textContent = "类型示意";
+    label.textContent = "型号参考";
+    img.addEventListener("error", () => {
+      figure.classList.add("engineer-photo-failed");
+      label.textContent = "图片暂不可用";
+    }, { once: true });
     figure.append(img, label);
     return figure;
   }
@@ -32,8 +36,10 @@
         ].forEach(([href, file, title, description]) => {
           const link = document.createElement("a");
           link.href = href;
-          const image = photo(file, title);
-          image.querySelector("figcaption").textContent = "AI 示意";
+          const image = document.createElement("span");
+          image.className = "material-symbols-outlined engineer-resource-icon";
+          image.textContent = href === "learning.html" ? "school" : "inventory_2";
+          image.setAttribute("aria-hidden", "true");
           const strong = document.createElement("strong");
           strong.textContent = title;
           const small = document.createElement("small");
@@ -74,8 +80,8 @@
     );
     if (logo) {
       const img = document.createElement("img");
-      img.src = "/brand/laser-service-mark.svg";
-      img.alt = "激光设备服务";
+      img.src = "/brand/zhixiugong-icon.svg";
+      img.alt = "智修工";
       img.className = "app-brand-logo";
       logo.replaceWith(img);
     }

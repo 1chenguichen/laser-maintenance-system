@@ -70,7 +70,7 @@
       }
     }
     document.addEventListener("visibilitychange", mapVisibility);
-    let selectionVersion = 0;
+    let selectionVersion = 0, historyRequestVersion = 0;
     let analytics = null,
       listScroll = 0,
       listAlarmPage = 1;
@@ -122,6 +122,8 @@
       stale = false,
       overview = null,
       hours = 24,
+      curveMode = "smooth",
+      previousCurve = null,
       socket = null,
       timer = null,
       refreshing = false,
@@ -658,50 +660,34 @@
       );
     }
     function chart() {
-      const points = history?.points || [];
-      if (!points.length)
-        return '<div class="iot-chart-empty">所选时间段暂无监测数据</div>';
-      const width = 800,
-        height = 220,
-        values = points.map((p) => p.value),
-        min = Math.min(...values),
-        max = Math.max(...values),
-        span = Math.max(max - min, 1);
-      const poly = points
-        .map(
-          (p, i) =>
-            (
-              ((new Date(p.at) - new Date(points[0].at)) /
-                Math.max(
-                  new Date(points.at(-1).at) - new Date(points[0].at),
-                  1,
-                )) *
-                760 +
-              20
-            ).toFixed(1) +
-            "," +
-            (190 - ((p.value - min) / span) * 160).toFixed(1),
-        )
-        .join(" ");
-      return (
-        '<div class="iot-chart"><div><span>' +
-        fmt(max) +
-        "</span><span>" +
-        fmt(min) +
-        '</span></div><svg viewBox="0 0 ' +
-        width +
-        " " +
-        height +
-        '" role="img" aria-label="' +
-        esc(history.metric) +
-        '历史趋势"><path d="M20 30H780M20 110H780M20 190H780" stroke="currentColor" opacity=".1"/><polyline fill="none" stroke="var(--iot-accent)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="' +
-        poly +
-        '"/></svg></div><div class="iot-chart-times"><span>' +
-        time(points[0].at) +
-        "</span><span>" +
-        time(points.at(-1).at) +
-        "</span></div>"
-      );
+      const points = (history?.points || []).filter(p => Number.isFinite(p.value) && Number.isFinite(Date.parse(p.at))).sort((a,b)=>Date.parse(a.at)-Date.parse(b.at));
+      if (!points.length) return '<div class="iot-chart-empty">所选时间段暂无监测数据。可切换时间范围，或选择已有上报数据的设备。</div>';
+      const values=points.map(p=>p.value),min=Math.min(...values),max=Math.max(...values),span=Math.max(max-min,1),start=Date.parse(points[0].at),end=Date.parse(points.at(-1).at);
+      const xy=points.map(p=>({x:20+(Date.parse(p.at)-start)/Math.max(end-start,1)*760,y:190-(p.value-min)/span*160}));
+      const num=v=>Number(v).toFixed(2),clamp=(v,a,b)=>Math.max(Math.min(a,b),Math.min(Math.max(a,b),v));
+      let path='M'+num(xy[0].x)+' '+num(xy[0].y);
+      for(let i=1;i<xy.length;i++){
+        const a=xy[i-1],b=xy[i],dx=b.x-a.x;
+        if(curveMode==='linear'||dx<=0){path+=' L'+num(b.x)+' '+num(b.y);continue;}
+        const slope=(l,r)=>(r.y-l.y)/Math.max(r.x-l.x,.001),segment=slope(a,b);
+        let m0=i>1?(slope(xy[i-2],a)+segment)/2:segment,m1=i<xy.length-1?(segment+slope(b,xy[i+1]))/2:segment;
+        if(i>1&&slope(xy[i-2],a)*segment<=0)m0=0;
+        if(i<xy.length-1&&segment*slope(b,xy[i+1])<=0)m1=0;
+        path+=' C'+num(a.x+dx/3)+' '+num(clamp(a.y+m0*dx/3,a.y,b.y))+' '+num(b.x-dx/3)+' '+num(clamp(b.y-m1*dx/3,a.y,b.y))+' '+num(b.x)+' '+num(b.y);
+      }
+      const last=xy.at(-1),definition=detail?.metrics?.find(m=>m.key===history.metric),label=definition?.label||history.metric,unit=definition?.unit||'';
+      const live=detail?.connectivity==='ONLINE'&&!detail?.dataStale&&!stale;
+      const key=[detail?.id,history.metric,hours,curveMode].join(':'),reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const animate=company&&!reduce&&previousCurve?.key===key&&previousCurve.path!==path&&previousCurve.count===points.length;
+      const transition=animate?'<animate attributeName="d" from="'+previousCurve.path+'" to="'+path+'" dur="0.45s" calcMode="spline" keyTimes="0;1" keySplines="0.22 1 0.36 1"/>':'';
+      previousCurve={key,path,count:points.length};
+      return '<div class="iot-trend-readout"><div><span>'+esc(label)+'</span><strong>'+fmt(values.at(-1))+' <small>'+esc(unit)+'</small></strong></div><div class="iot-trend-status"><span class="'+(live?'is-live':'')+'">'+(live?'持续接收上报':'历史留存数据')+'</span><small>最近采集 '+time(points.at(-1).at)+'</small></div></div>'+
+       '<div class="iot-chart"><div><span>'+fmt(max)+'</span><span>'+fmt(min)+'</span></div><svg viewBox="0 0 800 220" role="img" aria-label="'+esc(label)+'历史趋势，'+points.length+'个采样点"><path d="M20 30H780M20 110H780M20 190H780" stroke="currentColor" opacity=".1"/>'+
+       '<path d="'+path+' L'+num(last.x)+' 198 L20 198 Z" fill="var(--iot-accent)" opacity=".06"/>'+
+       '<path class="iot-trend-line" d="'+path+'" fill="none" stroke="var(--iot-accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">'+transition+'</path>'+
+       '<circle class="iot-trend-end '+(live&&company?'is-live':'')+'" cx="'+num(last.x)+'" cy="'+num(last.y)+'" r="5" fill="var(--iot-accent)" stroke="var(--iot-panel)" stroke-width="2"/>'+
+       xy.map((p,i)=>'<circle cx="'+num(p.x)+'" cy="'+num(p.y)+'" r="6" fill="transparent"><title>'+esc(time(points[i].at)+' · '+fmt(points[i].value)+' '+unit)+'</title></circle>').join('')+
+       '</svg></div><div class="iot-chart-times"><span>'+time(points[0].at)+'</span><span>'+time(points.at(-1).at)+'</span></div><p class="iot-trend-note">'+(curveMode==='smooth'?'平滑连线仅辅助观察，采样值不变。':'按采样点直线连接。')+' 数据到达后自动更新；查看实时变化建议选择“最近1小时”。</p>';
     }
     function companyCharts() {
       if (!company || !analytics) return "";
@@ -887,6 +873,7 @@
           )
           .join("") +
         "</select></div>" +
+        ((company||mode === "engineer")?'<div class="iot-curve-controls"><label>连线方式 <select id="iot-curve-mode" aria-label="趋势连线方式"><option value="smooth" '+(curveMode==='smooth'?'selected':'')+'>平滑曲线</option><option value="linear" '+(curveMode==='linear'?'selected':'')+'>原始折线</option></select></label></div>':'') +
         chart() +
         '</section><section class="iot-panel"><div class="iot-section-head"><h2>设备告警与处理记录</h2><span>告警不是维修诊断结论</span></div>' +
         alarmTable(alarms.filter((a) => a.deviceId === d.id)) +
@@ -1178,6 +1165,10 @@
         provinceEl.value = province;
         provinceEl.dataset.options = JSON.stringify(choices);
       }
+      if ((config.embedded || (mode === "engineer" && config.deviceId)) && !selected) {
+        live.innerHTML = '<div class="iot-empty">本单设备未接入监测，或当前任务已无查看权限。<button class="iot-btn" data-action="refresh">重新读取本单设备</button></div>';
+        return;
+      }
       if (selected && !platform) {
         live.innerHTML = deviceDetail();
         return;
@@ -1417,6 +1408,7 @@
     }
     async function refresh() {
       if (!alive) return;
+      if ((config.embedded || (mode === "engineer" && config.deviceId)) && !selected) selected = config.deviceId;
       if (refreshing) {
         requestVersion++;
         return;
@@ -1471,6 +1463,7 @@
         if (platform) tenants = await call("/tenants");
         if (selected) {
           detail = await call("/devices/" + selected);
+          selected = detail.id;
           if (!detail.metrics.some((m) => m.key === metric))
             metric = detail.metrics[0]?.key;
           if (metric)
@@ -2036,21 +2029,23 @@
         await refresh();
         watch();
       }
+      if (ev.target.id === "iot-curve-mode") {curveMode=ev.target.value;previousCurve=null;await render();}
       if (ev.target.id === "iot-metric" || ev.target.id === "iot-hours") {
         if (ev.target.id === "iot-hours") hours = Number(ev.target.value);
         else metric = ev.target.value;
+        const revision = ++historyRequestVersion;
+        const requestedDevice = selected, requestedMetric = metric, requestedHours = hours;
         try {
-          history = await call(
-            "/devices/" +
-              selected +
-              "/history?hours=" +
-              hours +
-              "&metric=" +
-              encodeURIComponent(metric),
+          const loaded = await call(
+            "/devices/" + requestedDevice + "/history?hours=" + requestedHours +
+              "&metric=" + encodeURIComponent(requestedMetric),
           );
+          if (revision !== historyRequestVersion || selected !== requestedDevice || metric !== requestedMetric || hours !== requestedHours) return;
+          history = loaded;
           await render();
+          error("");
         } catch (e) {
-          error(e.message);
+          if (revision === historyRequestVersion) error(e.message);
         }
       }
     }

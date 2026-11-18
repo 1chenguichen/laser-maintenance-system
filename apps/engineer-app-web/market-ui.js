@@ -651,9 +651,11 @@
     };
   }
   async function orders(workbench) {
-    var rows = await api("/requests");
+    // Independent workbench requests run together instead of serially.
+    var initial = await Promise.all([api("/requests"), workbench ? api("/me") : Promise.resolve(null)]);
+    var rows = initial[0];
     if (workbench) {
-      me = await api("/me");
+      me = initial[1];
       var companyError = false;
       if (role === "engineer" && me.employers.length) {
         try {
@@ -815,31 +817,12 @@
         role === "engineer"
           ? "先处理待办，再查看服务记录。每张工单标注独立的履约企业。"
           : "设备报修与售后服务，在这里统一跟进。",
-        '<div class="category-tabs" role="group" aria-label="订单状态">' +
-          [
-            ["all", "全部"],
-            ["active", "进行中"],
-            ["waiting", "待我处理"],
-            ...(role === "engineer"
-              ? [
-                  ["service", "服务中"],
-                  ["confirmation", "待客户确认"],
-                ]
-              : []),
-            ["completed", "已完成"],
-            ["cancelled", "已取消"],
-          ]
-            .map(
-              ([key, label]) =>
-                '<button type="button" data-order-state="' +
-                key +
-                '" aria-pressed="' +
-                (key === "all") +
-                '">' +
-                label +
-                "</button>",
-            )
-            .join("") +
+        '<div class="category-tabs engineer-order-tabs" role="group" aria-label="工单主状态">' +
+          [["all","全部"],["active","进行中"],["completed","已完成"],["cancelled","已取消"]]
+            .map(([key,label])=>'<button type="button" '+(key==='active'?'data-order-group="active"':'data-order-state="'+key+'"')+' aria-pressed="'+(key==='all')+'">'+label+'</button>').join('') +
+          '</div><div id="orderActiveFilters" class="engineer-order-subfilters" role="group" aria-label="进行中工单细分" hidden>' +
+          [["active","全部进行中"],["waiting","待我处理"],["service","服务中"],["confirmation","待客户确认"]]
+            .map(([key,label])=>'<button type="button" data-order-state="'+key+'" aria-pressed="false">'+label+'</button>').join('') +
           '</div><div class="order-filter-row"><input id="orderSearch" aria-label="搜索订单" placeholder="搜索设备、SN 或订单号"><select id="orderSource" aria-label="服务来源"><option value="all">全部来源</option><option value="platform">平台服务</option><option value="company">企业售后</option></select><select id="orderOrigin" aria-label="履约团队"><option value="all">全部服务团队</option><option value="enterprise">企业自有团队</option><option value="platform">平台服务团队</option><option value="outsourced">外包售后团队</option></select></div><p class="order-count" id="orderCount"></p><div id="unifiedOrderList"></div>',
       );
       const supportedStates = [
@@ -853,15 +836,16 @@
       ];
       let state = new URLSearchParams(location.search).get("state") || "all";
       if (!supportedStates.includes(state)) state = "all";
-      root
-        .querySelectorAll("[data-order-state]")
-        .forEach((b) =>
-          b.setAttribute(
-            "aria-pressed",
-            String(b.dataset.orderState === state),
-          ),
-        );
-      function render() {
+      function syncOrderState() {
+        const active = ["active","waiting","service","confirmation"].includes(state);
+        document.getElementById("orderActiveFilters").hidden = !active;
+        root.querySelector('[data-order-group="active"]').setAttribute('aria-pressed',String(active));
+        root.querySelectorAll('[data-order-state]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.orderState===state)));
+      }
+      syncOrderState();
+      let visibleOrders = 10;
+      function render(reset = true) {
+        if (reset !== false) visibleOrders = 10;
         const query = document
             .getElementById("orderSearch")
             .value.trim()
@@ -918,21 +902,26 @@
           filtered.length +
           " 笔服务订单";
         document.getElementById("unifiedOrderList").innerHTML = filtered.length
-          ? filtered.map(orderCard).join("")
+          ? filtered.slice(0, visibleOrders).map(orderCard).join("")
           : empty("当前条件下没有服务订单。");
+        if (filtered.length > visibleOrders) {
+          const more = document.createElement("button");
+          more.type = "button";
+          more.className = "engineer-load-more";
+          more.textContent = "加载更多 · 还有 " + (filtered.length - visibleOrders) + " 笔工单";
+          more.onclick = () => { visibleOrders += 10; render(false); };
+          document.getElementById("unifiedOrderList").append(more);
+        }
       }
       root.querySelectorAll("[data-order-state]").forEach(
         (button) =>
           (button.onclick = () => {
             state = button.dataset.orderState;
-            root
-              .querySelectorAll("[data-order-state]")
-              .forEach((b) =>
-                b.setAttribute("aria-pressed", String(b === button)),
-              );
+            syncOrderState();
             render();
           }),
       );
+      root.querySelector('[data-order-group="active"]').onclick = () => { state="active";syncOrderState();render(); };
       document.getElementById("orderSearch").oninput = render;
       document.getElementById("orderSource").onchange = render;
       document.getElementById("orderOrigin").onchange = render;
@@ -1167,7 +1156,7 @@
       if (r.status === "IN_SERVICE") actions.push(["complete", "提交完工记录"]);
     }
     renderDetail(r, actions);
-    document.dispatchEvent(new CustomEvent("iot-device-context",{detail:{id:r.device_ref,snapshot:r.intake?.engineeringSnapshot||r.intake?.snapshot,at:r.intake?.detectedAt}}));
+    document.dispatchEvent(new CustomEvent("iot-device-context",{detail:{id:r.device_ref,status:r.status,snapshot:r.intake?.engineeringSnapshot||r.intake?.snapshot,at:r.intake?.detectedAt}}));
     root.querySelectorAll("[data-action]").forEach(function (button) {
       button.onclick = function () {
         var action = button.dataset.action;
@@ -1296,9 +1285,9 @@
               )
               .join("")
           : empty(
-              "暂时没有符合条件的任务",
+              me.engineer?.state !== "APPROVED" ? "接单资料尚未审核通过" : "当前服务范围内暂无可领取任务",
               "market-profile.html",
-              "检查服务区域与接单资格",
+              me.engineer?.state !== "APPROVED" ? "查看接单资料与审核状态" : "查看服务区域与技能资格",
             )),
     );
     const filterPool = () => {
@@ -1380,7 +1369,7 @@
                 maintenance: "service-maintenance",
                 cutting: "course-practice",
               }[c.skill] || "course-practice") +
-              '.webp" alt="课程场景示意，AI生成" loading="lazy"><p class="course-demo-label">AI 课程场景示意</p><div class="market-card-head"><h2>' +
+              '.webp" alt="课程场景示意，AI生成" loading="lazy"><p class="course-demo-label">课程配图</p><div class="market-card-head"><h2>' +
               e(c.title) +
               "</h2>" +
               badge(labels[c.skill]) +

@@ -69,10 +69,7 @@
       const galleryCard = document
         .getElementById("deviceVisuals")
         .closest("section");
-      galleryCard.parentElement.insertBefore(
-        galleryCard,
-        galleryCard.previousElementSibling,
-      );
+      // Keep equipment identity and repair action before supplementary photos.
       await VisualGallery.mount(document.getElementById("deviceVisuals"), {
         kind: "device",
         id,

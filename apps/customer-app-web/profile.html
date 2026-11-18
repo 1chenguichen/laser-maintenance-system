@@ -4,7 +4,7 @@
   <script src="/app-config.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>个人中心</title>
+  <title>个人中心 · 智修工</title>
   <script src="/tailwind.js"></script>
   <link href="/fonts/main.css" rel="stylesheet">
   <link href="/fonts/material-symbols.css" rel="stylesheet">
@@ -48,16 +48,10 @@
       min-height: 100vh;
     }
   </style>
-<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="/product-design.css?v=1"><script src="/mobile-navigation.js" defer></script><link rel="stylesheet" href="/mobile-continuity.css"><script src="/mobile-continuity.js" defer></script><link rel="stylesheet" href="/visual-gallery.css"><script src="/visual-gallery.js" defer></script><script src="/visual-pages.js" defer></script><script src="/visual-media.js"></script><link rel="stylesheet" href="/brand/brand.css"><script src="/brand/brand.js" defer></script><link rel="preload" href="/fonts/material-symbols-bb6aa59135d1.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/client-refresh.css"><script src="/client-refresh.js" defer></script><script src="/intelligent-pages.js" defer></script><link rel="stylesheet" href="/client-system.css"><link rel="stylesheet" href="/client-navigation.css"><script src="/client-feedback.js" defer></script><script src="/client-navigation.js" defer></script><link rel="icon" type="image/svg+xml" href="/brand/zhixiugong-icon.svg"><link rel="icon" type="image/png" sizes="32x32" href="/brand/icon-32.png"><link rel="apple-touch-icon" href="/brand/icon-180.png"><link rel="manifest" href="/manifest.json"></head>
 <body class="product-screen bg-surface pb-20 mobile-system" data-role="customer" data-page="profile">
   <!-- Top App Bar -->
-  <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 h-14 bg-white border-b border-outline-variant max-w-[414px]">
-    <button class="text-primary" onclick="window.history.back()">
-      <span class="material-symbols-outlined">arrow_back</span>
-    </button>
-    <h1 class="font-semibold text-base" style="color: #111827;">个人中心</h1>
-    <span class="w-10" aria-hidden="true"></span>
-  </header>
+  <header class="client-page-header"><a class="client-back" href="home.html" aria-label="返回"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="m12 4-8 8 8 8M4 12h16" stroke-linecap="round" stroke-linejoin="round"/></svg></a><h1 class="client-header-title">我的</h1><span class="client-header-space" aria-hidden="true"></span></header>
 
   <main class="pt-14 px-4 space-y-4"><div id="profileFeedback" class="profile-feedback" role="status" hidden></div>
     <!-- User Profile Card -->
@@ -80,15 +74,15 @@
     <section class="bg-white border border-outline-variant rounded-xl p-4 shadow-sm">
       <div class="grid grid-cols-3 gap-4 text-center">
         <div class="flex flex-col items-center">
-          <span class="text-2xl font-bold" style="color: #1890ff;" id="orderCount">12</span>
+          <span class="text-2xl font-bold" style="color: #1890ff;" id="orderCount">—</span>
           <span class="text-xs text-on-surface-variant mt-1">报修工单</span>
         </div>
         <div class="flex flex-col items-center border-l border-r border-outline-variant">
-          <span class="text-2xl font-bold" style="color: #52c41a;" id="deviceCount">5</span>
+          <span class="text-2xl font-bold" style="color: #52c41a;" id="deviceCount">—</span>
           <span class="text-xs text-on-surface-variant mt-1">绑定设备</span>
         </div>
         <div class="flex flex-col items-center">
-          <span class="text-2xl font-bold" style="color: #faad14;" id="reviewCount">8</span>
+          <span class="text-2xl font-bold" style="color: #faad14;" id="reviewCount">—</span>
           <span class="text-xs text-on-surface-variant mt-1">评价次数</span>
         </div>
       </div>
@@ -177,28 +171,10 @@
       </button>
     </section>
     <section class="bg-white rounded-xl border border-outline-variant p-4 mt-4"><h2 class="font-semibold mb-3">平台服务</h2><div style="display:grid;gap:14px;font-size:14px;color:#1878df"><a href="services.html">寻找售后服务</a><a href="market-orders.html">全部服务订单</a><a href="chat.html">联系已有服务商</a><a href="training.html">培训地点与课程</a><a href="market-profile.html">申请成为合作工程师</a></div></section>
-  </main>
+  <div class="product-brand-signature" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:24px 0;color:#64748b;font-size:12px"><img src="/brand/zhixiugong-mark.svg" width="24" height="24" alt=""><span>智修工 · 客户端</span></div></main>
 
   <!-- Bottom Nav Bar -->
-  <nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-4 py-2 pb-safe bg-white border-t border-outline-variant max-w-[414px]">
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('home')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">home</span>
-      <span class="text-xs mt-1">首页</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('orders')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">receipt_long</span>
-      <span class="text-xs mt-1">工单</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-on-surface-variant" onclick="navigateTo('chat')">
-      <span class="material-symbols-outlined" style="font-size: 28px;">support_agent</span>
-      <span class="text-xs mt-1">客服</span>
-    </button>
-    <button class="flex-1 flex flex-col items-center justify-center py-1.5 text-primary relative" onclick="navigateTo('profile')">
-      <div class="absolute top-2 w-12 h-8 rounded-full -z-10" style="background-color: #e6f7ff; opacity: 1;"></div>
-      <span class="material-symbols-outlined fill" style="font-size: 28px;">person</span>
-      <span class="text-xs mt-1 font-medium">我的</span>
-    </button>
-  </nav>
+  <nav class="mobile-navigation" aria-label="主要导航"><a href="home.html"><span class="material-symbols-outlined" aria-hidden="true">home</span><span>首页</span></a><a href="services.html"><span class="material-symbols-outlined" aria-hidden="true">travel_explore</span><span>找服务</span></a><a href="devices.html"><span class="material-symbols-outlined" aria-hidden="true">precision_manufacturing</span><span>设备</span></a><a href="market-orders.html"><span class="material-symbols-outlined" aria-hidden="true">receipt_long</span><span>订单</span></a><a href="profile.html" aria-current="page"><span class="material-symbols-outlined" aria-hidden="true">person</span><span>我的</span></a></nav>
 
   <script>
     var API_BASE = window.APP_API_BASE;
