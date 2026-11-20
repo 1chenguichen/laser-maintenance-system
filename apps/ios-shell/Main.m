@@ -73,6 +73,11 @@
     [config.userContentController addScriptMessageHandler:self name:@"nativeScan"];
     self.web=[[WKWebView alloc]initWithFrame:CGRectZero configuration:config];self.web.navigationDelegate=self;self.web.UIDelegate=self;self.web.translatesAutoresizingMaskIntoConstraints=NO;
     self.web.allowsBackForwardNavigationGestures=YES;self.web.scrollView.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+    if(self.cloud){
+        [self.view addSubview:self.web];
+        [NSLayoutConstraint activateConstraints:@[[self.web.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor],[self.web.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor],[self.web.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor],[self.web.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor]]];
+        [self openLogin];return;
+    }
     UIView *bar=[UIView new];bar.translatesAutoresizingMaskIntoConstraints=NO;
     UIButton *back=[UIButton buttonWithType:UIButtonTypeSystem];[back setTitle:@"‹ 返回" forState:UIControlStateNormal];back.titleLabel.font=[UIFont systemFontOfSize:13];[back addTarget:self action:@selector(goBack) forControlEvents:UIControlEventTouchUpInside];back.translatesAutoresizingMaskIntoConstraints=NO;
     UIButton *settings=[UIButton buttonWithType:UIButtonTypeSystem];[settings setTitle:(self.cloud?@"重新连接":@"连接设置") forState:UIControlStateNormal];settings.titleLabel.font=[UIFont systemFontOfSize:13];[settings addTarget:self action:@selector(showSettings) forControlEvents:UIControlEventTouchUpInside];settings.translatesAutoresizingMaskIntoConstraints=NO;
@@ -108,9 +113,9 @@
     if(!https&&!([u.scheme.lowercaseString isEqualToString:@"http"]&&private))return nil;
     u.path=@"";return u.string;
 }
--(void)cloudFailure{if(self.loadErrorShown||self.presentedViewController)return;self.loadErrorShown=YES;UIAlertController *a=[UIAlertController alertControllerWithTitle:@"暂时无法连接" message:@"请检查网络后重试。当前操作不会自动重新提交。" preferredStyle:UIAlertControllerStyleAlert];[a addAction:[UIAlertAction actionWithTitle:@"稍后" style:UIAlertActionStyleCancel handler:nil]];[a addAction:[UIAlertAction actionWithTitle:@"重试" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){[self openLogin];}]];[self presentViewController:a animated:YES completion:nil];}
--(void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error{if(self.cloud&&error.code!=NSURLErrorCancelled)[self cloudFailure];}
--(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error{if(self.cloud&&error.code!=NSURLErrorCancelled)[self cloudFailure];}
+-(void)cloudFailure:(NSError *)error{if(self.loadErrorShown||self.presentedViewController)return;self.loadErrorShown=YES;UIAlertController *a=[UIAlertController alertControllerWithTitle:@"暂时无法连接" message:[NSString stringWithFormat:@"页面加载失败，请重试。\n错误：%@ (%ld)\n%@",error.domain,(long)error.code,error.localizedDescription] preferredStyle:UIAlertControllerStyleAlert];[a addAction:[UIAlertAction actionWithTitle:@"稍后" style:UIAlertActionStyleCancel handler:nil]];[a addAction:[UIAlertAction actionWithTitle:@"重试" style:UIAlertActionStyleDefault handler:^(UIAlertAction *x){[self openLogin];}]];[self presentViewController:a animated:YES completion:nil];}
+-(void)webView:(WKWebView *)webView didFailProvisionalNavigation:(WKNavigation *)navigation withError:(NSError *)error{if(self.cloud&&error.code!=NSURLErrorCancelled)[self cloudFailure:error];}
+-(void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error{if(self.cloud&&error.code!=NSURLErrorCancelled)[self cloudFailure:error];}
 -(void)webView:(WKWebView *)webView requestMediaCapturePermissionForOrigin:(WKSecurityOrigin *)origin initiatedByFrame:(WKFrameInfo *)frame type:(WKMediaCaptureType)type decisionHandler:(void (^)(WKPermissionDecision))decisionHandler API_AVAILABLE(ios(15.0)){NSURLComponents *u=[NSURLComponents new];u.scheme=origin.protocol;u.host=origin.host;if(origin.port>0)u.port=@(origin.port);decisionHandler(frame.isMainFrame&&[self localURL:frame.request.URL]&&[self localURL:self.web.URL]&&[self localURL:u.URL]&&type==WKMediaCaptureTypeCamera?WKPermissionDecisionPrompt:WKPermissionDecisionDeny);}
 -(void)showSettings{
     if(self.presentedViewController)return;

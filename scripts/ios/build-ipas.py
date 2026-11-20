@@ -54,7 +54,7 @@ for role,name,label,color in [('customer','LaserCustomer','智修工客户端',(
  for filename,size in [('Icon60@2x.png',120),('Icon60@3x.png',180),('Icon76.png',76),('Icon76@2x.png',152),('Icon83.5@2x.png',167)]:shutil.copyfile(source/'brand/native'/filename,app/filename)
  info={
   'CFBundleIdentifier':'com.laser.maintenance.'+role,'CFBundleExecutable':name,'CFBundleName':name,'CFBundleDisplayName':label,
-  'CFBundlePackageType':'APPL','CFBundleShortVersionString':'2.1.0' if web_origins[role] else '2.0.0','CFBundleVersion':version,
+  'CFBundlePackageType':'APPL','CFBundleShortVersionString':'2.1.1' if web_origins[role] else '2.0.0','CFBundleVersion':version,
   'CFBundleSupportedPlatforms':['iPhoneOS'],'LSRequiresIPhoneOS':True,'MinimumOSVersion':'14.0','UIDeviceFamily':[1,2],
   'UILaunchScreen':{},'UIViewControllerBasedStatusBarAppearance':True,'UIRequiresFullScreen':True,
   'UISupportedInterfaceOrientations':['UIInterfaceOrientationPortrait'],
@@ -66,6 +66,13 @@ for role,name,label,color in [('customer','LaserCustomer','智修工客户端',(
   'CFBundleIcons~ipad':{'CFBundlePrimaryIcon':{'CFBundleIconFiles':['Icon76','Icon83.5']}},
   'LaserWebOrigin':web_origins[role],'LaserDefaultServer':server,'LaserLocalPort':43102 if role=='engineer' else 43101
  }
+ if web_origins[role]:
+  # Apple's IP-address ATS policy differs across supported iOS versions.
+  # Allow IP-address networking, while the shell pins HTTPS origin and uses
+  # normal system certificate validation. Never accept invalid certificates.
+  info.pop('NSLocalNetworkUsageDescription',None)
+  info['NSAppTransportSecurity']['NSAllowsLocalNetworking']=True
+  info['NSAppTransportSecurity']['NSExceptionDomains']={urllib.parse.urlsplit(web_origins[role]).hostname:{'NSExceptionAllowsInsecureHTTPLoads':False,'NSExceptionMinimumTLSVersion':'TLSv1.2','NSExceptionRequiresForwardSecrecy':True}}
  with (app/'Info.plist').open('wb') as f:plistlib.dump(info,f)
  (app/'PkgInfo').write_bytes(b'APPL????')
  # Validate root-relative and relative references before spending cloud build time.
@@ -91,7 +98,7 @@ for role,name,label,color in [('customer','LaserCustomer','智修工客户端',(
   binary=run('file',app/name)
   if 'arm64' not in binary or 'Mach-O' not in binary:raise SystemExit('Expected arm64 iOS executable')
   run('xcrun','vtool','-show-build',app/name)
-  ipa=out/('laser-'+role+('-2.1.0-cloud' if web_origins[role] else '-2.0.0')+'-trollstore.ipa')
+  ipa=out/('laser-'+role+('-2.1.1-cloud' if web_origins[role] else '-2.0.0')+'-trollstore.ipa')
   with zipfile.ZipFile(ipa,'w',compression=zipfile.ZIP_DEFLATED) as z:
    for f in app.rglob('*'):
     if f.is_file():z.write(f,f.relative_to(work).as_posix())
