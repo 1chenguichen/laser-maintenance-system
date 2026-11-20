@@ -285,9 +285,7 @@ class _WorkspaceState extends State<Workspace> {
             tab = i;
             loaded.add(i);
           });
-          if (EngineerStore.paths[i].any(
-            (p) => !widget.store.data.containsKey(p),
-          )) {
+          if (EngineerStore.paths[i].any(widget.store.stale)) {
             widget.store.refresh(i);
           }
         },

@@ -15,6 +15,7 @@ class _IoTScreenState extends State<IoTScreen> {
   Json? device;
   List<Json> points = [], alarms = [];
   String? metric, error;
+  int hours = 24;
   bool loading = false;
   Timer? timer;
   @override
@@ -45,7 +46,7 @@ class _IoTScreenState extends State<IoTScreen> {
       final values = await Future.wait([
         if (metric != null)
           widget.api.call(
-            '/iot/devices/${widget.deviceId}/history?hours=24&metric=${Uri.encodeComponent(metric!)}',
+            '/iot/devices/${widget.deviceId}/history?hours=$hours&metric=${Uri.encodeComponent(metric!)}',
           )
         else
           Future.value(<String, dynamic>{}),
@@ -156,8 +157,24 @@ class _IoTScreenState extends State<IoTScreen> {
                 metric = v;
                 load();
               },
-              decoration: const InputDecoration(labelText: '最近24小时趋势'),
+              decoration: const InputDecoration(labelText: '趋势指标'),
             ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<int>(
+            initialValue: hours,
+            decoration: const InputDecoration(labelText: '时间范围'),
+            items: const [
+              DropdownMenuItem(value: 24, child: Text('最近24小时')),
+              DropdownMenuItem(value: 168, child: Text('最近7天')),
+              DropdownMenuItem(value: 720, child: Text('最近30天')),
+            ],
+            onChanged: loading
+                ? null
+                : (value) {
+                    hours = value ?? 24;
+                    load();
+                  },
+          ),
           const SizedBox(height: 18),
           Card(
             child: Padding(

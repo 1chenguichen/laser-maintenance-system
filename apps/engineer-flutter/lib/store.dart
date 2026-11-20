@@ -8,9 +8,15 @@ class EngineerStore extends ChangeNotifier {
   final Set<String> loading = {};
   final Map<String, Future<void>> _pending = {};
   int _epoch = 0;
+  final Map<String, DateTime> checked = {};
+  bool stale(String path) =>
+      !checked.containsKey(path) ||
+      DateTime.now().difference(checked[path]!).inSeconds > 30;
   EngineerStore(this.api);
   Future<void> load(String path) =>
-      _pending[path] ??= _load(path).whenComplete(() { _pending.remove(path); });
+      _pending[path] ??= _load(path).whenComplete(() {
+        _pending.remove(path);
+      });
   Future<void> _load(String path) async {
     final epoch = _epoch;
     loading.add(path);
@@ -19,6 +25,7 @@ class EngineerStore extends ChangeNotifier {
       final value = await api.call(path);
       if (epoch != _epoch) return;
       data[path] = value;
+      checked[path] = DateTime.now();
       errors.remove(path);
     } catch (e) {
       if (epoch == _epoch) errors[path] = '$e';
@@ -68,6 +75,7 @@ class EngineerStore extends ChangeNotifier {
   void clear() {
     _epoch++;
     data.clear();
+    checked.clear();
     errors.clear();
     loading.clear();
     _pending.clear();
