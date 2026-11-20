@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.zhixiugong.engineer.pilot"
+    namespace = "com.zhixiugong.zhixiugong_engineer"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
