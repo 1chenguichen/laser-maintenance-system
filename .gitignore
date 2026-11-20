@@ -81,3 +81,9 @@ backend/private-market-media/
 
 # Local upload helper (depends on private preview scripts)
 /upload-github.cmd
+
+# Flutter pilot contains maintained native projects, not generated SDK caches.
+!/apps/engineer-flutter/android/
+!/apps/engineer-flutter/android/**
+!/apps/engineer-flutter/ios/
+!/apps/engineer-flutter/ios/**
