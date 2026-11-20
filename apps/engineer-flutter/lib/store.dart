@@ -4,6 +4,8 @@ import 'api.dart';
 class EngineerStore extends ChangeNotifier {
   final Api api;
   final Map<String, dynamic> data = {};
+  final Map<String, List<Json>> assistantThreads = {};
+  final Map<String, String> assistantConversations = {};
   final Map<String, String> errors = {};
   final Set<String> loading = {};
   final Map<String, Future<void>> _pending = {};
@@ -13,10 +15,13 @@ class EngineerStore extends ChangeNotifier {
       !checked.containsKey(path) ||
       DateTime.now().difference(checked[path]!).inSeconds > 30;
   EngineerStore(this.api);
-  Future<void> load(String path) =>
-      _pending[path] ??= _load(path).whenComplete(() {
-        _pending.remove(path);
-      });
+  Future<void> load(String path) {
+    final epoch = _epoch;
+    return _pending[path] ??= _load(path).whenComplete(() {
+      if (epoch == _epoch) _pending.remove(path);
+    });
+  }
+
   Future<void> _load(String path) async {
     final epoch = _epoch;
     loading.add(path);
@@ -75,6 +80,8 @@ class EngineerStore extends ChangeNotifier {
   void clear() {
     _epoch++;
     data.clear();
+    assistantThreads.clear();
+    assistantConversations.clear();
     checked.clear();
     errors.clear();
     loading.clear();

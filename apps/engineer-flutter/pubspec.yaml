@@ -1,7 +1,7 @@
 name: zhixiugong_engineer
 description: Native Flutter engineer pilot for the existing Zhixiugong service platform.
 publish_to: none
-version: 0.1.0+2
+version: 0.2.0+3
 environment:
   sdk: '>=3.10.0 <4.0.0'
 dependencies:
@@ -11,6 +11,9 @@ dependencies:
   http: ^1.6.0
   flutter_secure_storage: ^11.2.0
   image_picker: ^1.2.4
+  mobile_scanner: ^7.5.0
+  url_launcher: ^6.3.3
+  http_parser: ^4.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

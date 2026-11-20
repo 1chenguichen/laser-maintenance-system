@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 
 typedef Json = Map<String, dynamic>;
@@ -19,16 +21,19 @@ class ApiFailure implements Exception {
 
 class Api {
   final http.Client client;
+  final http.Client Function() streamClientFactory;
   final String base;
   String? token;
   void Function()? onUnauthorized;
   Api({
     http.Client? client,
+    http.Client Function()? streamClientFactory,
     this.base = const String.fromEnvironment(
       'API_BASE',
       defaultValue: 'https://43.139.91.94:8442/api',
     ),
-  }) : client = client ?? http.Client() {
+  }) : client = client ?? http.Client(),
+       streamClientFactory = streamClientFactory ?? http.Client.new {
     final u = Uri.parse(base);
     if (u.scheme != 'https' ||
         u.userInfo.isNotEmpty ||
@@ -68,6 +73,128 @@ class Api {
       throw const ApiFailure('请求超时。请刷新确认结果，写操作不会自动重试。');
     } on http.ClientException {
       throw const ApiFailure('连接失败，请检查网络后重试');
+    }
+  }
+
+  Uri uri(String path) => Uri.parse('$base$path');
+  Future<Uint8List> image(String path) async {
+    final response = await client
+        .get(
+          uri(path),
+          headers: {if (token != null) 'Authorization': 'Bearer $token'},
+        )
+        .timeout(const Duration(seconds: 20));
+    if (response.statusCode == 401) onUnauthorized?.call();
+    if (response.statusCode != 200 ||
+        !(response.headers['content-type'] ?? '').startsWith('image/')) {
+      throw ApiFailure('图片暂时无法读取', response.statusCode);
+    }
+    return response.bodyBytes;
+  }
+
+  Future<Json> uploadVisual({
+    required String kind,
+    required String id,
+    required String slot,
+    required List<int> bytes,
+    required String filename,
+  }) async {
+    final extension = filename.split('.').last.toLowerCase();
+    if (!['jpg', 'jpeg', 'png', 'webp'].contains(extension)) {
+      throw const ApiFailure('请选择 JPG、PNG 或 WebP 图片');
+    }
+    if (bytes.length > 5 * 1024 * 1024) {
+      throw const ApiFailure('图片超过5MB，请选择较小的照片');
+    }
+    final request = http.MultipartRequest('POST', uri('/market/visual'))
+      ..headers.addAll({if (token != null) 'Authorization': 'Bearer $token'})
+      ..fields.addAll({'kind': kind, 'id': id, 'slot': slot})
+      ..files.add(
+        http.MultipartFile.fromBytes(
+          'photo',
+          bytes,
+          filename: filename,
+          contentType: MediaType(
+            'image',
+            extension == 'jpg' ? 'jpeg' : extension,
+          ),
+        ),
+      );
+    final response = await http.Response.fromStream(
+      await client.send(request).timeout(const Duration(seconds: 40)),
+    );
+    final data = obj(jsonDecode(utf8.decode(response.bodyBytes)));
+    if (response.statusCode == 401) onUnauthorized?.call();
+    if (response.statusCode >= 300) {
+      throw ApiFailure(text(data['message'], '图片上传失败'), response.statusCode);
+    }
+    return data;
+  }
+
+  Stream<Json> chat(
+    String query, {
+    required String serviceId,
+    String? conversationId,
+    Future<void>? abort,
+  }) async* {
+    // Separate client permits cancellation without interrupting normal API calls.
+    final transport = streamClientFactory();
+    try {
+      final request =
+          http.AbortableRequest(
+              'POST',
+              uri(
+                '/ai/engineer/chat?serviceId=${Uri.encodeComponent(serviceId)}',
+              ),
+              abortTrigger: abort,
+            )
+            ..headers.addAll({
+              'Content-Type': 'application/json',
+              if (token != null) 'Authorization': 'Bearer $token',
+            })
+            ..body = jsonEncode({
+              'query': query,
+              'conversation_id': ?conversationId,
+            });
+      final response = await transport
+          .send(request)
+          .timeout(const Duration(seconds: 30));
+      if (response.statusCode < 200 || response.statusCode >= 300) {
+        final body = await response.stream.bytesToString();
+        if (response.statusCode == 401) onUnauthorized?.call();
+        throw ApiFailure(
+          response.statusCode == 503
+              ? 'AI 服务暂未配置，当前无法生成回复。'
+              : text(obj(jsonDecode(body))['message'], 'AI暂时无法响应'),
+          response.statusCode,
+        );
+      }
+      var data = <String>[];
+      await for (final line
+          in response.stream
+              .timeout(const Duration(seconds: 60))
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())) {
+        if (line.startsWith('data:')) {
+          data.add(line.substring(5).trimLeft());
+        } else if (line.isEmpty && data.isNotEmpty) {
+          final raw = data.join('\n');
+          data = [];
+          if (raw == '[DONE]') break;
+          final event = obj(jsonDecode(raw));
+          if (event['event'] == 'error') {
+            throw ApiFailure(text(event['message'], 'AI响应失败'));
+          }
+          yield event;
+        }
+      }
+      if (data.isNotEmpty && data.join() != '[DONE]') {
+        yield obj(jsonDecode(data.join('\n')));
+      }
+    } on TimeoutException {
+      throw const ApiFailure('AI响应超时，可保留问题后重试');
+    } finally {
+      transport.close();
     }
   }
 

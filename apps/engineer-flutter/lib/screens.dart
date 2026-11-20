@@ -2,6 +2,12 @@ import 'package:material_ui/material_ui.dart';
 import 'api.dart';
 import 'store.dart';
 import 'order_detail.dart';
+import 'common.dart';
+import 'inventory.dart';
+import 'assistant_pages.dart';
+import 'profile_pages.dart';
+import 'record_pages.dart';
+import 'device_pages.dart';
 
 const accent = Color(0xff176c50);
 
@@ -259,6 +265,38 @@ class _EngineerScreenState extends State<EngineerScreen>
           ),
         ),
       ),
+      heading('现场工具'),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          ActionChip(
+            avatar: const Icon(Icons.smart_toy_outlined, size: 18),
+            label: const Text('AI 维修助手'),
+            onPressed: () => openPage(context, AssistantPage(store: s)),
+          ),
+          ActionChip(
+            avatar: const Icon(Icons.inventory_2_outlined, size: 18),
+            label: const Text('我的移动仓'),
+            onPressed: () => openPage(context, InventoryPage(store: s)),
+          ),
+          ActionChip(
+            avatar: const Icon(Icons.qr_code_scanner, size: 18),
+            label: const Text('扫一扫'),
+            onPressed: () => scanDevice(context, s.api),
+          ),
+          ActionChip(
+            avatar: const Icon(Icons.monitor_heart_outlined, size: 18),
+            label: const Text('任务设备'),
+            onPressed: () => openPage(context, DeviceListPage(api: s.api)),
+          ),
+          ActionChip(
+            avatar: const Icon(Icons.edit_note, size: 18),
+            label: const Text('维修报告助手'),
+            onPressed: () => openPage(context, RepairReportPage(store: s)),
+          ),
+        ],
+      ),
       heading('下一项任务'),
       if (active.isEmpty)
         empty('暂无待处理任务，请前往接单大厅')
@@ -318,6 +356,43 @@ class _EngineerScreenState extends State<EngineerScreen>
     ];
   }
 
+  Future<void> refuse(ServiceOrder o) => run(() async {
+    final controller = TextEditingController();
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('拒绝本次指派'),
+        content: TextField(
+          controller: controller,
+          maxLength: 500,
+          minLines: 2,
+          maxLines: 4,
+          decoration: const InputDecoration(labelText: '说明原因'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () {
+              if (controller.text.trim().length >= 2) {
+                Navigator.pop(c, controller.text.trim());
+              }
+            },
+            child: const Text('确认拒绝'),
+          ),
+        ],
+      ),
+    );
+    if (reason == null) return;
+    await s.api.call(
+      '/engineer/refuse-designated/${o.id}',
+      method: 'POST',
+      body: {'reason': reason},
+    );
+    await s.refresh(1);
+  });
   Future<void> claim(ServiceOrder o, {bool designated = false}) =>
       run(() async {
         final confirm = await showDialog<bool>(
@@ -396,9 +471,18 @@ class _EngineerScreenState extends State<EngineerScreen>
         ...designated.map(
           (o) => card(
             o,
-            action: FilledButton(
-              onPressed: busy ? null : () => claim(o, designated: true),
-              child: const Text('接受指派'),
+            action: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FilledButton(
+                  onPressed: busy ? null : () => claim(o, designated: true),
+                  child: const Text('接受指派'),
+                ),
+                TextButton(
+                  onPressed: busy ? null : () => refuse(o),
+                  child: const Text('拒绝本次'),
+                ),
+              ],
             ),
           ),
         ),
@@ -437,6 +521,11 @@ class _EngineerScreenState extends State<EngineerScreen>
     final qualifications = rows(obj(s.data['/market/me'])['qualifications']);
     return [
       heading('培训与资质', '培训、考核与接单资格，清晰可查。'),
+      OutlinedButton.icon(
+        onPressed: () => openPage(context, QualificationsPage(api: s.api)),
+        icon: const Icon(Icons.verified_outlined),
+        label: const Text('培训记录与技能资质'),
+      ),
       if (qualifications.isNotEmpty)
         Card(
           child: Padding(
@@ -447,7 +536,7 @@ class _EngineerScreenState extends State<EngineerScreen>
                   .map(
                     (q) => Chip(
                       label: Text(
-                        '${text(q['skill'])} · ${text(q['valid_until'], '长期有效')}',
+                        '${text(q['skill'])} · ${dateLabel(q['expires_at'])}',
                       ),
                     ),
                   )
@@ -477,6 +566,14 @@ class _EngineerScreenState extends State<EngineerScreen>
                   '${text(course['start_date'])} · ${text(course['enrolled'])}/${text(course['capacity'])} 人',
                 ),
                 const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: () => openPage(
+                    context,
+                    CourseDetailPage(store: s, id: text(course['id'])),
+                  ),
+                  icon: const Icon(Icons.article_outlined),
+                  label: const Text('培训详情与场地'),
+                ),
                 FilledButton.tonal(
                   onPressed: busy || course['my_state'] != null
                       ? null
@@ -572,12 +669,72 @@ class _EngineerScreenState extends State<EngineerScreen>
           ),
         ),
       ),
+      heading('服务与资料'),
+      Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.badge_outlined),
+              title: const Text('接单资料与审核'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, EngineerProfilePage(store: s)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.account_balance_wallet_outlined),
+              title: const Text('收益与提成明细'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, EarningsPage(api: s.api)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('历史服务记录'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, HistoryPage(store: s)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.verified_outlined),
+              title: const Text('培训记录与技能资质'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, QualificationsPage(api: s.api)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.inventory_2_outlined),
+              title: const Text('我的移动仓'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, InventoryPage(store: s)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.smart_toy_outlined),
+              title: const Text('AI 维修助手'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => openPage(context, AssistantPage(store: s)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.contact_page_outlined),
+              title: const Text('我的工程师名片'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => run(() async {
+                final person = obj(await s.api.call('/auth/profile'));
+                if (mounted) {
+                  await openPage(
+                    context,
+                    EngineerCardPage(api: s.api, id: text(person['id'])),
+                  );
+                }
+              }),
+            ),
+          ],
+        ),
+      ),
       heading('服务企业'),
       ...rows(me['employers']).map(
         (e) => Card(
           child: ListTile(
             leading: const Icon(Icons.business_outlined),
             title: Text(text(e['name'])),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () =>
+                openPage(context, CompanyPage(api: s.api, id: text(e['id']))),
           ),
         ),
       ),

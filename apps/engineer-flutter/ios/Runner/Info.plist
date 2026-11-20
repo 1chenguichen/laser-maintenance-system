@@ -44,9 +44,9 @@
 		</dict>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>拍摄维修现场照片。</string>
+	<string>扫描设备二维码或拍摄现场资料照片。</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>选择维修现场照片，用于补充工单完工记录。</string>
+	<string>选择工单照片、头像和服务资料图片，或识别设备二维码。</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

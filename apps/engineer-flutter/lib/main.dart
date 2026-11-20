@@ -3,6 +3,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'api.dart';
 import 'store.dart';
 import 'screens.dart';
+import 'record_pages.dart';
+import 'common.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +21,7 @@ class EngineerApp extends StatefulWidget {
 
 class _EngineerAppState extends State<EngineerApp> {
   final api = Api();
+  final navigation = GlobalKey<NavigatorState>();
   late final store = EngineerStore(api);
   final secure = const FlutterSecureStorage();
   bool ready = false, loggedIn = false;
@@ -63,7 +66,10 @@ class _EngineerAppState extends State<EngineerApp> {
     try {
       await secure.delete(key: 'engineer_session');
     } catch (_) {}
-    if (mounted) setState(() => loggedIn = false);
+    if (mounted) {
+      setState(() => loggedIn = false);
+      navigation.currentState?.popUntil((route) => route.isFirst);
+    }
   }
 
   @override
@@ -77,6 +83,15 @@ class _EngineerAppState extends State<EngineerApp> {
   Widget build(BuildContext context) => MaterialApp(
     debugShowCheckedModeBanner: false,
     title: '智修工 · 工程师',
+    navigatorKey: navigation,
+    locale: const Locale('zh', 'CN'),
+    supportedLocales: const [Locale('zh', 'CN'), Locale('en', 'US')],
+    localizationsDelegates: GlobalMaterialLocalizations.delegates,
+    builder: (context, child) {
+      // mobile_scanner still uses the legacy Flutter material library.
+      // ignore: deprecated_member_use
+      return MaterialUiCompatibilityBridge(child: child!);
+    },
     theme: ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
@@ -211,6 +226,12 @@ class _LoginScreenState extends State<LoginScreen> {
               FilledButton(
                 onPressed: busy ? null : submit,
                 child: Text(busy ? '正在登录…' : '进入工作空间'),
+              ),
+              TextButton(
+                onPressed: busy
+                    ? null
+                    : () => openPage(context, const EngineerApplicationPage()),
+                child: const Text('申请成为工程师'),
               ),
               const SizedBox(height: 16),
               const Text(

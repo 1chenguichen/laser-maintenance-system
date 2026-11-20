@@ -6,6 +6,12 @@ import 'package:image_picker/image_picker.dart';
 import 'api.dart';
 import 'store.dart';
 import 'iot_screen.dart';
+import 'common.dart';
+import 'inventory.dart';
+import 'visual_gallery.dart';
+import 'profile_pages.dart';
+import 'assistant_pages.dart';
+import 'device_pages.dart';
 
 class OrderDetail extends StatefulWidget {
   final EngineerStore store;
@@ -61,6 +67,7 @@ class _OrderDetailState extends State<OrderDetail> {
           builder: (_) => WorkForm(
             order: o,
             action: action,
+            store: widget.store,
             onSubmit: (values) async {
               await api.call(
                 o.platform
@@ -218,6 +225,77 @@ class _OrderDetailState extends State<OrderDetail> {
                 ],
               ),
             ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                ActionChip(
+                  avatar: const Icon(Icons.call_outlined, size: 18),
+                  label: const Text('联系客户'),
+                  onPressed: () => callPhone(
+                    context,
+                    text(obj(o.data['customer'])['phone'], ''),
+                  ),
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.map_outlined, size: 18),
+                  label: const Text('地图导航'),
+                  onPressed: () => openMap(context, addressText),
+                ),
+                if (!o.platform && o.status == 'REPAIRING')
+                  ActionChip(
+                    avatar: const Icon(Icons.inventory_2_outlined, size: 18),
+                    label: const Text('登记用料'),
+                    onPressed: () => openPage(
+                      context,
+                      InventoryPage(
+                        store: widget.store,
+                        serviceId: o.data['serviceId'],
+                        workOrderId: o.id,
+                      ),
+                    ),
+                  ),
+                ActionChip(
+                  avatar: const Icon(Icons.photo_library_outlined, size: 18),
+                  label: const Text('现场照片'),
+                  onPressed: () => openPage(
+                    context,
+                    VisualGallery(
+                      api: api,
+                      kind: o.platform ? 'request' : 'legacy',
+                      id: o.id,
+                      title: '现场检测与完工照片',
+                    ),
+                  ),
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.edit_note, size: 18),
+                  label: const Text('整理维修报告'),
+                  onPressed: () => openPage(
+                    context,
+                    RepairReportPage(store: widget.store, order: o),
+                  ),
+                ),
+                ActionChip(
+                  avatar: const Icon(Icons.smart_toy_outlined, size: 18),
+                  label: const Text('AI 维修助手'),
+                  onPressed: () => openPage(
+                    context,
+                    AssistantPage(
+                      store: widget.store,
+                      serviceId: o.platform ? null : o.data['serviceId'],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            OutlinedButton.icon(
+              onPressed: () =>
+                  openPage(context, TaskDevicePage(api: api, order: o)),
+              icon: const Icon(Icons.precision_manufacturing_outlined),
+              label: const Text('查看设备档案与铭牌'),
+            ),
             block('故障描述', Text(o.description)),
             block(
               '费用与服务记录',
@@ -338,12 +416,14 @@ class Photo extends StatelessWidget {
 
 class WorkForm extends StatefulWidget {
   final ServiceOrder order;
+  final EngineerStore? store;
   final String action;
   final Future<void> Function(Json) onSubmit;
   const WorkForm({
     super.key,
     required this.order,
     required this.action,
+    this.store,
     required this.onSubmit,
   });
   @override
@@ -378,12 +458,12 @@ class _WorkFormState extends State<WorkForm> {
     super.dispose();
   }
 
-  Future<void> photo() async {
+  Future<void> photo([ImageSource source = ImageSource.gallery]) async {
     if (picking || photos.length >= 2) return;
     setState(() => picking = true);
     try {
       final file = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 40,
         maxWidth: 960,
         maxHeight: 960,
@@ -495,6 +575,26 @@ class _WorkFormState extends State<WorkForm> {
               ),
             const SizedBox(height: 16),
           ],
+          if (widget.action == 'complete' && widget.store != null)
+            OutlinedButton.icon(
+              onPressed: submitting
+                  ? null
+                  : () async {
+                      final draft = await openPage<String>(
+                        context,
+                        RepairReportPage(
+                          store: widget.store!,
+                          order: widget.order,
+                          returnDraft: true,
+                        ),
+                      );
+                      if (draft != null && mounted) {
+                        setState(() => note.text = draft);
+                      }
+                    },
+              icon: const Icon(Icons.edit_note),
+              label: const Text('根据现场记录整理报告'),
+            ),
           TextFormField(
             controller: note,
             minLines: 4,
@@ -535,6 +635,13 @@ class _WorkFormState extends State<WorkForm> {
               onPressed: picking || photos.length >= 2 ? null : photo,
               icon: const Icon(Icons.add_photo_alternate_outlined),
               label: Text('添加维修照片（${photos.length}/2）'),
+            ),
+            TextButton.icon(
+              onPressed: picking || photos.length >= 2
+                  ? null
+                  : () => photo(ImageSource.camera),
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: const Text('拍摄维修照片'),
             ),
             if (photos.isNotEmpty) const Text('已添加照片；若提交失败，请留在此页保留填写内容。'),
           ],
