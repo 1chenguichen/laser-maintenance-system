@@ -140,11 +140,12 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
       final list = rows(await widget.store.api.call('/market/courses'));
       final d = list.where((c) => c['id'] == widget.id).firstOrNull;
       if (d == null) throw const ApiFailure('培训已下架或当前账号不可查看');
-      if (mounted)
+      if (mounted) {
         setState(() {
           course = d;
           error = null;
         });
+      }
     } catch (e) {
       if (mounted) setState(() => error = '$e');
     }
