@@ -145,7 +145,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final phone = TextEditingController(), code = TextEditingController();
   bool busy = false;
-  String? error;
+  String? error, connectionDetail;
   @override
   void dispose() {
     phone.dispose();
@@ -162,11 +162,17 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       busy = true;
       error = null;
+      connectionDetail = null;
     });
     try {
       await widget.onLogin(phone.text, code.text);
     } catch (e) {
-      if (mounted) setState(() => error = '$e');
+      if (mounted) {
+        setState(() {
+          error = '$e';
+          connectionDetail = e is ApiFailure ? e.diagnostic : null;
+        });
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
@@ -222,6 +228,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     error!,
                     style: const TextStyle(color: Colors.red),
                   ),
+                ),
+              if (connectionDetail != null)
+                ExpansionTile(
+                  title: const Text('查看连接详情'),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: SelectableText(connectionDetail!),
+                    ),
+                  ],
                 ),
               FilledButton(
                 onPressed: busy ? null : submit,

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
+import 'network_client.dart';
 
 typedef Json = Map<String, dynamic>;
 Json obj(dynamic v) =>
@@ -14,7 +15,8 @@ String text(dynamic v, [String fallback = '—']) =>
 class ApiFailure implements Exception {
   final String message;
   final int? status;
-  const ApiFailure(this.message, [this.status]);
+  final String? diagnostic;
+  const ApiFailure(this.message, [this.status, this.diagnostic]);
   @override
   String toString() => message;
 }
@@ -32,8 +34,8 @@ class Api {
       'API_BASE',
       defaultValue: 'https://43.139.91.94:8442/api',
     ),
-  }) : client = client ?? http.Client(),
-       streamClientFactory = streamClientFactory ?? http.Client.new {
+  }) : client = client ?? createNetworkClient(),
+       streamClientFactory = streamClientFactory ?? createNetworkClient {
     final u = Uri.parse(base);
     if (u.scheme != 'https' ||
         u.userInfo.isNotEmpty ||
@@ -71,8 +73,8 @@ class Api {
       return data;
     } on TimeoutException {
       throw const ApiFailure('请求超时。请刷新确认结果，写操作不会自动重试。');
-    } on http.ClientException {
-      throw const ApiFailure('连接失败，请检查网络后重试');
+    } on http.ClientException catch (error) {
+      throw ApiFailure('暂时无法连接服务器', null, networkDiagnostic(error));
     }
   }
 

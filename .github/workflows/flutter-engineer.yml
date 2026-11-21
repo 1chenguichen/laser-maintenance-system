@@ -44,6 +44,8 @@ jobs:
       - run: flutter config --no-analytics
       - run: flutter pub get --enforce-lockfile
       - run: flutter build ios --release --no-codesign
+      - name: Verify Apple native HTTPS connection
+        run: dart run tool/check_native_connection.dart
       - name: Package ordinary sandbox release for TrollStore
         run: |
           set -euo pipefail
@@ -53,8 +55,8 @@ jobs:
           codesign --force --sign - build/trollstore/Payload/Runner.app
           codesign --verify --deep --strict build/trollstore/Payload/Runner.app
           cd build/trollstore
-          zip -qr engineer-flutter-0.2.0-trollstore.ipa Payload
+          zip -qr engineer-flutter-0.2.1-trollstore.ipa Payload
       - uses: actions/upload-artifact@v4
         with:
           name: engineer-flutter-ios-trollstore
-          path: apps/engineer-flutter/build/trollstore/engineer-flutter-0.2.0-trollstore.ipa
+          path: apps/engineer-flutter/build/trollstore/engineer-flutter-0.2.1-trollstore.ipa
