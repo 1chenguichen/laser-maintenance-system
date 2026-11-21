@@ -272,7 +272,7 @@ class EngineerCardPage extends StatelessWidget {
             children: [
               ...rows(d['skills']).map(
                 (q) => ListTile(
-                  title: Text(text(q['skill'])),
+                  title: Text(skillLabel(q['skill'])),
                   subtitle: Text('有效至 ${dateLabel(q['expires_at'])}'),
                 ),
               ),

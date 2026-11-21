@@ -202,3 +202,21 @@ class _ProtectedImageState extends State<ProtectedImage> {
     ),
   );
 }
+
+String skillLabel(dynamic value) =>
+    const {
+      'cutting': '激光切割',
+      'welding': '激光焊接',
+      'marking': '激光打标',
+      'maintenance': '维保',
+      'installation': '安装调试',
+    }[value] ??
+    text(value);
+String enrollmentLabel(dynamic value) =>
+    const {
+      'ENROLLED': '已报名',
+      'PASSED': '考核通过',
+      'FAILED': '考核未通过',
+      'CANCELLED': '已取消',
+    }[value] ??
+    text(value);

@@ -536,7 +536,7 @@ class _EngineerScreenState extends State<EngineerScreen>
                   .map(
                     (q) => Chip(
                       label: Text(
-                        '${text(q['skill'])} · ${dateLabel(q['expires_at'])}',
+                        '${skillLabel(q['skill'])} · ${dateLabel(q['expires_at'])}',
                       ),
                     ),
                   )
@@ -593,7 +593,7 @@ class _EngineerScreenState extends State<EngineerScreen>
                   child: Text(
                     course['my_state'] == null
                         ? '报名培训'
-                        : text(course['my_state']),
+                        : enrollmentLabel(course['my_state']),
                   ),
                 ),
               ],
