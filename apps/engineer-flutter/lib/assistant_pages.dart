@@ -147,7 +147,8 @@ class _AssistantPageState extends State<AssistantPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
+    appBar: engineerAppBar(
+      context,
       title: const Text('AI 维修助手'),
       actions: [
         IconButton(
@@ -213,16 +214,13 @@ class _AssistantPageState extends State<AssistantPage> {
                           ? '当前工作身份尚未关联企业 AI 服务。'
                           : '描述设备型号、故障表现和已做检查。\nAI 建议需要现场核实，不能替代安全操作规范。',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: Colors.black54,
-                        height: 1.7,
-                      ),
+                      style: const TextStyle(color: engineerMuted, height: 1.7),
                     ),
                   ),
                 )
               : ListView.builder(
                   controller: scroll,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(24),
                   itemCount: messages.length,
                   itemBuilder: (c, i) {
                     final m = messages[i], user = m['role'] == 'user';
@@ -244,7 +242,7 @@ class _AssistantPageState extends State<AssistantPage> {
                               user ? '我' : 'AI 维修助手',
                               style: const TextStyle(
                                 fontSize: 11,
-                                color: Colors.grey,
+                                color: engineerMuted,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -348,9 +346,9 @@ class _RepairReportPageState extends State<RepairReportPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('维修报告助手')),
+    appBar: engineerAppBar(context, title: const Text('维修报告助手')),
     body: ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       children: [
         if (loading) const LinearProgressIndicator(),
         hint('按工单事实与人工填写内容整理草稿，不会自动诊断或提交完工。'),

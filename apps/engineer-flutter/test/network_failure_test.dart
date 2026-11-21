@@ -57,8 +57,8 @@ void main() {
     );
     await tester.enterText(find.byType(TextField).at(0), '13900000002');
     await tester.enterText(find.byType(TextField).at(1), '000000');
-    await tester.ensureVisible(find.text('进入工作空间'));
-    await tester.tap(find.text('进入工作空间'));
+    await tester.ensureVisible(find.text('登录'));
+    await tester.tap(find.text('登录'));
     await tester.pumpAndSettle();
     expect(find.text('暂时无法连接服务器'), findsOneWidget);
     await tester.ensureVisible(find.text('查看连接详情'));

@@ -145,11 +145,11 @@ class _EngineerProfilePageState extends State<EngineerProfilePage> {
     return PopScope(
       canPop: !busy,
       child: Scaffold(
-        appBar: AppBar(title: const Text('接单资料与审核')),
+        appBar: engineerAppBar(context, title: const Text('接单资料与审核')),
         body: Form(
           key: key,
           child: ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             children: [
               if (loading) const LinearProgressIndicator(),
               if (error != null)

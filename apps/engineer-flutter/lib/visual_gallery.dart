@@ -119,7 +119,8 @@ class _VisualGalleryState extends State<VisualGallery> {
         items = rows(d['items']),
         slots = (d['uploadSlots'] as List? ?? []).cast<String>();
     return Scaffold(
-      appBar: AppBar(
+      appBar: engineerAppBar(
+        context,
         title: Text(widget.title),
         actions: [
           IconButton(
@@ -130,7 +131,7 @@ class _VisualGalleryState extends State<VisualGallery> {
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           if (loading || busy) const LinearProgressIndicator(minHeight: 2),
           if (error != null)
@@ -188,7 +189,7 @@ class _VisualGalleryState extends State<VisualGallery> {
                   ),
                   Text(
                     dateLabel(item['created_at']),
-                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: engineerMuted),
                   ),
                   if (item['canDelete'] == true)
                     TextButton.icon(

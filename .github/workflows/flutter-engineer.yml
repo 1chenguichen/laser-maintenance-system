@@ -55,8 +55,8 @@ jobs:
           codesign --force --sign - build/trollstore/Payload/Runner.app
           codesign --verify --deep --strict build/trollstore/Payload/Runner.app
           cd build/trollstore
-          zip -qr engineer-flutter-0.2.1-trollstore.ipa Payload
+          zip -qr engineer-flutter-0.3.0-trollstore.ipa Payload
       - uses: actions/upload-artifact@v4
         with:
           name: engineer-flutter-ios-trollstore
-          path: apps/engineer-flutter/build/trollstore/engineer-flutter-0.2.1-trollstore.ipa
+          path: apps/engineer-flutter/build/trollstore/engineer-flutter-0.3.0-trollstore.ipa

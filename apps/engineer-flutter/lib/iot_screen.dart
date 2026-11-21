@@ -2,11 +2,18 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'api.dart';
+import 'common.dart';
 
 class IoTScreen extends StatefulWidget {
   final Api api;
   final String deviceId;
-  const IoTScreen({super.key, required this.api, required this.deviceId});
+  final bool embedded;
+  const IoTScreen({
+    super.key,
+    required this.api,
+    required this.deviceId,
+    this.embedded = false,
+  });
   @override
   State<IoTScreen> createState() => _IoTScreenState();
 }
@@ -71,18 +78,21 @@ class _IoTScreenState extends State<IoTScreen> {
   Widget build(BuildContext context) {
     final d = device ?? {}, metrics = rows(d['metrics']);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('设备运行数据'),
-        actions: [
-          IconButton(
-            tooltip: '刷新',
-            onPressed: loading ? null : load,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+      appBar: widget.embedded
+          ? null
+          : engineerAppBar(
+              context,
+              title: const Text('设备运行数据'),
+              actions: [
+                IconButton(
+                  tooltip: '刷新',
+                  onPressed: loading ? null : load,
+                  icon: const Icon(Icons.refresh),
+                ),
+              ],
+            ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(widget.embedded ? 16 : 24),
         children: [
           if (loading) const LinearProgressIndicator(),
           if (error != null)
@@ -98,7 +108,9 @@ class _IoTScreenState extends State<IoTScreen> {
           ),
           const SizedBox(height: 8),
           Text('SN ${text(d['serialNumber'])}'),
-          Text('${text(d['companyName'])} · ${text(d['connectivity'])}'),
+          Text(
+            '${text(d['companyName'])} · ${const {'ONLINE': '在线', 'OFFLINE': '离线', 'NEVER': '未上报', 'DISABLED': '已停用'}[d['connectivity']] ?? text(d['connectivity'])}',
+          ),
           if (d['simulated'] == true) const Text('模拟设备 · 与四端使用同一套数据'),
           if (d['dataStale'] == true)
             const Padding(
@@ -109,35 +121,37 @@ class _IoTScreenState extends State<IoTScreen> {
               ),
             ),
           const SizedBox(height: 18),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: metrics
-                .map(
-                  (m) => SizedBox(
-                    width: (MediaQuery.sizeOf(context).width - 52) / 2,
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(text(m['label'])),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${text(obj(d['latest'])[m['key']])} ${text(m['unit'], '')}',
-                              style: const TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w600,
+          LayoutBuilder(
+            builder: (context, constraints) => Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: metrics
+                  .map(
+                    (m) => SizedBox(
+                      width: (constraints.maxWidth - 12) / 2,
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(text(m['label'])),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${text(obj(d['latest'])[m['key']])} ${text(m['unit'], '')}',
+                                style: const TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-                .toList(),
+                  )
+                  .toList(),
+            ),
           ),
           const SizedBox(height: 18),
           if (metrics.isNotEmpty)
@@ -197,7 +211,7 @@ class _IoTScreenState extends State<IoTScreen> {
                           '${text(points.first['at'])} — ${text(points.last['at'])}',
                           style: const TextStyle(
                             fontSize: 10,
-                            color: Colors.grey,
+                            color: engineerMuted,
                           ),
                         ),
                       ],
@@ -219,7 +233,7 @@ class _IoTScreenState extends State<IoTScreen> {
             const Padding(padding: EdgeInsets.all(20), child: Text('暂无告警记录')),
           const Text(
             '每15秒读取最新数据；设备未上报时不会生成虚假波动。',
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+            style: TextStyle(fontSize: 12, color: engineerMuted),
           ),
         ],
       ),
@@ -251,7 +265,7 @@ class TrendPainter extends CustomPainter {
       final t = TextPainter(
         text: TextSpan(
           text: (max - range * i / 3).toStringAsFixed(1),
-          style: const TextStyle(fontSize: 10, color: Colors.grey),
+          style: const TextStyle(fontSize: 10, color: engineerMuted),
         ),
         textDirection: TextDirection.ltr,
       )..layout();

@@ -222,7 +222,8 @@ class ServiceOrder {
       text(data[platform ? 'description' : 'faultDescription']);
   String get deviceId => text(data[platform ? 'device_ref' : 'deviceId'], '');
   bool get finished => ['COMPLETED', 'CANCELLED', 'REFUSED'].contains(status);
-  String get label => statusNames[status] ?? status;
+  String get label =>
+      platform && status == 'ACCEPTED' ? '已接单' : statusNames[status] ?? status;
   String? get action => platform
       ? {
           'ASSIGNED': 'accept',
@@ -241,8 +242,8 @@ const statusNames = {
   'PENDING': '待派单',
   'REQUESTED': '待领取',
   'ASSIGNED': '待接单',
-  'DISPATCHED': '待确认上门',
-  'ACCEPTED': '待报价',
+  'DISPATCHED': '已派单',
+  'ACCEPTED': '已上门',
   'QUOTED': '待确认报价',
   'APPROVED': '待开始服务',
   'IN_SERVICE': '服务中',

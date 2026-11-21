@@ -23,7 +23,7 @@ class OrderDetail extends StatefulWidget {
 
 class _OrderDetailState extends State<OrderDetail> {
   ServiceOrder? current;
-  bool loading = false, busy = false;
+  bool loading = false, busy = false, showIoT = false;
   String? error;
   Api get api => widget.store.api;
   @override
@@ -147,13 +147,13 @@ class _OrderDetailState extends State<OrderDetail> {
 
   Widget block(String title, Widget content) => Card(
     child: Padding(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           content,
@@ -174,7 +174,8 @@ class _OrderDetailState extends State<OrderDetail> {
           ].map((k) => text(address[k], '')).join('')
         : text(address);
     return Scaffold(
-      appBar: AppBar(
+      appBar: engineerAppBar(
+        context,
         title: const Text('工单详情'),
         actions: [
           IconButton(
@@ -187,34 +188,119 @@ class _OrderDetailState extends State<OrderDetail> {
       body: RefreshIndicator(
         onRefresh: load,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           children: [
             if (loading) const LinearProgressIndicator(minHeight: 2),
             if (error != null) block('读取提示', Text(error!)),
-            block(
-              o.label,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    o.title,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                    ),
+            Row(
+              children: [
+                statusTag(o.label, o.status),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    o.number,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 12, color: engineerMuted),
                   ),
-                  const SizedBox(height: 8),
-                  SelectableText(o.number),
-                  Text(o.company),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            section(
+              '本单履约企业',
+              Text(
+                o.company,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
+            if (o.action != null)
+              softPanel(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      '当前任务 · 下一步',
+                      style: TextStyle(color: engineerMuted),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      const {
+                        'accept': '确认接单，并核对现场服务安排',
+                        'start': '核对设备与地址，开始现场服务',
+                        'quote': '填写检测结果，提交本次服务报价',
+                        'complete': '完成维修，并核对实际用料和验证结果',
+                      }[o.action]!,
+                      style: const TextStyle(fontSize: 20, height: 1.5),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '服务企业：${o.company}',
+                      style: const TextStyle(color: engineerMuted),
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton(
+                      onPressed: busy || loading || current == null
+                          ? null
+                          : act,
+                      child: Text(busy ? '正在提交…' : actionNames[o.action]!),
+                    ),
+                  ],
+                ),
+              ),
+            if (o.deviceId.isNotEmpty)
+              block(
+                '设备物联网',
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('按当前工单授权查看运行指标、趋势和告警。'),
+                    const SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: () => setState(() => showIoT = !showIoT),
+                      icon: Icon(
+                        showIoT ? Icons.expand_less : Icons.expand_more,
+                      ),
+                      label: Text(showIoT ? '收起运行数据与统计图' : '展开运行数据与统计图'),
+                    ),
+                    if (showIoT)
+                      SizedBox(
+                        height: 620,
+                        child: IoTScreen(
+                          api: api,
+                          deviceId: o.deviceId,
+                          embedded: true,
+                        ),
+                      ),
+                    TextButton(
+                      onPressed: () => openPage(
+                        context,
+                        IoTScreen(api: api, deviceId: o.deviceId),
+                      ),
+                      child: const Text('打开完整设备监测 →'),
+                    ),
+                  ],
+                ),
+              ),
             block(
               '设备与现场',
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(o.model),
+                  Row(
+                    children: [
+                      ReferencePhoto(model: o.model, size: 64),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          o.model,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   Text(addressText),
                   const SizedBox(height: 8),
@@ -315,28 +401,6 @@ class _OrderDetailState extends State<OrderDetail> {
                 ],
               ),
             ),
-            if (o.deviceId.isNotEmpty)
-              block(
-                '设备物联网',
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('按当前工单授权查看运行指标、趋势和告警。'),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (_) =>
-                              IoTScreen(api: api, deviceId: o.deviceId),
-                        ),
-                      ),
-                      icon: const Icon(Icons.monitor_heart_outlined),
-                      label: const Text('查看设备运行数据'),
-                    ),
-                  ],
-                ),
-              ),
             if (!o.platform &&
                 o.data['faultPhotos'] is List &&
                 (o.data['faultPhotos'] as List).isNotEmpty)
@@ -364,15 +428,6 @@ class _OrderDetailState extends State<OrderDetail> {
           ],
         ),
       ),
-      bottomNavigationBar: o.action == null
-          ? null
-          : SafeArea(
-              minimum: const EdgeInsets.all(16),
-              child: FilledButton(
-                onPressed: busy || loading ? null : act,
-                child: Text(busy ? '正在提交…' : actionNames[o.action]!),
-              ),
-            ),
     );
   }
 }
@@ -546,11 +601,11 @@ class _WorkFormState extends State<WorkForm> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: Text(actionNames[widget.action]!)),
+    appBar: engineerAppBar(context, title: Text(actionNames[widget.action]!)),
     body: Form(
       key: key,
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           if (widget.action == 'quote') ...[
             TextFormField(

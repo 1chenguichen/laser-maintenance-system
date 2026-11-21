@@ -180,7 +180,8 @@ class _InventoryPageState extends State<InventoryPage> {
         requests = rows(mobile['requests']).where(matches),
         journal = rows(data['journal']).where(matches);
     return Scaffold(
-      appBar: AppBar(
+      appBar: engineerAppBar(
+        context,
         title: const Text('我的移动仓'),
         actions: [
           IconButton(
@@ -193,7 +194,7 @@ class _InventoryPageState extends State<InventoryPage> {
       body: RefreshIndicator(
         onRefresh: load,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             if (loading || busy) const LinearProgressIndicator(minHeight: 2),
@@ -449,7 +450,8 @@ class _MaterialFormState extends State<MaterialForm> {
     return PopScope(
       canPop: !busy,
       child: Scaffold(
-        appBar: AppBar(
+        appBar: engineerAppBar(
+          context,
           title: Text(
             consume
                 ? '登记工单用料'
@@ -461,7 +463,7 @@ class _MaterialFormState extends State<MaterialForm> {
         body: Form(
           key: key,
           child: ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             children: [
               hint(
                 consume

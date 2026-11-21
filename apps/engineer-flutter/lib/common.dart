@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:material_ui/material_ui.dart';
 import 'api.dart';
+export 'engineer_design.dart';
+import 'engineer_design.dart';
 
 const brand = Color(0xff176c50);
 String scoped(String path, String? serviceId) {
@@ -21,12 +23,18 @@ String dateLabel(dynamic value) {
 num number(dynamic value) => num.tryParse('$value') ?? 0;
 String money(dynamic value) {
   final parsed = num.tryParse('$value');
-  return parsed == null || !parsed.isFinite ? '—' : parsed.toStringAsFixed(2);
+  if (parsed == null || !parsed.isFinite) return '—';
+  final parts = parsed.toStringAsFixed(2).split('.');
+  final integer = parts.first.replaceAllMapped(
+    RegExp(r'(\d)(?=(\d{3})+(?!\d))'),
+    (m) => '${m[1]},',
+  );
+  return '$integer.${parts.last}';
 }
 
 Widget section(String title, Widget child) => Card(
   child: Padding(
-    padding: const EdgeInsets.all(18),
+    padding: const EdgeInsets.all(16),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -44,7 +52,7 @@ Widget hint(String message) => Padding(
   padding: const EdgeInsets.symmetric(vertical: 16),
   child: Text(
     message,
-    style: const TextStyle(color: Colors.black54, height: 1.5),
+    style: const TextStyle(color: engineerMuted, height: 1.5),
   ),
 );
 Future<bool> confirm(
@@ -120,7 +128,8 @@ class _DataPageState extends State<DataPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
+    appBar: engineerAppBar(
+      context,
       title: Text(widget.title),
       actions: [
         IconButton(
@@ -133,7 +142,7 @@ class _DataPageState extends State<DataPage> {
     body: RefreshIndicator(
       onRefresh: load,
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           if (loading) const LinearProgressIndicator(minHeight: 2),

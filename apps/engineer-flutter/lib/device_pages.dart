@@ -94,12 +94,12 @@ class _ScanPageState extends State<ScanPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('扫一扫')),
+    appBar: engineerAppBar(context, title: const Text('扫一扫')),
     body: ListView(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       children: [
         ClipRRect(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           child: SizedBox(
             height: 300,
             child: MobileScanner(
@@ -211,7 +211,8 @@ class _DeviceListPageState extends State<DeviceListPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
+    appBar: engineerAppBar(
+      context,
       title: const Text('任务设备监控'),
       actions: [
         IconButton(
@@ -229,7 +230,7 @@ class _DeviceListPageState extends State<DeviceListPage> {
     body: RefreshIndicator(
       onRefresh: load,
       child: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
           hint('这里只显示当前任务授权的设备；任务结束后权限会按服务端规则收回。'),
@@ -329,9 +330,9 @@ class TaskDevicePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final d = obj(order.data['device']);
     return Scaffold(
-      appBar: AppBar(title: const Text('设备档案')),
+      appBar: engineerAppBar(context, title: const Text('设备档案')),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           section(
             order.model,

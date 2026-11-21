@@ -54,7 +54,8 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
           );
     return Scaffold(
-      appBar: AppBar(
+      appBar: engineerAppBar(
+        context,
         title: const Text('历史服务记录'),
         actions: [
           IconButton(
@@ -67,7 +68,7 @@ class _HistoryPageState extends State<HistoryPage> {
       body: RefreshIndicator(
         onRefresh: load,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           physics: const AlwaysScrollableScrollPhysics(),
           children: [
             if (loading) const LinearProgressIndicator(minHeight: 2),
@@ -176,9 +177,9 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   Widget build(BuildContext context) {
     final d = course ?? {};
     return Scaffold(
-      appBar: AppBar(title: const Text('培训详情')),
+      appBar: engineerAppBar(context, title: const Text('培训详情')),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(24),
         children: [
           if (course == null && error == null) const LinearProgressIndicator(),
           if (error != null)
@@ -356,7 +357,7 @@ class _EngineerApplicationPageState extends State<EngineerApplicationPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('申请成为工程师')),
+    appBar: engineerAppBar(context, title: const Text('申请成为工程师')),
     body: ListView(
       padding: const EdgeInsets.all(24),
       children: [
