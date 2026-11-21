@@ -245,6 +245,17 @@ class _IoTScreenState extends State<IoTScreen> {
   }
 }
 
+({double min, double max}) trendBounds(List<double> values) {
+  final low = values.reduce(math.min), high = values.reduce(math.max);
+  if (low != high) return (min: low, max: high);
+  if (low == 0) return (min: 0, max: 1);
+  final padding = math.max(low.abs() * 0.05, 1.0);
+  return (
+    min: low >= 0 ? math.max(0.0, low - padding) : low - padding,
+    max: high + padding,
+  );
+}
+
 class TrendPainter extends CustomPainter {
   final List<Json> points;
   TrendPainter(this.points);
@@ -255,9 +266,10 @@ class TrendPainter extends CustomPainter {
         .whereType<double>()
         .toList();
     if (values.isEmpty) return;
-    final min = values.reduce(math.min),
-        max = values.reduce(math.max),
-        range = max - min == 0 ? 1.0 : max - min;
+    final bounds = trendBounds(values),
+        min = bounds.min,
+        max = bounds.max,
+        range = max - min;
     const left = 42.0;
     final width = size.width - left - 8, height = size.height - 26;
     final axis = Paint()

@@ -1,3 +1,4 @@
+import 'package:zhixiugong_customer/iot_screen.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,11 @@ import 'package:zhixiugong_customer/main.dart';
 import 'package:zhixiugong_customer/enterprise.dart';
 
 void main() {
+  test('constant charts use the same valid bounds for labels and points', () {
+    expect(trendBounds([0, 0]), (min: 0.0, max: 1.0));
+    expect(trendBounds([32, 32]), (min: 30.4, max: 33.6));
+    expect(trendBounds([-4, 2]), (min: -4.0, max: 2.0));
+  });
   test('API rejects cleartext server address', () {
     expect(() => Api(base: 'http://example.com/api'), throwsArgumentError);
   });
