@@ -216,8 +216,12 @@ class ServiceOrder {
   String get model => platform
       ? text(data['device_model'])
       : text(obj(data['device'])['model']);
-  String get company =>
-      text(data[platform ? 'provider_name' : 'serviceName'], '平台服务');
+  String get company => platform
+      ? text(
+          data['assigned_provider_name'],
+          text(data['provider_name'], '平台服务网络'),
+        )
+      : text(data['serviceName'], '企业服务');
   String get description =>
       text(data[platform ? 'description' : 'faultDescription']);
   String get deviceId => text(data[platform ? 'device_ref' : 'deviceId'], '');

@@ -336,7 +336,19 @@ class _EngineerScreenState extends State<EngineerScreen>
       return i < 0 ? 99 : i;
     }
 
-    active.sort((a, b) => rank(a).compareTo(rank(b)));
+    active.sort((a, b) {
+      final state = rank(a).compareTo(rank(b));
+      if (state != 0) return state;
+      final at = DateTime.tryParse(
+        text(a.data[a.platform ? 'created_at' : 'createdAt']),
+      );
+      final bt = DateTime.tryParse(
+        text(b.data[b.platform ? 'created_at' : 'createdAt']),
+      );
+      return (at?.millisecondsSinceEpoch ?? 0).compareTo(
+        bt?.millisecondsSinceEpoch ?? 0,
+      );
+    });
     final counts = [
       active
           .where(
