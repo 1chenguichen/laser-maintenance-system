@@ -665,19 +665,26 @@ class _WorkFormState extends State<WorkForm> {
             const SizedBox(height: 16),
             const Text('客户签名确认', style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 10),
-            RepaintBoundary(
-              key: signature,
-              child: Container(
-                height: 180,
-                color: Colors.white,
-                child: GestureDetector(
-                  onPanStart: (d) =>
-                      setState(() => strokes.add([d.localPosition])),
-                  onPanUpdate: (d) =>
-                      setState(() => strokes.last.add(d.localPosition)),
-                  child: CustomPaint(
-                    painter: SignaturePainter(strokes),
-                    size: Size.infinite,
+            Container(
+              padding: const EdgeInsets.all(1),
+              decoration: BoxDecoration(
+                border: Border.all(color: engineerLine, width: 1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: RepaintBoundary(
+                key: signature,
+                child: Container(
+                  height: 180,
+                  color: Colors.white,
+                  child: GestureDetector(
+                    onPanStart: (d) =>
+                        setState(() => strokes.add([d.localPosition])),
+                    onPanUpdate: (d) =>
+                        setState(() => strokes.last.add(d.localPosition)),
+                    child: CustomPaint(
+                      painter: SignaturePainter(strokes),
+                      size: Size.infinite,
+                    ),
                   ),
                 ),
               ),
