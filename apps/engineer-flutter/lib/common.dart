@@ -19,6 +19,11 @@ String dateLabel(dynamic value) {
 }
 
 num number(dynamic value) => num.tryParse('$value') ?? 0;
+String money(dynamic value) {
+  final parsed = num.tryParse('$value');
+  return parsed == null || !parsed.isFinite ? '—' : parsed.toStringAsFixed(2);
+}
+
 Widget section(String title, Widget child) => Card(
   child: Padding(
     padding: const EdgeInsets.all(18),

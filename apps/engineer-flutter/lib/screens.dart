@@ -655,7 +655,7 @@ class _EngineerScreenState extends State<EngineerScreen>
               const Text('本月服务'),
               const SizedBox(height: 12),
               Text(
-                '¥ ${text(stats['monthlyRevenue'])}',
+                '¥ ${money(stats['monthlyRevenue'])}',
                 style: const TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w600,

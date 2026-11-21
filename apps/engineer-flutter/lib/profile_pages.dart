@@ -272,7 +272,7 @@ class EarningsPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '¥ ${text(d['monthlyRevenue'])}',
+                  '¥ ${money(d['monthlyRevenue'])}',
                   style: const TextStyle(
                     fontSize: 34,
                     fontWeight: FontWeight.w600,
@@ -280,7 +280,7 @@ class EarningsPage extends StatelessWidget {
                   ),
                 ),
                 Text('完成 ${text(d['monthlyOrders'])} 单'),
-                hint('参考提成金额：¥ ${text(month['commissionAmount'])}；以企业实际结算为准。'),
+                hint('参考提成金额：¥ ${money(month['commissionAmount'])}；以企业实际结算为准。'),
               ],
             ),
           ),
@@ -289,7 +289,7 @@ class EarningsPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('累计收入：¥ ${text(d['totalRevenue'])}'),
+                Text('累计收入：¥ ${money(d['totalRevenue'])}'),
                 Text('累计完成：${text(d['totalOrders'])} 单'),
                 Text('服务评分：${text(d['avgRating'])}'),
               ],
@@ -301,7 +301,7 @@ class EarningsPage extends StatelessWidget {
               (e) => section(
                 text(e.$2['serviceName'], '企业分项 ${e.$1 + 1}'),
                 Text(
-                  '本月 ${text(e.$2['monthlyOrders'])} 单 · ¥ ${text(e.$2['monthlyRevenue'])}\n参考提成 ¥ ${text(obj(e.$2['currentMonth'])['commissionAmount'])}',
+                  '本月 ${text(e.$2['monthlyOrders'])} 单 · ¥ ${money(e.$2['monthlyRevenue'])}\n参考提成 ¥ ${money(obj(e.$2['currentMonth'])['commissionAmount'])}',
                 ),
               ),
             ),

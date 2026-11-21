@@ -303,7 +303,7 @@ class _OrderDetailState extends State<OrderDetail> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '报价金额：¥ ${text(o.data[o.platform ? 'quote_amount' : 'estimatedAmount'])}',
+                    '报价金额：¥ ${money(o.data[o.platform ? 'quote_amount' : 'estimatedAmount'])}',
                   ),
                   const SizedBox(height: 8),
                   Text(
