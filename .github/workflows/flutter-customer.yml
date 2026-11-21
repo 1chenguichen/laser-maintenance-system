@@ -1,0 +1,62 @@
+name: Flutter customer native
+on:
+  workflow_dispatch:
+  push:
+    branches: ['codex/flutter-customer-*']
+    paths: ['apps/customer-flutter/**', '.github/workflows/flutter-customer.yml', '.github/scripts/setup_flutter.py']
+permissions:
+  contents: read
+concurrency:
+  group: flutter-customer-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/customer-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: python3 ../../.github/scripts/setup_flutter.py
+      - run: flutter config --no-analytics
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter analyze
+      - run: flutter test --concurrency=1
+      - run: flutter build apk --release --target-platform android-arm64 --split-per-abi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: customer-flutter-android
+          path: apps/customer-flutter/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/customer-flutter
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 ../../.github/scripts/setup_flutter.py
+      - run: flutter config --no-analytics
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter build ios --release --no-codesign
+      - name: Verify Apple native HTTPS connection
+        run: dart run tool/check_native_connection.dart
+      - name: Package ordinary sandbox release for TrollStore
+        run: |
+          set -euo pipefail
+          mkdir -p build/trollstore/Payload
+          cp -R build/ios/iphoneos/Runner.app build/trollstore/Payload/
+          find build/trollstore/Payload/Runner.app -type d -name '*.framework' -depth -exec codesign --force --sign - {} \;
+          codesign --force --sign - build/trollstore/Payload/Runner.app
+          codesign --verify --deep --strict build/trollstore/Payload/Runner.app
+          cd build/trollstore
+          zip -qr customer-flutter-0.1.0-trollstore.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: customer-flutter-ios-trollstore
+          path: apps/customer-flutter/build/trollstore/customer-flutter-0.1.0-trollstore.ipa

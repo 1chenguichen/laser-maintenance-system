@@ -87,3 +87,9 @@ backend/private-market-media/
 !/apps/engineer-flutter/android/**
 !/apps/engineer-flutter/ios/
 !/apps/engineer-flutter/ios/**
+
+# Maintain native customer app platform sources.
+!/apps/customer-flutter/android/
+!/apps/customer-flutter/android/**
+!/apps/customer-flutter/ios/
+!/apps/customer-flutter/ios/**
