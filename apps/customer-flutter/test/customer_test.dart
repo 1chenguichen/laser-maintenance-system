@@ -338,9 +338,12 @@ void main() {
         expect(r.url.queryParameters['workspace'], 'company-a');
         return http.Response(
           r.url.path.endsWith('/alarms')
-              ? '{"items":[{"id":"alarm","message":"temperature"}],"total":1}'
+              ? '{"alarms":[{"id":"alarm","label":"冷却液温度","model":"焊接机"}],"total":1}'
+              : r.url.path.endsWith('/devices')
+              ? '{"devices":[{"id":"asset","model":"焊接机","serialNumber":"IOT-001"}],"total":1}'
               : '{}',
           200,
+          headers: {'content-type': 'application/json; charset=utf-8'},
         );
       }),
     );
@@ -359,10 +362,15 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.text('设备'));
+    await tester.pumpAndSettle();
+    expect(find.text('焊接机'), findsOneWidget);
+    expect(find.text('当前筛选范围暂无接入设备'), findsNothing);
     await tester.tap(find.text('告警'));
     await tester.pumpAndSettle();
     expect(find.text('工单'), findsNothing);
-    expect(find.text('temperature'), findsOneWidget);
+    expect(find.text('冷却液温度'), findsOneWidget);
+    expect(find.text('状态：未处理'), findsOneWidget);
     expect(find.text('记录处理'), findsNothing);
     await tester.pumpWidget(const SizedBox());
     api.dispose();

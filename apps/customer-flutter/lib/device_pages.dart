@@ -341,7 +341,7 @@ class CustomerMonitorList extends StatelessWidget {
     content: (c, d, reload) => Column(
       children: [
         hint('仅展示当前身份授权的接入设备。'),
-        ...rows(d['items']).map(
+        ...rows(d['devices']).map(
           (item) => Card(
             child: ListTile(
               title: Text(text(item['model'])),
@@ -354,7 +354,7 @@ class CustomerMonitorList extends StatelessWidget {
             ),
           ),
         ),
-        if (rows(d['items']).isEmpty) hint('暂无可查看的已接入设备'),
+        if (rows(d['devices']).isEmpty) hint('暂无可查看的已接入设备'),
       ],
     ),
   );

@@ -85,7 +85,7 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
         );
         if (mounted && token == generation) {
           setState(() {
-            devices = rows(d['items']);
+            devices = rows(d['devices']);
             total = number(d['total']).toInt();
           });
         }
@@ -322,16 +322,24 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
             if (tab == 2) ...[
               ...alarms.map(
                 (a) => section(
-                  text(a['message'], text(a['metric'])),
+                  text(a['label'], text(a['metric'])),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('设备：${text(a['deviceModel'], text(a['asset_id']))}'),
+                      Text('设备：${text(a['model'], text(a['serialNumber']))}'),
                       Text(
                         '触发：${dateLabel(a['startedAt'] ?? a['started_at'])}',
                       ),
-                      Text('状态：${text(a['status'], text(a['state']))}'),
-                      if (['admin', 'operator'].contains(company['role']))
+                      Text(
+                        a['recoveredAt'] != null
+                            ? '状态：已恢复'
+                            : a['acknowledgedAt'] != null
+                            ? '状态：已记录处理，待设备恢复'
+                            : '状态：未处理',
+                      ),
+                      if (['admin', 'operator'].contains(company['role']) &&
+                          a['acknowledgedAt'] == null &&
+                          a['recoveredAt'] == null)
                         TextButton(
                           onPressed: () => acknowledge(a),
                           child: const Text('记录处理'),

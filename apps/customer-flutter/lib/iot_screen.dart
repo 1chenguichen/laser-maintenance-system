@@ -59,7 +59,9 @@ class _IoTScreenState extends State<IoTScreen> {
           )
         else
           Future.value(<String, dynamic>{}),
-        widget.api.call('/iot/alarms?deviceId=${widget.deviceId}&pageSize=10'),
+        widget.api.call(
+          '/iot/alarms?deviceId=${widget.deviceId}&page=1&pageSize=10',
+        ),
       ]);
       if (mounted) {
         setState(() {
@@ -227,8 +229,8 @@ class _IoTScreenState extends State<IoTScreen> {
           ...alarms.map(
             (a) => ListTile(
               leading: const Icon(Icons.warning_amber, color: Colors.orange),
-              title: Text(text(a['message'], text(a['metric']))),
-              subtitle: Text(text(a['createdAt'], text(a['created_at']))),
+              title: Text(text(a['label'], text(a['metric']))),
+              subtitle: Text(dateLabel(a['startedAt'])),
             ),
           ),
           if (alarms.isEmpty && device != null)
