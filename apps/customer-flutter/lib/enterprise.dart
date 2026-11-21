@@ -23,7 +23,7 @@ class EnterpriseShell extends StatefulWidget {
 class _EnterpriseShellState extends State<EnterpriseShell> {
   String? workspace, error;
   Json data = {};
-  List<Json> devices = [], alarms = [], orders = [];
+  List<Json> devices = [], alarms = [];
   int tab = 0, page = 1, total = 0, generation = 0;
   bool loading = false;
   final query = TextEditingController();
@@ -98,18 +98,6 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
             alarms = rows(d['items']).isNotEmpty
                 ? rows(d['items'])
                 : rows(d['alarms']);
-            total = number(d['total']).toInt();
-          });
-        }
-      } else {
-        final d = obj(
-          await widget.api.call(
-            '/iot/company-orders?companyId=$workspace&page=$page&pageSize=20',
-          ),
-        );
-        if (mounted && token == generation) {
-          setState(() {
-            orders = rows(d['items']);
             total = number(d['total']).toInt();
           });
         }
@@ -232,7 +220,6 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
                         data = {};
                         devices = [];
                         alarms = [];
-                        orders = [];
                         page = 1;
                       });
                       load();
@@ -246,11 +233,11 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
             ),
             const SizedBox(height: 16),
             ClientSegments(
-              items: const ['总览', '设备', '告警', '工单'],
-              selected: const ['总览', '设备', '告警', '工单'][tab],
+              items: const ['总览', '设备', '告警'],
+              selected: const ['总览', '设备', '告警'][tab],
               onChanged: loading
                   ? null
-                  : (v) => select(const ['总览', '设备', '告警', '工单'].indexOf(v)),
+                  : (v) => select(const ['总览', '设备', '告警'].indexOf(v)),
             ),
             const SizedBox(height: 20),
             if (loading) const LinearProgressIndicator(minHeight: 2),
@@ -355,17 +342,6 @@ class _EnterpriseShellState extends State<EnterpriseShell> {
               ),
               if (alarms.isEmpty && !loading && error == null)
                 hint('当前范围暂无告警记录'),
-            ],
-            if (tab == 3) ...[
-              ...orders.map(
-                (o) => section(
-                  text(o['order_no'], text(o['orderNo'], text(o['number']))),
-                  Text(
-                    '${text(o['model'], text(o['deviceModel'], text(o['device_model'])))}\n${text(o['fault_type'], text(o['faultType'], text(o['title'])))}\n状态：${text(o['status'])}',
-                  ),
-                ),
-              ),
-              if (orders.isEmpty && !loading && error == null) hint('当前范围暂无工单'),
             ],
             if (tab != 0 && workspace != null)
               Row(

@@ -361,6 +361,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('告警'));
     await tester.pumpAndSettle();
+    expect(find.text('工单'), findsNothing);
     expect(find.text('temperature'), findsOneWidget);
     expect(find.text('记录处理'), findsNothing);
     await tester.pumpWidget(const SizedBox());
