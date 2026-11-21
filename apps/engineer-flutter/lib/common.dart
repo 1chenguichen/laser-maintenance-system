@@ -82,7 +82,7 @@ void notice(BuildContext context, Object message) => ScaffoldMessenger.of(
   context,
 ).showSnackBar(SnackBar(content: Text('$message')));
 Future<T?> openPage<T>(BuildContext context, Widget page) =>
-    Navigator.push<T>(context, MaterialPageRoute(builder: (_) => page));
+    Navigator.push<T>(context, EngineerRoute(builder: (_) => page));
 
 class DataPage extends StatefulWidget {
   final String title;

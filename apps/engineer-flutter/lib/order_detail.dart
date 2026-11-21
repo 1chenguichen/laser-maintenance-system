@@ -63,7 +63,7 @@ class _OrderDetailState extends State<OrderDetail> {
     if (['quote', 'complete'].contains(action)) {
       final success = await Navigator.push<bool>(
         context,
-        MaterialPageRoute(
+        EngineerRoute(
           builder: (_) => WorkForm(
             order: o,
             action: action,

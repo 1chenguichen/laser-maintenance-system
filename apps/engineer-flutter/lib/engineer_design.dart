@@ -183,6 +183,18 @@ ThemeData engineerTheme() {
   );
 }
 
+class EngineerRoute<T> extends MaterialPageRoute<T> {
+  EngineerRoute({
+    required super.builder,
+    super.settings,
+    super.fullscreenDialog,
+  });
+  @override
+  Duration get transitionDuration => Duration.zero;
+  @override
+  Duration get reverseTransitionDuration => Duration.zero;
+}
+
 class NoPageTransition extends PageTransitionsBuilder {
   const NoPageTransition();
   @override

@@ -87,7 +87,7 @@ class _EngineerScreenState extends State<EngineerScreen>
 
   Future<void> open(ServiceOrder order) async {
     await Navigator.of(context).push(
-      MaterialPageRoute<void>(
+      EngineerRoute<void>(
         builder: (_) => OrderDetail(store: s, order: order),
       ),
     );
